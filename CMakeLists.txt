@@ -20,6 +20,10 @@ add_compile_definitions(GLM_ENABLE_EXPERIMENTAL)
 set(GLM_INCLDUE_DIR            "./Vendor/glm")
 set(GLFW_INCLDUE_DIR           "./Vendor/glfw-3.4/include")
 
+## __Vulkan  DO NOT REMOVE THIS LINE IT IS VERY IMPORTANT FOR VULKAN LIBRARY MANAGEMENT
+set(GLFW_VULKAN_INCLUDE_DIR    "C:/VulkanSDK/1.3.261.1")
+
+
 add_library(EngineLib STATIC ${ENGINE_SOURCE_FILES} ${ENGINE_HEADER_FILES})
 set_target_properties(EngineLib PROPERTIES LINKER_LANGUAGE CXX)
 
