@@ -30,7 +30,7 @@ filedata = ""
 path = re.sub(r"\\","/",path)
 
 print(f"{Fore.BLUE}Replacing VulkanSDK path in CMakeLists.txt{Style.RESET_ALL}")
-with open('CMakeLists.txt', 'r') as file :
+with open('../CMakeLists.txt', 'r') as file :
     found = False
     for line in file:
         if(found):
@@ -41,7 +41,7 @@ with open('CMakeLists.txt', 'r') as file :
         if(line.strip().startswith("## __Vulkan")):
             found = True
 
-with open('CMakeLists.txt', 'w') as file :
+with open('../CMakeLists.txt', 'w') as file :
     file.write(filedata)
 
 # Done
