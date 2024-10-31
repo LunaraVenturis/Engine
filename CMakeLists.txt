@@ -21,7 +21,8 @@ set(GLM_INCLDUE_DIR            "./Vendor/glm")
 set(GLFW_INCLDUE_DIR           "./Vendor/glfw-3.4/include")
 
 ## __Vulkan  DO NOT REMOVE THIS LINE IT IS VERY IMPORTANT FOR VULKAN LIBRARY MANAGEMENT
-set(GLFW_VULKAN_INCLUDE_DIR    "C:/VulkanSDK/1.3.261.1")
+set(GLFW_VULKAN_INCLUDE_DIR    "C:/VulkanSDK/1.3.296.0")
+
 
 
 add_library(EngineLib STATIC ${ENGINE_SOURCE_FILES} ${ENGINE_HEADER_FILES})
