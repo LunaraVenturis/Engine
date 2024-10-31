@@ -1,5 +1,6 @@
 #pragma once
-#include <iostream>
+#include <Core/Core.hpp>
+#include <Core/Timer.hpp>
 
 namespace OurEngine
 {

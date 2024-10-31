@@ -2,6 +2,10 @@ cmake_minimum_required(VERSION 3.20)
 
 project(Engine CXX)
 
+option(ENABLE_VERBOSE_LOG "Enable verbose logging" ON)
+option(ENABLE_DEBUG_LOG "Enable debug log" ON)
+option(ENABLE_MEMORY_DEBUG_LOG "Enable memory debug log" ON)
+
 set(CMAKE_CXX_STANDARD 20)
 message("Compiler Version: ${CMAKE_CXX_COMPILER_VERSION}")
 
@@ -23,8 +27,6 @@ set(GLFW_INCLDUE_DIR           "./Vendor/glfw-3.4/include")
 ## __Vulkan  DO NOT REMOVE THIS LINE IT IS VERY IMPORTANT FOR VULKAN LIBRARY MANAGEMENT
 set(GLFW_VULKAN_INCLUDE_DIR    "C:/VulkanSDK/1.3.296.0")
 
-
-
 add_library(EngineLib STATIC ${ENGINE_SOURCE_FILES} ${ENGINE_HEADER_FILES})
 set_target_properties(EngineLib PROPERTIES LINKER_LANGUAGE CXX)
 
@@ -37,9 +39,21 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     target_compile_options(EngineLib PRIVATE -Wall)
     target_compile_options(EngineLib PRIVATE -pedantic)
 endif()
+
+if(ENABLE_VERBOSE_LOG)
+    add_compile_definitions(EngineLib PRIVATE ENGINE_ENABLE_VERBOSE_LOG)
+endif()
+
+if(ENABLE_DEBUG_LOG)
+    add_compile_definitions(EngineLib PRIVATE ENGINE_ENABLE_DEBUG_LOG)
+endif()
+
+if(ENABLE_MEMORY_DEBUG_LOG)
+    add_compile_definitions(EngineLib PRIVATE ENGINE_ENABLE_MEMORY_DEBUG_LOG)
+endif()
+
 if (WIN32)
     target_compile_definitions(EngineLib PRIVATE GLFW_EXPOSE_NATIVE_WIN32)
-    
 else ()
     find_package(X11 REQUIRED)
     link_libraries(${X11_LIBRARIES})
