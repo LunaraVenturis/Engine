@@ -8,7 +8,7 @@ namespace OurEngine
 {
     inline static void InitEngine() 
     { 
-        Window window;
+        Window window(800, 600, "Engine");
     }
     
 }// namespace OurEngine
