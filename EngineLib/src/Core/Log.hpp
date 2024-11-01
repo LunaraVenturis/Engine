@@ -56,7 +56,7 @@ namespace Engine
 #define LOG(...) printf_s(__VA_ARGS__)
 
 template <typename... Args>
-inline static constexpr void LOG_INFO(const char* format, Args... args)
+inline static void LOG_INFO(const char* format, Args... args)
 {
 #ifdef ENGINE_ENABLE_VERBOSE_LOG
     LOG("[INFO] ");
@@ -64,8 +64,17 @@ inline static constexpr void LOG_INFO(const char* format, Args... args)
 #endif
 }
 
+template <typename T>
+inline static void LOG_INFO(const T* format)
+{
+#ifdef ENGINE_ENABLE_VERBOSE_LOG
+    LOG("[INFO] ");
+    LOG("%s", format);
+#endif
+}
+
 template <typename... Args>
-inline static constexpr void LOG_DEBUG(const char* format, Args... args)
+inline static void LOG_DEBUG(const char* format, Args... args)
 {
 #ifdef ENGINE_ENABLE_DEBUG_LOG
     LOG("[DEBUG] ");
@@ -73,26 +82,60 @@ inline static constexpr void LOG_DEBUG(const char* format, Args... args)
 #endif
 }
 
+inline static void LOG_DEBUG(const char* format)
+{
+#ifdef ENGINE_ENABLE_DEBUG_LOG
+    LOG("[DEBUG] ");
+    LOG(format);
+#endif
+}
+
 template <typename... Args>
-inline static constexpr void LOG_ERROR(const char* format, Args... args)
+inline static void LOG_ERROR(const char* format, Args... args)
 {
     LOG("[ERROR] ");
     LOG(format, args...);
 }
 
+inline static void LOG_ERROR(std::string_view format)
+{
+    LOG("[ERROR] ");
+    LOG(format.data());
+}
+
+inline static void LOG_ERROR(const std::string& format)
+{
+    LOG("[ERROR] ");
+    LOG(format.c_str());
+}
+
 template <typename... Args>
-inline static constexpr void LOG_WARNING(const char* format, Args... args)
+inline static void LOG_WARNING(const char* format, Args... args)
 {
     LOG("[WARNING] ");
     LOG(format, args...);
 }
 
+inline static void LOG_WARNING(const char* format)
+{
+    LOG("[WARNING] ");
+    LOG(format);
+}
+
 template <typename... Args>
-inline static constexpr void LOG_MEMORY_ALLOC(const char* format, Args... args)
+inline static void LOG_MEMORY_ALLOC(const char* format, Args... args)
 {
 #ifdef ENGINE_ENABLE_MEMORY_DEBUG_LOG
     LOG("[MEMORY] ");
     LOG(format, args...);
+#endif
+}
+
+inline static void LOG_MEMORY_ALLOC(const char* format)
+{
+#ifdef ENGINE_ENABLE_MEMORY_DEBUG_LOG
+    LOG("[MEMORY] ");
+    LOG(format);
 #endif
 }
 

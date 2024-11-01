@@ -1,0 +1,4 @@
+[submodule "shaderc"]
+    path = Vendor/shaderc
+    url = https://github.com/google/shaderc.git
+    branch = known-good
