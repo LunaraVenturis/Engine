@@ -13,6 +13,14 @@ set(SPIRV_SKIP_TESTS  ON CACHE BOOL "" FORCE)
 set(SPIRV_TOOL_SKIP_INSTALL  ON CACHE BOOL "" FORCE)
 set(SPIRV_TOOLS_BUILD_STATIC  ON CACHE BOOL "" FORCE)
 
+if(MSVC)
+    add_compile_options(
+        $<$<CONFIG:>:/MT>
+        $<$<CONFIG:Debug>:/MTd> 
+        $<$<CONFIG:Release>:/MT>
+    )
+endif()
+
 set(CMAKE_CXX_STANDARD 23)
 message("Compiler Version: ${CMAKE_CXX_COMPILER_VERSION}")
 
@@ -78,6 +86,7 @@ endif()
 if (WIN32)
     target_compile_definitions(EngineLib PRIVATE GLFW_EXPOSE_NATIVE_WIN32)
     target_compile_definitions(EngineLib PRIVATE VK_USE_PLATFORM_WIN32_KHR)
+
 else ()
     find_package(X11 REQUIRED)
     link_libraries(${X11_LIBRARIES})
@@ -98,9 +107,9 @@ target_link_libraries(EngineInterfaceLibrary INTERFACE
         shaderc
         glfw
         )
-target_link_libraries(EngineLib PUBLIC EngineInterfaceLibrary)
+target_link_libraries(EngineLib PRIVATE EngineInterfaceLibrary)
 
 add_executable(Sandbox ${SANDBOX_HEADER_FILES} ${SANDBOX_SOURCE_FILES})
 target_include_directories(Sandbox PRIVATE "${CMAKE_SOURCE_DIR}/EngineLib/src")
 target_include_directories(Sandbox PRIVATE "${CMAKE_SOURCE_DIR}/Sandbox/src")
-target_link_libraries(Sandbox EngineLib)
+target_link_libraries(Sandbox PRIVATE EngineInterfaceLibrary EngineLib)

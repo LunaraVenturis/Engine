@@ -14,6 +14,7 @@
 /***********************************************************************************************************************
 Includes
 ***********************************************************************************************************************/
+#include <Platform/WindowInstance.hpp>
 #include "VulkanContext.hpp"
 #include "DebugMessanger.hpp"
 #include "Window.hpp"
@@ -23,6 +24,7 @@ Includes
 #include <Renderer/Shader.hpp>
 
 #include <shaderc/shaderc.hpp>
+
 
 #include <algorithm>
 #include <ranges>
