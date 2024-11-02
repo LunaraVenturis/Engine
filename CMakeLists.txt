@@ -43,8 +43,12 @@ add_compile_definitions(GLM_ENABLE_EXPERIMENTAL)
 set(GLM_INCLDUE_DIR            "./Vendor/glm")
 set(GLFW_INCLDUE_DIR           "./Vendor/glfw-3.4/include")
 set(SHADERC_INCLUDE_DIR        "./Vendor/shaderc/libshaderc/include")
-## __Vulkan  DO NOT REMOVE THIS LINE IT IS VERY IMPORTANT FOR VULKAN LIBRARY MANAGEMENT
+
+## __VulkanInclude  DO NOT REMOVE THIS LINE IT IS VERY IMPORTANT FOR VULKAN LIBRARY MANAGEMENT
 set(VULKAN_INCLUDE_DIR    "C:/VulkanSDK/1.3.261.1/Include")
+## __LibVulkan  DO NOT REMOVE THIS LINE IT IS VERY IMPORTANT FOR VULKAN LIBRARY MANAGEMENT
+set(VULKAN_LIBRARY "C:/VulkanSDK/1.3.261.1/Lib/vulkan-1.lib")
+
 
 add_library(EngineLib STATIC ${ENGINE_SOURCE_FILES} ${ENGINE_HEADER_FILES})
 set_target_properties(EngineLib PROPERTIES LINKER_LANGUAGE CXX)
@@ -73,6 +77,7 @@ endif()
 
 if (WIN32)
     target_compile_definitions(EngineLib PRIVATE GLFW_EXPOSE_NATIVE_WIN32)
+    target_compile_definitions(EngineLib PRIVATE VK_USE_PLATFORM_WIN32_KHR)
 else ()
     find_package(X11 REQUIRED)
     link_libraries(${X11_LIBRARIES})
@@ -89,7 +94,7 @@ target_include_directories(EngineLib PUBLIC ${SHADERC_INCLUDE_DIR})
 add_library(EngineInterfaceLibrary INTERFACE)
 
 target_link_libraries(EngineInterfaceLibrary INTERFACE
-        C:/VulkanSDK/1.3.261.1/Lib/vulkan-1.lib
+        ${VULKAN_LIBRARY}
         shaderc
         glfw
         )

@@ -5,7 +5,7 @@
 class SandboxLayer: public Engine::Layer
 {
 public:
-    SandboxLayer() = default;
+    SandboxLayer() { p_Name = "Sandbox Layer"; };
 
     virtual void Init() override {}
 

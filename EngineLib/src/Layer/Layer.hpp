@@ -34,7 +34,9 @@ namespace Engine
         void SetShouldExit(bool value);
 
     private:
-        std::string_view m_Name;
         bool m_ShouldExit;
+
+    protected:
+        std::string_view p_Name;
     };
 }// namespace Engine

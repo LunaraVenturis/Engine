@@ -30,15 +30,22 @@ path = re.sub(r"\\","/",path)
 
 print(f"{Fore.BLUE}Replacing VulkanSDK path in CMakeLists.txt{Style.RESET_ALL}")
 with open('CMakeLists.txt', 'r') as file :
-    found = False
+    foundInclude = False
+    foundLib = False
     for line in file:
-        if(found):
-            filedata += "set(VULKAN_INCLUDE_DIR    \"" + path.strip() + "/Include\")"
-            found = False
+        if(foundInclude):
+            filedata += "set(VULKAN_INCLUDE_DIR    \"" + path.strip() + "/Include\")\n"
+            foundInclude = False
+        elif(foundLib):
+            filedata += f"set(VULKAN_LIBRARY \"{path.strip()}/Lib/vulkan-1.lib\")\n"
+            foundLib = False
         else:
             filedata += line
-        if(line.strip().startswith("## __Vulkan")):
-            found = True
+
+        if(line.strip().startswith("## __VulkanInclude")):
+            foundInclude = True
+        elif(line.strip().startswith("## __LibVulkan")):
+            foundLib = True
 
 with open('CMakeLists.txt', 'w') as file :
     file.write(filedata)

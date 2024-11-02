@@ -191,8 +191,12 @@ namespace Engine
         instanceCreateInfo.enabledExtensionCount = extensions.size();
         instanceCreateInfo.ppEnabledExtensionNames = extensions.data();
 
-        vkCreateInstance(&instanceCreateInfo, nullptr, &VulkanContext::Get()->m_Instance);
-
+        auto instanceResult = vkCreateInstance(&instanceCreateInfo, nullptr, &VulkanContext::Get()->m_Instance);
+        if (VK_SUCCESS != instanceResult)
+        {
+            LOG_ERROR("Can Not Create Vulkan Instance!\n");
+            return ResultValueType<VulkanInstanceStatus>(VulkanInstanceStatus::Fail);
+        }
         return ResultValueType<VulkanInstanceStatus>(VulkanInstanceStatus::Created);
     }
 
@@ -429,7 +433,6 @@ namespace Engine
             LOG_ERROR("Can Not Retrieve Swapchain Images!\n");
             return {VulkanSwapchainStatus::Fail};
         }
-
         for (uint32_t index = 0; index < m_Images.size(); index++)
         {
             VkImageViewCreateInfo imageviewCreateInfo = {};
@@ -437,9 +440,19 @@ namespace Engine
             imageviewCreateInfo.image = m_Images[index];
             imageviewCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
             imageviewCreateInfo.format = m_Format;
-            imageviewCreateInfo.subresourceRange = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1};
+            imageviewCreateInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+            imageviewCreateInfo.subresourceRange.levelCount = 1;
+            imageviewCreateInfo.subresourceRange.layerCount = 1;
+            imageviewCreateInfo.subresourceRange.baseMipLevel = 0;
+            imageviewCreateInfo.subresourceRange.baseArrayLayer = 0;
 
-            auto viewStatus = vkCreateImageView(m_Device, &imageviewCreateInfo, nullptr, &m_ImageViews[index]);
+            imageviewCreateInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
+            imageviewCreateInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
+            imageviewCreateInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
+            imageviewCreateInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
+
+            m_ImageViews.push_back(VK_NULL_HANDLE);
+            auto viewStatus = vkCreateImageView(m_Device, &imageviewCreateInfo, nullptr, &m_ImageViews.back());
             if (VK_SUCCESS != viewStatus)
             {
                 LOG_ERROR("Can Not Create Image Views!\n");

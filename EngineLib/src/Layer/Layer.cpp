@@ -2,9 +2,9 @@
 
 namespace Engine
 {
-    std::string_view Layer::GetName() { return m_Name; }
+    std::string_view Layer::GetName() { return p_Name; }
 
-    std::string_view Layer::GetName() const { return m_Name; }
+    std::string_view Layer::GetName() const { return p_Name; }
 
     bool Layer::ShouldExit() { return m_ShouldExit; }
 

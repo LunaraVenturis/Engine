@@ -41,13 +41,12 @@ namespace Engine
         WindowStatus status = WindowStatus::Fail;
 
 #ifdef VK_USE_PLATFORM_WIN32_KHR
-        auto resultValue = instance.createWin32SurfaceKHR(
-                VkWin32SurfaceCreateInfoKHR({}, GetModuleHandle(NULL), glfwGetWin32Window(m_WindowPtr)));
-        if (VK_SUCCESS == resultValue.result)
-        {
-            status = WindowStatus::Surface_Created;
-            m_Surface = resultValue.value;
-        }
+        VkWin32SurfaceCreateInfoKHR createInfo = {};
+        createInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
+        createInfo.hwnd = glfwGetWin32Window(m_WindowPtr);
+        createInfo.hinstance = GetModuleHandle(NULL);
+        auto resultValue = vkCreateWin32SurfaceKHR(instance, &createInfo, nullptr, &m_Surface);
+        if (VK_SUCCESS == resultValue) { status = WindowStatus::Surface_Created; }
 #else
         LOG_ERROR("Non Windows platforms not supported at the moment!\n");
 #endif
