@@ -10,10 +10,10 @@
 
 #include <Layer/LayerStack.hpp>
 #include <Core/Log.hpp>
+#include <Core/Allocator.hpp>
 #include <Renderer/Renderer.hpp>
 
 #include "Application.hpp"
-#include <concepts>
 
 Engine::Application* Engine::Application::s_Application = nullptr;
 
@@ -39,7 +39,7 @@ namespace Engine
     {
         if (nullptr == Application::s_Application)
         {
-            Application::s_Application = new Application();
+            Application::s_Application = Allocator::Allocate<Application>();
             Application::s_Application->m_ApplicationSpec = applicationSpec;
 
             LOG_INFO("Application initialized!\n");
@@ -63,7 +63,7 @@ namespace Engine
 
             Renderer<>::Destroy();
 
-            delete Application::s_Application;
+            Allocator::Deallocate(Application::s_Application);
             LOG_INFO("Application destroyed!\n");
         }
     }

@@ -10,10 +10,14 @@ namespace Engine
         ~Allocator() = default;
 
     public:
-        Allocator* GetInstance() { return this; }
-
         template <typename T, typename... Args>
         static T* Allocate(Args&&... args);
+
+        template <typename T, size_t size>
+        static T* AllocateN();
+
+        template <typename T>
+        static T* AllocateN(size_t size);
 
         template <typename T, size_t size = sizeof(T)>
         static void AddToAllocatedMemory(T* instance = nullptr);
