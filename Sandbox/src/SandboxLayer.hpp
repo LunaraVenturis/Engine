@@ -7,7 +7,13 @@ class SandboxLayer: public Engine::Layer
 public:
     SandboxLayer() { p_Name = "Sandbox Layer"; };
 
-    virtual void Init() override {}
+    virtual void Init() override
+    {
+
+        uint8_t data[] = {1, 3, 5, 7, 9, 11, 13, 15};
+        Engine::Buffer b(data, sizeof(data));
+        Engine::Buffer c = Engine::Buffer::Copy(data, sizeof(data));
+    }
 
     void Destroy() override {}
 
