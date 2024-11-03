@@ -4,6 +4,7 @@
 #include <atomic>
 
 #include <Core/Core.hpp>
+#include <Core/Allocator.hpp>
 
 class RefCounted
 {

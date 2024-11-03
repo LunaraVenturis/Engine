@@ -13,6 +13,7 @@
  */
 
 #include <expected>
+#include <vector>
 
 #include <vulkan/vulkan.h>
 

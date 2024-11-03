@@ -75,7 +75,6 @@ namespace Engine
 
     ResultValue<WindowStatus, Window*> Window::Create(RendererSpec& rendererSpec)
     {
-        auto window = Allocator::Allocate<Window>();
         Window* window = new Window();
         auto result = window->Init(rendererSpec);
 
