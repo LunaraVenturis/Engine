@@ -19,7 +19,7 @@ namespace Engine
 {
     struct EngineInfo {
         std::string Name = "Engine";
-        uint32_t Version = 1.0;
+        uint32_t Version = 0.1;
     };
 
     const inline EngineInfo ENGINE_INFO;

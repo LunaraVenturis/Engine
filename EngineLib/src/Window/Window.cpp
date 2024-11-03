@@ -46,7 +46,7 @@ Window::Window(i32 w, i32 h, const char* name) noexcept : width(w), height(h)
         return;
     }
     ShowWindow(hwnd, SW_SHOWDEFAULT);
- //   pGfx = std::make_unique<Graphics>(hwnd, width, height);
+    //   pGfx = std::make_unique<Graphics>(hwnd, width, height);
 }
 
 Window::~Window() { DestroyWindow(hwnd); }
@@ -78,22 +78,19 @@ LRESULT Window::HandleMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
     switch (msg)
     {
         case WM_CLOSE:
-            if (MessageBox(hwnd, "Do you really want to close?", "Engine", MB_OKCANCEL) == IDOK)
-            {
-                PostQuitMessage(0);
-            }
+            if (MessageBox(hwnd, "Do you really want to close?", "Engine", MB_OKCANCEL) == IDOK) { PostQuitMessage(0); }
             break;
         case WM_KILLFOCUS:
-           // kbd.ClearState();
+            // kbd.ClearState();
             break;
         case WM_KEYDOWN:
-          //  kbd.onKeyPressed(static_cast<u8>(wParam));
+            //  kbd.onKeyPressed(static_cast<u8>(wParam));
             break;
         case WM_KEYUP:
-          //  kbd.onKeyReleased(static_cast<u8>(wParam));
+            //  kbd.onKeyReleased(static_cast<u8>(wParam));
             break;
         case WM_CHAR:
-          //  kbd.onChar(static_cast<u8>(wParam));
+            //  kbd.onChar(static_cast<u8>(wParam));
             break;
         case WM_PAINT:
             /*

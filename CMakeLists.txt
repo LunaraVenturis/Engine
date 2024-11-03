@@ -27,15 +27,6 @@ message("Compiler Version: ${CMAKE_CXX_COMPILER_VERSION}")
 message("${PROJECT_NAME}: Adding glfw...")
 add_subdirectory("${CMAKE_SOURCE_DIR}/Vendor/glfw-3.4")
 
-# message("${PROJECT_NAME}: Adding SPIRV-Headers...")
-# add_subdirectory("${CMAKE_SOURCE_DIR}/Vendor/shaderc/third_party/spirv-headers")
-
-# message("${PROJECT_NAME}: Adding SPIRV-Tools...")
-# add_subdirectory("${CMAKE_SOURCE_DIR}/Vendor/shaderc/third_party/spirv-tools")
-
-# message("${PROJECT_NAME}: Adding glslang...")
-# add_subdirectory("${CMAKE_SOURCE_DIR}/Vendor/shaderc/third_party/glslang")
-
 message("${PROJECT_NAME}: Adding shaderc")
 add_subdirectory("${CMAKE_SOURCE_DIR}/Vendor/shaderc")
 
@@ -53,9 +44,9 @@ set(GLFW_INCLDUE_DIR           "./Vendor/glfw-3.4/include")
 set(SHADERC_INCLUDE_DIR        "./Vendor/shaderc/libshaderc/include")
 
 ## __VulkanInclude  DO NOT REMOVE THIS LINE IT IS VERY IMPORTANT FOR VULKAN LIBRARY MANAGEMENT
-set(VULKAN_INCLUDE_DIR         "C:/VulkanSDK/1.3.261.1/Include")
+set(VULKAN_INCLUDE_DIR    "C:/VulkanSDK/1.3.261.1/Include")
 ## __LibVulkan  DO NOT REMOVE THIS LINE IT IS VERY IMPORTANT FOR VULKAN LIBRARY MANAGEMENT
-set(VULKAN_LIBRARY             "C:/VulkanSDK/1.3.261.1/Lib/vulkan-1.lib")
+set(VULKAN_LIBRARY "C:/VulkanSDK/1.3.261.1/Lib/vulkan-1.lib")
 
 
 add_library(EngineLib STATIC ${ENGINE_SOURCE_FILES} ${ENGINE_HEADER_FILES})
@@ -86,7 +77,9 @@ endif()
 if (WIN32)
     target_compile_definitions(EngineLib PRIVATE GLFW_EXPOSE_NATIVE_WIN32)
     target_compile_definitions(EngineLib PRIVATE VK_USE_PLATFORM_WIN32_KHR)
-
+    if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+        target_compile_definitions(EngineLib PRIVATE WIN32_ENGINE_USE_GNU)
+    endif()
 else ()
     find_package(X11 REQUIRED)
     link_libraries(${X11_LIBRARIES})
