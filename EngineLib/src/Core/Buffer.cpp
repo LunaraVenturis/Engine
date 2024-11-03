@@ -4,60 +4,13 @@
  * @brief 
  * @version 1.0
  * @date 
- * 
- * @section LICENSE
- * MIT License
- * 
- * Copyright (c) 2024 Christian and Krusto
- * 
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- * 
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- * 
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- * 
  * @section DESCRIPTION
  * 
  * Buffer class implementation
  */
 
-
-/***********************************************************************************************************************
-Includes
-***********************************************************************************************************************/
 #include "Buffer.hpp"
-
-/***********************************************************************************************************************
-Macro definitions
-***********************************************************************************************************************/
-
-/***********************************************************************************************************************
-Type definitions
-***********************************************************************************************************************/
-
-/***********************************************************************************************************************
-Static variables
-***********************************************************************************************************************/
-
-/***********************************************************************************************************************
-Static function Prototypes
-***********************************************************************************************************************/
-
-/***********************************************************************************************************************
-Buffer Class Implementation
-***********************************************************************************************************************/
+#include <Core/Allocator.hpp>
 
 namespace Engine
 {
@@ -74,7 +27,7 @@ namespace Engine
 
     Buffer::~Buffer()
     {
-        if (Data) delete[] Data;
+        if (Data) Allocator::DeallocateArray(Data);
     }
 
     Buffer Buffer::Copy(const uint8_t* data, uint32_t size)
@@ -87,28 +40,31 @@ namespace Engine
 
     void Buffer::Allocate(uint32_t size)
     {
-        if (Data) { delete[] Data; }
+        if (Data) { Allocator::DeallocateArray(Data); }
         Data = nullptr;
 
         if (size == 0) return;
 
-        Data = new uint8_t[size];
+        Data = Allocator::AllocateArray<uint8_t>(size);
         Size = size;
     }
 
     void Buffer::Release()
     {
-        delete[] Data;
+        Allocator::DeallocateArray(Data);
         Data = nullptr;
         Size = 0;
     }
 
-    void Buffer::ZeroInitialize() {}
+    void Buffer::ZeroInitialize()
+    {
+        for (size_t i = 0; i < Size; i++) { Data[i] = 0; }
+    }
 
     uint8_t* Buffer::ReadBytes(uint32_t size, uint32_t offset)
     {
         assert(offset + size <= Size);
-        uint8_t* buffer = new uint8_t[size];
+        uint8_t* buffer = Allocator::AllocateArray<uint8_t>(size);
         memcpy(buffer, (uint8_t*) Data + offset, size);
         return buffer;
     }

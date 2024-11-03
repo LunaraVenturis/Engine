@@ -15,7 +15,7 @@ namespace Engine
         static T* Allocate(Args&&... args);
 
         template <typename T>
-        static T* AllocateN(const size_t size);
+        static T* AllocateArray(const size_t size);
 
         template <typename T, size_t size = sizeof(T)>
         static void AddToAllocatedMemory(T* instance = nullptr);
@@ -24,7 +24,13 @@ namespace Engine
         static void Deallocate(T* instance);
 
         template <typename T>
+        static void DeallocateArray(T* instance);
+
+        template <typename T>
         static bool IsLive(T* instance);
+
+        template <typename T>
+        static size_t Copy(T* destination, T* source, size_t size);
 
     private:
         inline static size_t s_AllocatedMemorySize{};
