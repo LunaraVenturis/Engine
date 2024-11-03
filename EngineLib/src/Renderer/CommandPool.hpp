@@ -13,11 +13,11 @@
  */
 
 #include <expected>
+#include <vector>
 
 #include <vulkan/vulkan.h>
 
-#include <Core/Result.hpp>
-#include <Core/Error.hpp>
+#include <Core/Core.hpp>
 
 namespace Engine
 {
@@ -62,7 +62,7 @@ namespace Engine
         static std::expected<CommandPoolState, ErrorStatus> Destroy(CommandPool* pCommandPool);
 
     public:
-        operator VkCommandPool() const { return m_VkCommandPool; }
+        operator VkCommandPool() const;
 
     private:
         void Destroy();

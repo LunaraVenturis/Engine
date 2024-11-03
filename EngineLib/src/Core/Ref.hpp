@@ -3,11 +3,9 @@
 #include <mutex>
 #include <atomic>
 
+#include <Core/Core.hpp>
 #include <Core/Allocator.hpp>
-#include <Core/Log.hpp>
-#ifdef __GNUC__
-#include <cxxabi.h>// GCC / Clang only
-#endif
+
 class RefCounted
 {
 public:

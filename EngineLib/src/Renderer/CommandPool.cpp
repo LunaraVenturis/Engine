@@ -59,6 +59,8 @@ namespace Engine
         return std::unexpected(ErrorStatus::Fail);
     }
 
+    CommandPool::operator VkCommandPool() const { return m_VkCommandPool; }
+
     void CommandPool::Destroy() { vkDestroyCommandPool(m_VkDevice, m_VkCommandPool, nullptr); }
 
     auto CommandPool::CreateCommandBuffer() -> std::expected<CommandBufferState, ErrorStatus>

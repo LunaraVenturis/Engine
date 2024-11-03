@@ -51,7 +51,7 @@ namespace Engine
         ResultValueType<WindowStatus> CreateSurface(VkInstance instance);
         ResultValueType<WindowStatus> DestroySurface(VkInstance instance);
         ResultValue<WindowStatus, VkSurfaceKHR> GetSurface();
-        
+
     public:
         static ResultValue<WindowStatus, Window*> Create(RendererSpec& rendererSpec);
         static ResultValueType<WindowStatus> Destroy(Window* window);

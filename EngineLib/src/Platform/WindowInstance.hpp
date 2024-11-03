@@ -1,6 +1,6 @@
 #pragma once
 
-
+#ifndef WIN32_ENGINE_USE_GNU
 
 #define WIN32_LEAN_AND_MEAN
 #define NOGDICAPMASKS
@@ -38,5 +38,6 @@
 #define NOMINMAX
 #define STRICT
 
+#endif
 
 #include <Windows.h>
