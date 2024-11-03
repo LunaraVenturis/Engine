@@ -16,8 +16,8 @@ namespace Engine
         return ptr;
     }
 
-    template <typename T, size_t size>
-    inline T* Allocator::AllocateN()
+    template <typename T>
+    inline T* Allocator::AllocateN(size_t size)
     {
         auto ptr = new T[size];
         LOG_MEMORY_ALLOC("Allocated %ziB\n", sizeof(T));
@@ -25,12 +25,6 @@ namespace Engine
         s_AllocatedMemorySize += sizeof(T);
         s_AllocatedMemory[ptr] = sizeof(T);
         return ptr;
-    }
-
-    template <typename T>
-    inline T* Allocator::AllocateN(size_t size)
-    {
-        return Allocator<T, size>::AllocateN();
     }
 
     template <typename T, size_t size>
