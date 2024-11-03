@@ -1,13 +1,16 @@
-#define ENGINE_VERBOSE_OUTPUT
-#define ENGINE_MEMORY_DEBUG_OUTPUT
-#include <OurEngine.hpp>
-#include <cstdint>
-
-
+#include "SandboxLayer.hpp"
+#include <Engine.hpp>
 
 int main()
 {
-    OurEngine::InitEngine();
+    Engine::Application::Init(Engine::ApplicationSpec{.ApplicationName = "Sandbox Application",
+                                                      .WorkingDirectory = std::filesystem::current_path(),
+                                                      .StartupWidth = 1280,
+                                                      .StartupHeight = 720});
+    Engine::Application::AddLayer<SandboxLayer>();
 
+    Engine::Application::Run();
+
+    Engine::Application::Destroy();
     return 0;
 }

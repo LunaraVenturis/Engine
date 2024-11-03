@@ -1,6 +1,7 @@
 #pragma once
 #include <Core/Allocator.hpp>
 #include <Core/Log.hpp>
+#include "Allocator.hpp"
 
 namespace Engine
 {
@@ -8,6 +9,17 @@ namespace Engine
     T* Allocator::Allocate(Args&&... args)
     {
         auto ptr = new T(std::forward<Args>(args)...);
+        LOG_MEMORY_ALLOC("Allocated %ziB\n", sizeof(T));
+
+        s_AllocatedMemorySize += sizeof(T);
+        s_AllocatedMemory[ptr] = sizeof(T);
+        return ptr;
+    }
+
+    template <typename T>
+    inline T* Allocator::AllocateN(size_t size)
+    {
+        auto ptr = new T[size];
         LOG_MEMORY_ALLOC("Allocated %ziB\n", sizeof(T));
 
         s_AllocatedMemorySize += sizeof(T);
