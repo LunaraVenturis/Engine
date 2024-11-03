@@ -14,11 +14,11 @@ set(SPIRV_TOOL_SKIP_INSTALL  ON CACHE BOOL "" FORCE)
 set(SPIRV_TOOLS_BUILD_STATIC  ON CACHE BOOL "" FORCE)
 
 if(MSVC)
-    add_compile_options(
-        $<$<CONFIG:>:/MT>
-        $<$<CONFIG:Debug>:/MTd> 
-        $<$<CONFIG:Release>:/MT>
-    )
+    include("vsconfig.cmake")
+else()
+    function(filter_targets)
+        
+    endfunction()
 endif()
 
 set(CMAKE_CXX_STANDARD 23)
@@ -26,15 +26,6 @@ message("Compiler Version: ${CMAKE_CXX_COMPILER_VERSION}")
 
 message("${PROJECT_NAME}: Adding glfw...")
 add_subdirectory("${CMAKE_SOURCE_DIR}/Vendor/glfw-3.4")
-
-# message("${PROJECT_NAME}: Adding SPIRV-Headers...")
-# add_subdirectory("${CMAKE_SOURCE_DIR}/Vendor/shaderc/third_party/spirv-headers")
-
-# message("${PROJECT_NAME}: Adding SPIRV-Tools...")
-# add_subdirectory("${CMAKE_SOURCE_DIR}/Vendor/shaderc/third_party/spirv-tools")
-
-# message("${PROJECT_NAME}: Adding glslang...")
-# add_subdirectory("${CMAKE_SOURCE_DIR}/Vendor/shaderc/third_party/glslang")
 
 message("${PROJECT_NAME}: Adding shaderc")
 add_subdirectory("${CMAKE_SOURCE_DIR}/Vendor/shaderc")
@@ -53,9 +44,9 @@ set(GLFW_INCLDUE_DIR           "./Vendor/glfw-3.4/include")
 set(SHADERC_INCLUDE_DIR        "./Vendor/shaderc/libshaderc/include")
 
 ## __VulkanInclude  DO NOT REMOVE THIS LINE IT IS VERY IMPORTANT FOR VULKAN LIBRARY MANAGEMENT
-set(VULKAN_INCLUDE_DIR         "C:/VulkanSDK/1.3.261.1/Include")
+set(VULKAN_INCLUDE_DIR    "C:/VulkanSDK/1.3.261.1/Include")
 ## __LibVulkan  DO NOT REMOVE THIS LINE IT IS VERY IMPORTANT FOR VULKAN LIBRARY MANAGEMENT
-set(VULKAN_LIBRARY             "C:/VulkanSDK/1.3.261.1/Lib/vulkan-1.lib")
+set(VULKAN_LIBRARY "C:/VulkanSDK/1.3.261.1/Lib/vulkan-1.lib")
 
 
 add_library(EngineLib STATIC ${ENGINE_SOURCE_FILES} ${ENGINE_HEADER_FILES})
@@ -113,3 +104,5 @@ add_executable(Sandbox ${SANDBOX_HEADER_FILES} ${SANDBOX_SOURCE_FILES})
 target_include_directories(Sandbox PRIVATE "${CMAKE_SOURCE_DIR}/EngineLib/src")
 target_include_directories(Sandbox PRIVATE "${CMAKE_SOURCE_DIR}/Sandbox/src")
 target_link_libraries(Sandbox PRIVATE EngineInterfaceLibrary EngineLib)
+
+filter_targets()
