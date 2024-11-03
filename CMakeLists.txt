@@ -44,9 +44,9 @@ set(GLFW_INCLDUE_DIR           "./Vendor/glfw-3.4/include")
 set(SHADERC_INCLUDE_DIR        "./Vendor/shaderc/libshaderc/include")
 
 ## __VulkanInclude  DO NOT REMOVE THIS LINE IT IS VERY IMPORTANT FOR VULKAN LIBRARY MANAGEMENT
-set(VULKAN_INCLUDE_DIR    "C:/VulkanSDK/1.3.261.1/Include")
+set(VULKAN_INCLUDE_DIR    "C:/VulkanSDK/1.3.296.0/Include")
 ## __LibVulkan  DO NOT REMOVE THIS LINE IT IS VERY IMPORTANT FOR VULKAN LIBRARY MANAGEMENT
-set(VULKAN_LIBRARY "C:/VulkanSDK/1.3.261.1/Lib/vulkan-1.lib")
+set(VULKAN_LIBRARY "C:/VulkanSDK/1.3.296.0/Lib/vulkan-1.lib")
 
 
 add_library(EngineLib STATIC ${ENGINE_SOURCE_FILES} ${ENGINE_HEADER_FILES})

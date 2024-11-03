@@ -28,7 +28,7 @@ namespace Engine
 
         explicit ResultValue(E&& value) : value(value) {}
 
-        ResultValue(T status, E& value) : status(status), value(value) {}
+        ResultValue(T status, const E& value) : status(status), value(value) {}
 
         ResultValue(T status, E&& value) : status(status), value(std::move(value)) {}
 

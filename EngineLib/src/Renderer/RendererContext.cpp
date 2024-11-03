@@ -36,7 +36,7 @@ namespace Engine
         }
 
         auto vkContextResult =
-                VulkanContext::Create(VulkanSpec{rendererSpec, Window::GetRequiredExtensions().value}, result.value);
+                VulkanContext::Create(VulkanSpec{rendererSpec, result.value->GetRequiredExtensions().value}, result.value);
         if (VulkanContextStatus::Created != vkContextResult)
         {
             LOG_ERROR("Could not create Vulkan Context!\n");
