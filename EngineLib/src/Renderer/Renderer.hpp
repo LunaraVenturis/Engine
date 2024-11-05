@@ -52,7 +52,6 @@ namespace Engine
 
     private:
         static Renderer* s_Renderer;
-
     private:
         RendererSpec m_RendererSpec;
     };

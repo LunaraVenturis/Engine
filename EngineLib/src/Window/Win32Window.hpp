@@ -37,7 +37,7 @@ namespace Engine
         static LRESULT CALLBACK HandleMessageSetup(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) noexcept;
         static LRESULT CALLBACK HandleMessageThunk(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) noexcept;
         LRESULT HandleMessage(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) noexcept;
-        static std::optional<i32> ProcessMessages();
+        static void ProcessMessages();
 
     public:
         //  Keyboard kbd;

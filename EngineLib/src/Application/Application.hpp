@@ -10,14 +10,14 @@
  */
 
 #include <filesystem>
-
+#include <types.hpp>
 namespace Engine
 {
     struct ApplicationSpec {
         std::string ApplicationName;
         std::filesystem::path WorkingDirectory;
-        uint32_t StartupWidth;
-        uint32_t StartupHeight;
+        u32 StartupWidth;
+        u32 StartupHeight;
     };
 
     class Application
@@ -41,7 +41,6 @@ namespace Engine
 
     private:
         static Application* s_Application;
-
     private:
         bool m_StoppedFlag{};
         ApplicationSpec m_ApplicationSpec{};

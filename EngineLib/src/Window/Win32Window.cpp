@@ -98,6 +98,7 @@ namespace Engine
 
 
 
+
     Win32Window::~Win32Window() 
     { 
         
@@ -133,6 +134,7 @@ namespace Engine
             case WM_CLOSE:
                 if (MessageBox(hwnd, "Do you really want to close?", "Engine", MB_OKCANCEL) == IDOK)
                 {
+                    s_WindowShouldClose = true;
                     PostQuitMessage(0);
                 }
                 break;
@@ -149,20 +151,24 @@ namespace Engine
                 //  kbd.onChar(static_cast<u8>(wParam));
                 break;
             case WM_PAINT:
+                //onRender; 
+                //onUpdate;
                 break;
         }
         return DefWindowProc(hwnd, msg, wParam, lParam);
     }
 
-    std::optional<i32> Win32Window::ProcessMessages()
+    void Win32Window::ProcessMessages()
     {
         MSG msg = {};
         while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
         {
-            if (msg.message == WM_QUIT) { return msg.wParam; }
+            if (s_WindowShouldClose)
+            { 
+                return;
+            }
             TranslateMessage(&msg);
             DispatchMessage(&msg);
         }
-        return {};
     }
 }// namespace Engine

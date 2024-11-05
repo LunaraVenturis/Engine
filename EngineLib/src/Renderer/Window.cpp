@@ -19,6 +19,11 @@ namespace Engine
 
     Window::~Window() { LOG_INFO("Destroyed Window\n"); }
 
+    void Window::PollEvents() 
+    { 
+        Win32Window::ProcessMessages();
+    }
+
     ResultValue<WindowStatus, Window*> Window::Create(RendererSpec& rendererSpec)
     {
         Window* window = new Win32Window(rendererSpec);

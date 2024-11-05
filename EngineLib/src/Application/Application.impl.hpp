@@ -12,8 +12,9 @@
 #include <Core/Log.hpp>
 #include <Core/Allocator.hpp>
 #include <Renderer/Renderer.hpp>
-
 #include "Application.hpp"
+#include <Window/Win32Window.hpp>
+
 
 Engine::Application* Engine::Application::s_Application = nullptr;
 
@@ -24,14 +25,16 @@ namespace Engine
     {
         LayerStack::InitLayers();
 
-        while (!Application::Get()->m_StoppedFlag)
+        while (!Window::ShouldClose())
         {
             auto& layersStatus = *LayerStack::GetLayers().value;
             for (auto& layer: layersStatus)
             {
                 layer->OnUpdate();
-                Application::Get()->m_StoppedFlag = true;
             }
+          
+            Window::PollEvents();
+
         }
     }
 

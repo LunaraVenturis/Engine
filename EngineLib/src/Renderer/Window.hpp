@@ -19,7 +19,7 @@
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 #include <GLFW/glfw3native.h>
-
+#include <types.hpp>
 #include <Core/Result.hpp>
 #include <Core/Ref.hpp>
 #include <Renderer/RendererSpec.hpp>
@@ -48,11 +48,18 @@ namespace Engine
         virtual ResultValueType<WindowStatus> DestroySurface(VkInstance instance) = 0;
         virtual ResultValue<WindowStatus, VkSurfaceKHR> GetSurface() const = 0;
         virtual ResultValue<bool, std::vector<std::string>> GetRequiredExtensions() = 0;
+
     public:
+        static void PollEvents();
+        static i32 ShouldClose() { return s_WindowShouldClose; }
         static ResultValue<WindowStatus, Window*> Create(RendererSpec& rendererSpec);
         static ResultValueType<WindowStatus> Destroy(Window* window);
+
+    protected:
+        inline static i32 s_WindowShouldClose;
     private:
         RendererSpec m_RendererSpec;
         VkSurfaceKHR m_Surface;
+
     };
 }// namespace Engine
