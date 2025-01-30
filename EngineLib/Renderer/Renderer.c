@@ -36,7 +36,7 @@
 /***********************************************************************************************************************
 Includes
 ***********************************************************************************************************************/
-#include "Memory.h"
+#include "Core/Memory.h"
 #include "Renderer.h"
 #include "Fonts.h"
 #include <SDL3_ttf/SDL_ttf.h>
@@ -119,7 +119,7 @@ void RendererCmdDrawText(RendererCommandDrawText* text)
     RendererPushCommand(RendererCommandType_DrawText, text, sizeof(RendererCommandDrawText));
 }
 
-inline static void RendererPushCommand(RendererCommandType type, void* data, uint32_t size)
+inline static void RendererPushCommand(const RendererCommandType type, void* data, const uint32_t size)
 {
 
     RendererCommandNode* node = malloc(sizeof(RendererCommandNode));
