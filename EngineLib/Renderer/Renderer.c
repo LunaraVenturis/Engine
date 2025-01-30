@@ -60,7 +60,6 @@ Implementation
 
 RendererResultType RendererInit(const char* window_name, uint32_t width, uint32_t height)
 {
-
     g_renderer = (RendererDataType*) malloc(sizeof(RendererDataType));
     g_renderer->width = width;
     g_renderer->height = height;
@@ -115,13 +114,11 @@ void RendererCmdClear(RendererCommandClear* clear)
 
 void RendererCmdDrawText(RendererCommandDrawText* text)
 {
-
     RendererPushCommand(RendererCommandType_DrawText, text, sizeof(RendererCommandDrawText));
 }
 
 inline static void RendererPushCommand(const RendererCommandType type, void* data, const uint32_t size)
 {
-
     RendererCommandNode* node = malloc(sizeof(RendererCommandNode));
     node->type = type;
     node->next = NULL;
