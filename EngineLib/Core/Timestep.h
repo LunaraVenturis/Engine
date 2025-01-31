@@ -1,5 +1,5 @@
-#ifndef Timestep_HEADER
-#define Timestep_HEADER
+#ifndef TIMESTEP_HEADER
+#define TIMESTEP_HEADER
 
 /**
  * @file

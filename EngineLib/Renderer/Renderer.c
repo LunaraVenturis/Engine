@@ -75,6 +75,9 @@ RendererResultType RendererInit(const char* window_name, uint32_t width, uint32_
     g_renderer->surface = SDL_GetWindowSurface(g_renderer->window);
     if (g_renderer->surface == NULL) { return Renderer_Result_Error; }
 
+    SDL_FRect p = {1280 / 1, 720 / 2, 16, 16};
+    if (!(SDL_RenderFillRect(g_renderer, &p)));
+
     TTF_Init();
 
     return Renderer_Result_Success;

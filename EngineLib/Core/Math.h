@@ -1,5 +1,5 @@
-#ifndef Math_HEADER
-#define Math_HEADER
+#ifndef MATH_HEADER
+#define MATH_HEADER
 
 /**
  * @file
