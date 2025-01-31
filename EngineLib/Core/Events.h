@@ -1,5 +1,5 @@
-#ifndef Events_HEADER
-#define Events_HEADER
+#ifndef EVENTS_HEADER
+#define EVENTS_HEADER
 
 /**
  * @file
