@@ -37,26 +37,30 @@
 #ifndef COLOR_H
 #define COLOR_H
 
-#define COLOR_RED                                                                                                      \
-    Color4 { 1.0f, 0.0f, 0.0f, 1.0f }
-
 #ifdef __cplusplus
 extern "C" {
+namespace LunaraEngine
+{
 #endif
-struct Color4 {
-    float r;
-    float g;
-    float b;
-    float a;
-};
+    struct Color4 {
+        float r;
+        float g;
+        float b;
+        float a;
+    };
 
-struct Color3 {
-    float r;
-    float g;
-    float b;
-};
+    struct Color3 {
+        float r;
+        float g;
+        float b;
+    };
 
 #ifdef __cplusplus
+
+    constexpr Color4 COLOR_RED{1.0f, 0.0f, 0.0f, 1.0f};
 }
+}
+#else
+#define COLOR_RED (Color4{1.0f, 0.0f, 0.0f, 1.0f})
 #endif
 #endif//COLOR_H
