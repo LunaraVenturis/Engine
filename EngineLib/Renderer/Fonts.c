@@ -53,7 +53,7 @@ Functions declarations
 FontResultType LoadFont(const char* name, uint32_t size, Font* font)
 {
 
-    TTF_Font* font_ptr = TTF_OpenFont(name, size);
+    TTF_Font* font_ptr = TTF_OpenFont(name, (float) size);
     if (font_ptr == NULL) { return FONT_RESULT_NOT_FOUND; }
 
     font->name = name;
@@ -86,7 +86,7 @@ inline static void FontAtlasPushFont(FontAtlas* atlas, Font* font)
         atlas->fonts.head = node;
         atlas->fonts.current = node;
     }
-    else { atlas->fonts.current->next = node; }
+    else { atlas->fonts.current->next = (Font*) node; }
     atlas->fonts.current = node;
 }
 
@@ -112,16 +112,16 @@ FontResultType FontAtlasFreeFont(FontAtlas* atlas, const char* name, FontType ty
         if (strcmp(node->data->name, name) == 0 && node->data->type == type)
         {
             FreeFont(node->data);
-            FontNode* tmp = node->next;
+            FontNode* tmp = (FontNode*) node->next;
             free(node);
-            prev->next = tmp;
+            prev->next = (Font*) tmp;
             if (tmp) { node = tmp; }
             return FONT_RESULT_SUCCESS;
         }
         else
         {
             prev = node;
-            node = node->next;
+            node = (FontNode*) node->next;
         }
     }
     return FONT_RESULT_NOT_FOUND;
@@ -133,7 +133,7 @@ Font* FontAtlasGetFont(FontAtlas* atlas, const char* name, FontType type)
     while (node != NULL)
     {
         if (strcmp(node->data->name, name) == 0 && node->data->type == type) { return node->data; }
-        else { node = node->next; }
+        else { node = (FontNode*) node->next; }
     }
     return NULL;
 }

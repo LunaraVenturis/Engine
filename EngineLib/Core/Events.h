@@ -337,17 +337,17 @@ typedef enum
 } MouseButton;
 
 typedef struct {
-    uint32_t x;
-    uint32_t y;
+    float x;
+    float y;
     MouseButtonEventType type;
     MouseButton button;
 } MouseButtonEvent;
 
 typedef struct {
-    uint32_t x;
-    uint32_t y;
-    uint32_t xrel;
-    uint32_t yrel;
+    float x;
+    float y;
+    float xrel;
+    float yrel;
 } MouseMotionEvent;
 
 typedef struct {

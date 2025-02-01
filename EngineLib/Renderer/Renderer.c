@@ -61,11 +61,11 @@ Implementation
 RendererResultType RendererInit(const char* window_name, uint32_t width, uint32_t height)
 {
     g_renderer = (RendererDataType*) malloc(sizeof(RendererDataType));
-    g_renderer->width = width;
-    g_renderer->height = height;
+    g_renderer->width = (float) width;
+    g_renderer->height = (float) height;
     g_renderer->command_stack.head = NULL;
 
-    g_renderer->window = SDL_CreateWindow(window_name, width, height, 0);
+    g_renderer->window = SDL_CreateWindow(window_name, (int) width, (int) height, 0);
     if (g_renderer->window == NULL) { return Renderer_Result_Error; }
 
     g_renderer->renderer = SDL_CreateRenderer(g_renderer->window, NULL);
@@ -74,9 +74,6 @@ RendererResultType RendererInit(const char* window_name, uint32_t width, uint32_
 
     g_renderer->surface = SDL_GetWindowSurface(g_renderer->window);
     if (g_renderer->surface == NULL) { return Renderer_Result_Error; }
-
-    SDL_FRect p = {1280 / 1, 720 / 2, 16, 16};
-    if (!(SDL_RenderFillRect(g_renderer, &p)));
 
     TTF_Init();
 
@@ -160,12 +157,17 @@ inline static void HandleNode(RendererCommandNode* node)
         }
         case RendererCommandType_DrawTexture: {
             RendererCommandDrawTexture* cmd = (RendererCommandDrawTexture*) node->data;
-            SDL_FRect rect;
-            rect.x = cmd->x;
-            rect.y = cmd->y;
-            rect.w = cmd->texture->info.width;
-            rect.h = cmd->texture->info.height;
-            SDL_RenderTexture(g_renderer->renderer, (SDL_Texture*) cmd->texture->data, NULL, NULL);
+            SDL_FRect srcrect;
+            srcrect.x = cmd->x;
+            srcrect.y = cmd->y;
+            srcrect.w = cmd->texture->info.width;
+            srcrect.h = cmd->texture->info.height;
+            SDL_FRect dstrect;
+            dstrect.x = cmd->x;
+            dstrect.y = cmd->y;
+            dstrect.w = cmd->texture->info.width;
+            dstrect.h = cmd->texture->info.height;
+            SDL_RenderTexture(g_renderer->renderer, (SDL_Texture*) cmd->texture->data, &srcrect, &dstrect);
             break;
         }
         case RendererCommandType_DrawCircle: {
@@ -200,42 +202,42 @@ inline static void HandleNode(RendererCommandNode* node)
                     dstRect.y = text->y;
                     break;
                 case TextAlign_TopCenter:
-                    dstRect.x = (g_renderer->width / 2.0f - texture->w / 2.0f) + text->x;
+                    dstRect.x = ((float) g_renderer->width / 2.0f - (float) texture->w / 2.0f) + text->x;
                     dstRect.y = text->y;
                     break;
                 case TextAlign_TopRight:
-                    dstRect.x = text->x - (g_renderer->width - texture->w);
+                    dstRect.x = text->x - ((float) g_renderer->width - (float) texture->w);
                     dstRect.y = text->y;
                     break;
                 case TextAlign_Left:
                     dstRect.x = text->x;
-                    dstRect.y = (g_renderer->height / 2.0f - texture->h / 2.0f) + text->y;
+                    dstRect.y = (g_renderer->height / 2.0f - (float) texture->h / 2.0f) + text->y;
                     break;
                 case TextAlign_Center:
-                    dstRect.x = (g_renderer->width / 2.0f - texture->w / 2.0f) + text->x;
-                    dstRect.y = (g_renderer->height / 2.0f - texture->h / 2.0f) + text->y;
+                    dstRect.x = (g_renderer->width / 2.0f - (float) texture->w / 2.0f) + text->x;
+                    dstRect.y = (g_renderer->height / 2.0f - (float) texture->h / 2.0f) + text->y;
                     break;
                 case TextAlign_Right:
-                    dstRect.x = text->x - (g_renderer->width - texture->w);
-                    dstRect.y = (g_renderer->height / 2.0f - texture->h / 2.0f) + text->y;
+                    dstRect.x = text->x - (g_renderer->width - (float) texture->w);
+                    dstRect.y = (g_renderer->height / 2.0f - (float) texture->h / 2.0f) + text->y;
                     break;
                 case TextAlign_BottomLeft:
                     dstRect.x = text->x;
-                    dstRect.y = (g_renderer->height - texture->h) + text->y;
+                    dstRect.y = (g_renderer->height - (float) texture->h) + text->y;
                     break;
                 case TextAlign_BottomCenter:
-                    dstRect.x = (g_renderer->width / 2.0f - texture->w / 2.0f) + text->x;
-                    dstRect.y = (g_renderer->height - texture->h) + text->y;
+                    dstRect.x = (g_renderer->width / 2.0f - (float) texture->w / 2.0f) + text->x;
+                    dstRect.y = (g_renderer->height - (float) texture->h) + text->y;
                     break;
                 case TextAlign_BottomRight:
-                    dstRect.x = text->x - (g_renderer->width - texture->w);
-                    dstRect.y = (g_renderer->height - texture->h) + text->y;
+                    dstRect.x = text->x - (g_renderer->width - (float) texture->w);
+                    dstRect.y = (g_renderer->height - (float) texture->h) + text->y;
                     break;
                 default:
                     break;
             }
-            dstRect.w = texture->w;
-            dstRect.h = texture->h;
+            dstRect.w = (float) texture->w;
+            dstRect.h = (float) texture->h;
             SDL_RenderTexture(g_renderer->renderer, texture, NULL, &dstRect);
             SDL_DestroyTexture(texture);
             SDL_DestroySurface(surface);

@@ -1,6 +1,6 @@
 /**
 * @file
- * @author Neyko Naydenov ( naydenovneyko@gmail.com )
+ * @author Krasto Stoyanov (k.stoianov2@gmail.com)
  * @brief
  * @version 1.0
  * @date
@@ -30,11 +30,24 @@
  *
  * @section DESCRIPTION
  *
- * Player Implementation
+ * Color Declaration
  */
 
-#include "PlayerPaddle.h"
 
-namespace Game
-{
-}// namespace Game
+#ifndef COLOR_H
+#define COLOR_H
+
+struct Color4 {
+    float r;
+    float g;
+    float b;
+    float a;
+};
+
+struct Color3 {
+    float r;
+    float g;
+    float b;
+};
+
+#endif//COLOR_H

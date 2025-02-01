@@ -77,21 +77,21 @@ typedef enum
 } RendererCommandType;
 
 typedef struct {
-    uint32_t x;
-    uint32_t y;
-    uint32_t width;
-    uint32_t height;
-    uint32_t r;
-    uint32_t g;
-    uint32_t b;
-    uint32_t a;
+    float x;
+    float y;
+    float width;
+    float height;
+    uint8_t r;
+    uint8_t g;
+    uint8_t b;
+    uint8_t a;
 } RendererCommandDrawQuad;
 
 typedef struct {
-    uint32_t r;
-    uint32_t g;
-    uint32_t b;
-    uint32_t a;
+    uint8_t r;
+    uint8_t g;
+    uint8_t b;
+    uint8_t a;
 } RendererCommandClear;
 
 typedef enum
@@ -110,29 +110,29 @@ typedef enum
 typedef struct {
     char* text;
     void* font;
-    int32_t x;
-    int32_t y;
-    uint32_t r;
-    uint32_t g;
-    uint32_t b;
-    uint32_t a;
+    float x;
+    float y;
+    uint8_t r;
+    uint8_t g;
+    uint8_t b;
+    uint8_t a;
     RendererTextAlignAttribute align;
 } RendererCommandDrawText;
 
 typedef struct {
-    uint32_t x;
-    uint32_t y;
+    float x;
+    float y;
     Texture* texture;
 } RendererCommandDrawTexture;
 
 typedef struct {
-    uint32_t x;
-    uint32_t y;
-    uint32_t radius;
-    uint32_t r;
-    uint32_t g;
-    uint32_t b;
-    uint32_t a;
+    float x;
+    float y;
+    float radius;
+    uint8_t r;
+    uint8_t g;
+    uint8_t b;
+    uint8_t a;
 } RendererCommandDrawCircle;
 
 typedef struct {
@@ -154,8 +154,8 @@ typedef struct {
     SDL_Window* window;
     SDL_Renderer* renderer;
     SDL_Surface* surface;
-    uint32_t width;
-    uint32_t height;
+    float width;
+    float height;
 } RendererDataType;
 
 /***********************************************************************************************************************
