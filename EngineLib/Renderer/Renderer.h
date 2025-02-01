@@ -83,17 +83,17 @@ Macro definitions
         float y;
         float width;
         float height;
-        uint8_t r;
-        uint8_t g;
-        uint8_t b;
-        uint8_t a;
+        float r;
+        float g;
+        float b;
+        float a;
     } RendererCommandDrawQuad;
 
     typedef struct {
-        uint8_t r;
-        uint8_t g;
-        uint8_t b;
-        uint8_t a;
+        float r;
+        float g;
+        float b;
+        float a;
     } RendererCommandClear;
 
     typedef enum
@@ -114,10 +114,10 @@ Macro definitions
         void* font;
         float x;
         float y;
-        uint8_t r;
-        uint8_t g;
-        uint8_t b;
-        uint8_t a;
+        float r;
+        float g;
+        float b;
+        float a;
         RendererTextAlignAttribute align;
     } RendererCommandDrawText;
 
@@ -131,10 +131,10 @@ Macro definitions
         float x;
         float y;
         float radius;
-        uint8_t r;
-        uint8_t g;
-        uint8_t b;
-        uint8_t a;
+        float r;
+        float g;
+        float b;
+        float a;
     } RendererCommandDrawCircle;
 
     typedef struct {

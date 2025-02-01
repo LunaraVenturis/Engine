@@ -145,7 +145,8 @@ namespace LunaraEngine
         {
             case RendererCommandType_Clear: {
                 RendererCommandClear* clear = (RendererCommandClear*) node->data;
-                SDL_SetRenderDrawColor(g_renderer->renderer, clear->r, clear->g, clear->b, clear->a);
+                SDL_SetRenderDrawColor(g_renderer->renderer, (uint8_t) clear->r * 255, (uint8_t) clear->g * 255,
+                                       (uint8_t) clear->b * 255, (uint8_t) clear->a * 255);
                 SDL_RenderClear(g_renderer->renderer);
                 break;
             }
@@ -156,7 +157,8 @@ namespace LunaraEngine
                 rect.y = quad->y;
                 rect.w = quad->width;
                 rect.h = quad->height;
-                SDL_SetRenderDrawColor(g_renderer->renderer, quad->r, quad->g, quad->b, quad->a);
+                SDL_SetRenderDrawColor(g_renderer->renderer, (uint8_t) quad->r * 255, (uint8_t) quad->g * 255,
+                                       (uint8_t) quad->b * 255, (uint8_t) quad->a * 255);
                 SDL_RenderFillRect(g_renderer->renderer, &rect);
                 break;
             }
@@ -182,17 +184,18 @@ namespace LunaraEngine
                 rect.y = circle->y;
                 rect.w = circle->radius;
                 rect.h = circle->radius;
-                SDL_SetRenderDrawColor(g_renderer->renderer, circle->r, circle->g, circle->b, circle->a);
+                SDL_SetRenderDrawColor(g_renderer->renderer, (uint8_t) circle->r, (uint8_t) circle->g,
+                                       (uint8_t) circle->b, (uint8_t) circle->a);
                 SDL_RenderFillRect(g_renderer->renderer, &rect);
                 break;
             }
             case RendererCommandType_DrawText: {
                 RendererCommandDrawText* text = (RendererCommandDrawText*) node->data;
                 SDL_Color color;
-                color.r = text->r;
-                color.g = text->g;
-                color.b = text->b;
-                color.a = text->a;
+                color.r = (uint8_t) text->r;
+                color.g = (uint8_t) text->g;
+                color.b = (uint8_t) text->b;
+                color.a = (uint8_t) text->a;
                 TTF_Font* font = ((Font*) text->font)->data;
                 SDL_Surface* surface = TTF_RenderText_Blended(font, text->text, strlen(text->text),
                                                               color);// TODO: destroy surface?

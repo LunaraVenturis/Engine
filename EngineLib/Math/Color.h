@@ -37,6 +37,12 @@
 #ifndef COLOR_H
 #define COLOR_H
 
+#define COLOR_RED                                                                                                      \
+    Color4 { 1.0f, 0.0f, 0.0f, 1.0f }
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 struct Color4 {
     float r;
     float g;
@@ -50,4 +56,7 @@ struct Color3 {
     float b;
 };
 
+#ifdef __cplusplus
+}
+#endif
 #endif//COLOR_H
