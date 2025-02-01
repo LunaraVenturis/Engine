@@ -37,18 +37,27 @@
 #ifndef RECT_H
 #define RECT_H
 
-struct FRect {
-    float x;
-    float y;
-    float w;
-    float h;
-};
+#ifdef __cplusplus
+namespace LunaraEngine
+{
+    extern "C" {
+#endif
 
-struct IRect {
-    int x;
-    int y;
-    int w;
-    int h;
-};
+    struct FRect {
+        float x;
+        float y;
+        float w;
+        float h;
+    };
 
+    struct IRect {
+        int x;
+        int y;
+        int w;
+        int h;
+    };
+#ifdef __cplusplus
+    }
+}
+#endif
 #endif//RECT_H
