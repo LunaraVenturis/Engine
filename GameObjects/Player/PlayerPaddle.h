@@ -36,30 +36,33 @@
 
 #ifndef PLAYERPADDLE_H
 #define PLAYERPADDLE_H
-#include "../../Vendor/SDL_ttf/Xcode/SDL3.framework/Versions/Current/Headers/SDL_rect.h"
 
 
-#include <cstdint>
+#include "Core/STDTypes.h"
+#include "Math/Rect.h"
 
-namespace Game {
-struct PaddleColor
+namespace Game
 {
-    uint32_t r;
-    uint32_t g;
-    uint32_t b;
-    uint32_t a;
-};
-class PlayerPaddle {
-public:
-    PlayerPaddle();
-    ~PlayerPaddle();
-  void PlayerInit();
-  void PlayerUpdate();
-  void PlayerRender();
-private:
-    SDL_FRect player;
-};
+    struct PaddleColor {
+        uint32_t r;
+        uint32_t g;
+        uint32_t b;
+        uint32_t a;
+    };
 
-} // Game
+    class PlayerPaddle
+    {
+    public:
+        PlayerPaddle();
+        ~PlayerPaddle();
+        void PlayerInit();
+        void PlayerUpdate();
+        void PlayerRender();
 
-#endif //PLAYERPADDLE_H
+    private:
+        Rect player;
+    };
+
+}// namespace Game
+
+#endif//PLAYERPADDLE_H

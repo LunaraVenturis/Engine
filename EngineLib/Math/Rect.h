@@ -1,6 +1,6 @@
 /**
 * @file
- * @author Neyko Naydenov ( naydenovneyko@gmail.com )
+ * @author Krasto Stoyanov (k.stoianov2@gmail.com)
  * @brief
  * @version 1.0
  * @date
@@ -30,11 +30,25 @@
  *
  * @section DESCRIPTION
  *
- * Player Implementation
+ * Rect Declaration
  */
 
-#include "PlayerPaddle.h"
 
-namespace Game
-{
-}// namespace Game
+#ifndef RECT_H
+#define RECT_H
+
+struct FRect {
+    float x;
+    float y;
+    float w;
+    float h;
+};
+
+struct IRect {
+    int x;
+    int y;
+    int w;
+    int h;
+};
+
+#endif//RECT_H

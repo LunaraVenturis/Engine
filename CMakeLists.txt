@@ -86,3 +86,21 @@ add_executable(Sandbox ${SANDBOX_HEADER_FILES} ${SANDBOX_SOURCE_FILES})
 target_include_directories(Sandbox PRIVATE "${CMAKE_SOURCE_DIR}/EngineLib")
 target_include_directories(Sandbox PRIVATE "${CMAKE_SOURCE_DIR}/Sandbox")
 target_link_libraries(Sandbox PRIVATE EngineInterfaceLibrary EngineLib)
+
+add_custom_command(TARGET Sandbox POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_RUNTIME_DLLS:Sandbox> $<TARGET_FILE_DIR:Sandbox>
+  COMMAND_EXPAND_LISTS
+  )
+
+function(target_add_flags target)
+if(CMAKE_CXX_COMPILE_ID MATCHES "MSVC")
+elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    target_compile_options(${target} PRIVATE -Wall -Wconversion -Werror -Wextra -Wpedantic)
+    
+elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+    target_compile_options(${target} PRIVATE -Wall -Wconversion -Werror -Wextra -Wpedantic)
+endif()
+endfunction(target_add_flags)
+
+target_add_flags(EngineLib)
+target_add_flags(Sandbox)
