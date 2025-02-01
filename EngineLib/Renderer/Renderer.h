@@ -46,7 +46,9 @@ Includes
 #include "Core/STDTypes.h"
 
 #ifdef __cplusplus
-extern "C" {
+namespace LunaraEngine
+{
+    extern "C" {
 #endif
 
 /***********************************************************************************************************************
@@ -54,126 +56,127 @@ Macro definitions
 ***********************************************************************************************************************/
 #define RENDERER_MAX_COMMANDS 1024
 
-/***********************************************************************************************************************
-Type definitions
-***********************************************************************************************************************/
-typedef enum
-{
-    Renderer_Result_None = 0,
-    Renderer_Result_Success,
-    Renderer_Result_Error
-} RendererResultType;
+    /***********************************************************************************************************************
+    Type definitions
+    ***********************************************************************************************************************/
+    typedef enum
+    {
+        Renderer_Result_None = 0,
+        Renderer_Result_Success,
+        Renderer_Result_Error
+    } RendererResultType;
 
-typedef enum
-{
-    RendererCommandType_None = 0,
-    RendererCommandType_BindShader,
-    RendererCommandType_BindTexture,
-    RendererCommandType_Clear,
-    RendererCommandType_DrawQuad,
-    RendererCommandType_DrawTexture,
-    RendererCommandType_DrawCircle,
-    RendererCommandType_DrawText
-} RendererCommandType;
+    typedef enum
+    {
+        RendererCommandType_None = 0,
+        RendererCommandType_BindShader,
+        RendererCommandType_BindTexture,
+        RendererCommandType_Clear,
+        RendererCommandType_DrawQuad,
+        RendererCommandType_DrawTexture,
+        RendererCommandType_DrawCircle,
+        RendererCommandType_DrawText
+    } RendererCommandType;
 
-typedef struct {
-    float x;
-    float y;
-    float width;
-    float height;
-    uint8_t r;
-    uint8_t g;
-    uint8_t b;
-    uint8_t a;
-} RendererCommandDrawQuad;
+    typedef struct {
+        float x;
+        float y;
+        float width;
+        float height;
+        uint8_t r;
+        uint8_t g;
+        uint8_t b;
+        uint8_t a;
+    } RendererCommandDrawQuad;
 
-typedef struct {
-    uint8_t r;
-    uint8_t g;
-    uint8_t b;
-    uint8_t a;
-} RendererCommandClear;
+    typedef struct {
+        uint8_t r;
+        uint8_t g;
+        uint8_t b;
+        uint8_t a;
+    } RendererCommandClear;
 
-typedef enum
-{
-    TextAlign_TopLeft = 0,
-    TextAlign_TopCenter,
-    TextAlign_TopRight,
-    TextAlign_Left,
-    TextAlign_Center,
-    TextAlign_Right,
-    TextAlign_BottomLeft,
-    TextAlign_BottomCenter,
-    TextAlign_BottomRight,
-} RendererTextAlignAttribute;
+    typedef enum
+    {
+        TextAlign_TopLeft = 0,
+        TextAlign_TopCenter,
+        TextAlign_TopRight,
+        TextAlign_Left,
+        TextAlign_Center,
+        TextAlign_Right,
+        TextAlign_BottomLeft,
+        TextAlign_BottomCenter,
+        TextAlign_BottomRight,
+    } RendererTextAlignAttribute;
 
-typedef struct {
-    char* text;
-    void* font;
-    float x;
-    float y;
-    uint8_t r;
-    uint8_t g;
-    uint8_t b;
-    uint8_t a;
-    RendererTextAlignAttribute align;
-} RendererCommandDrawText;
+    typedef struct {
+        char* text;
+        void* font;
+        float x;
+        float y;
+        uint8_t r;
+        uint8_t g;
+        uint8_t b;
+        uint8_t a;
+        RendererTextAlignAttribute align;
+    } RendererCommandDrawText;
 
-typedef struct {
-    float x;
-    float y;
-    Texture* texture;
-} RendererCommandDrawTexture;
+    typedef struct {
+        float x;
+        float y;
+        Texture* texture;
+    } RendererCommandDrawTexture;
 
-typedef struct {
-    float x;
-    float y;
-    float radius;
-    uint8_t r;
-    uint8_t g;
-    uint8_t b;
-    uint8_t a;
-} RendererCommandDrawCircle;
+    typedef struct {
+        float x;
+        float y;
+        float radius;
+        uint8_t r;
+        uint8_t g;
+        uint8_t b;
+        uint8_t a;
+    } RendererCommandDrawCircle;
 
-typedef struct {
+    typedef struct {
 
-    void* data;
-    void* next;
-    RendererCommandType type;
-} RendererCommandNode;
+        void* data;
+        void* next;
+        RendererCommandType type;
+    } RendererCommandNode;
 
-typedef void RendererCommand;
+    typedef void RendererCommand;
 
-typedef struct {
-    RendererCommandNode* head;
-    RendererCommandNode* current;
-} RendererCommandStack;
+    typedef struct {
+        RendererCommandNode* head;
+        RendererCommandNode* current;
+    } RendererCommandStack;
 
-typedef struct {
-    RendererCommandStack command_stack;
-    SDL_Window* window;
-    SDL_Renderer* renderer;
-    SDL_Surface* surface;
-    float width;
-    float height;
-} RendererDataType;
+    typedef struct {
+        RendererCommandStack command_stack;
+        SDL_Window* window;
+        SDL_Renderer* renderer;
+        SDL_Surface* surface;
+        float width;
+        float height;
+    } RendererDataType;
 
-/***********************************************************************************************************************
-Functions declarations
-************************************************************************************************************************/
-extern RendererResultType RendererInit(const char* window_name, uint32_t width, uint32_t height);
+    /***********************************************************************************************************************
+    Functions declarations
+    ************************************************************************************************************************/
+    extern RendererResultType RendererInit(const char* window_name, uint32_t width, uint32_t height);
 
-extern void RendererDestroy(void);
-extern void RendererPresent(void);
-extern void RendererCmdDrawQuad(RendererCommandDrawQuad* quad);
-extern void RendererCmdDrawTexture(RendererCommandDrawTexture* texture);
-extern void RendererCmdDrawCircle(RendererCommandDrawCircle* circle);
-extern void RendererCmdDrawText(RendererCommandDrawText* text);
-extern void RendererCmdClear(RendererCommandClear* clear);
-extern void RendererCmdFlush(void);
-extern RendererDataType* RendererGet(void);
+    extern void RendererDestroy(void);
+    extern void RendererPresent(void);
+    extern void RendererCmdDrawQuad(RendererCommandDrawQuad* quad);
+    extern void RendererCmdDrawTexture(RendererCommandDrawTexture* texture);
+    extern void RendererCmdDrawCircle(RendererCommandDrawCircle* circle);
+    extern void RendererCmdDrawText(RendererCommandDrawText* text);
+    extern void RendererCmdClear(RendererCommandClear* clear);
+    extern void RendererCmdFlush(void);
+    extern RendererDataType* RendererGet(void);
 
 #ifdef __cplusplus
+    }
 }
 #endif
 #endif

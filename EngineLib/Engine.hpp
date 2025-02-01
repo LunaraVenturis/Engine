@@ -4,5 +4,5 @@
 #include "Core/Timestep.h"
 #include "Core/Events.h"
 #include "Renderer/Fonts.h"
-#include "Renderer/Renderer.h"
+#include "Renderer/Renderer.hpp"
 #include "Renderer/Texture.h"

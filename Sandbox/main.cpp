@@ -2,7 +2,8 @@
 
 int main()
 {
-    auto result = RendererInit("Engine", 1280, 720);
+    using namespace LunaraEngine;
+    auto result = Renderer::Init("Engine", 1280, 720);
     if (result != Renderer_Result_Success) { return 1; }
     Event event;
     while (true)
@@ -13,23 +14,14 @@ int main()
         }
 
         //Send quad draw command
-        RendererCommandDrawQuad quad;
-        quad.x = 1280 - 16;
-        quad.y = 720 / 2;
-        quad.width = 16;
-        quad.height = 16;
-        quad.r = 255;
-        quad.g = 0;
-        quad.b = 0;
-        quad.a = 255;
-        RendererCmdDrawQuad(&quad);
+        Renderer::DrawQuad({1280 - 16, 720 / 2, 16, 16}, {255, 0, 0, 255});
 
         //Flush command buffer for drawing
-        RendererCmdFlush();
+        Renderer::Flush();
 
         //Present to screen
-        RendererPresent();
+        Renderer::Present();
     }
-    RendererDestroy();
+    Renderer::Destroy();
     return 0;
 }

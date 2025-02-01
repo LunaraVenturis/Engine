@@ -42,66 +42,69 @@ Includes
 #include "Core/STDTypes.h"
 
 #ifdef __cplusplus
-extern "C" {
+namespace LunaraEngine
+{
+    extern "C" {
 #endif
-/***********************************************************************************************************************
+    /***********************************************************************************************************************
 Macro definitions
 ***********************************************************************************************************************/
 
-/***********************************************************************************************************************
+    /***********************************************************************************************************************
 Type definitions
 ***********************************************************************************************************************/
-typedef enum
-{
-    FONT_RESULT_NONE = 0,
-    FONT_RESULT_SUCCESS,
-    FONT_RESULT_NOT_FOUND,
-    FONT_RESULT_ERROR
-} FontResultType;
+    typedef enum
+    {
+        FONT_RESULT_NONE = 0,
+        FONT_RESULT_SUCCESS,
+        FONT_RESULT_NOT_FOUND,
+        FONT_RESULT_ERROR
+    } FontResultType;
 
-typedef enum
-{
-    FONT_NORMAL = 0,
-    FONT_BOLD,
-    FONT_ITALIC,
-    FONT_BOLD_ITALIC
-} FontType;
+    typedef enum
+    {
+        FONT_NORMAL = 0,
+        FONT_BOLD,
+        FONT_ITALIC,
+        FONT_BOLD_ITALIC
+    } FontType;
 
-typedef struct {
-    uint32_t size;
-    const char* name;
-    void* data;
-    FontType type;
-} Font;
+    typedef struct {
+        uint32_t size;
+        const char* name;
+        void* data;
+        FontType type;
+    } Font;
 
-typedef struct {
-    Font* data;
-    Font* next;
-} FontNode;
+    typedef struct {
+        Font* data;
+        Font* next;
+    } FontNode;
 
-typedef struct {
-    FontNode* head;
-    FontNode* current;
-} FontStack;
+    typedef struct {
+        FontNode* head;
+        FontNode* current;
+    } FontStack;
 
-typedef struct {
-    FontStack fonts;
-    uint32_t font_count;
-} FontAtlas;
+    typedef struct {
+        FontStack fonts;
+        uint32_t font_count;
+    } FontAtlas;
 
-/***********************************************************************************************************************
+    /***********************************************************************************************************************
 Functions declarations
 ************************************************************************************************************************/
 
-extern FontResultType LoadFont(const char* name, uint32_t size, Font* font);
-extern FontResultType FreeFont(Font* font);
+    extern FontResultType LoadFont(const char* name, uint32_t size, Font* font);
+    extern FontResultType FreeFont(Font* font);
 
-extern FontResultType FontAtlasLoadFont(const char* name, uint32_t size, FontType type, FontAtlas* atlas);
-extern FontResultType FontAtlasFreeFont(FontAtlas* atlas, const char* name, FontType type);
-extern Font* FontAtlasGetFont(FontAtlas* atlas, const char* name, FontType type);
+    extern FontResultType FontAtlasLoadFont(const char* name, uint32_t size, FontType type, FontAtlas* atlas);
+    extern FontResultType FontAtlasFreeFont(FontAtlas* atlas, const char* name, FontType type);
+    extern Font* FontAtlasGetFont(FontAtlas* atlas, const char* name, FontType type);
 
 
 #ifdef __cplusplus
+    }
 }
 #endif
 #endif

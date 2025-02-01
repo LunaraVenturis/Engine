@@ -41,43 +41,46 @@ Includes
 ***********************************************************************************************************************/
 #include "Core/STDTypes.h"
 #ifdef __cplusplus
-extern "C" {
-#endif
-/***********************************************************************************************************************
-Macro definitions
-***********************************************************************************************************************/
-
-/***********************************************************************************************************************
-Type definitions
-***********************************************************************************************************************/
-typedef struct {
-    float width;
-    float height;
-    uint32_t channels;
-} TextureInfo;
-
-typedef enum
+namespace LunaraEngine
 {
-    TextureResult_None = 0,
-    TextureResult_Success,
-    TextureResult_Error
-} TextureResultType;
+    extern "C" {
+#endif
+    /***********************************************************************************************************************
+    Macro definitions
+    ***********************************************************************************************************************/
 
-typedef struct {
-    TextureInfo info;
-    void* data;
-} Texture;
+    /***********************************************************************************************************************
+    Type definitions
+    ***********************************************************************************************************************/
+    typedef struct {
+        float width;
+        float height;
+        uint32_t channels;
+    } TextureInfo;
 
-/***********************************************************************************************************************
-Functions declarations
-************************************************************************************************************************/
+    typedef enum
+    {
+        TextureResult_None = 0,
+        TextureResult_Success,
+        TextureResult_Error
+    } TextureResultType;
 
-extern TextureResultType Texture_Init(Texture* texture, uint32_t width, uint32_t height, uint32_t channels);
-extern TextureResultType Texture_SetData(Texture* texture, void* data);
-extern TextureResultType Texture_GetInfo(Texture* texture, TextureInfo** info);
-extern TextureResultType Texture_Destroy(Texture* texture);
+    typedef struct {
+        TextureInfo info;
+        void* data;
+    } Texture;
+
+    /***********************************************************************************************************************
+    Functions declarations
+    ************************************************************************************************************************/
+
+    extern TextureResultType Texture_Init(Texture* texture, uint32_t width, uint32_t height, uint32_t channels);
+    extern TextureResultType Texture_SetData(Texture* texture, void* data);
+    extern TextureResultType Texture_GetInfo(Texture* texture, TextureInfo** info);
+    extern TextureResultType Texture_Destroy(Texture* texture);
 
 #ifdef __cplusplus
+    }
 }
 #endif
 #endif
