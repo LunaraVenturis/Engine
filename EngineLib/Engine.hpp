@@ -6,3 +6,6 @@
 #include "Renderer/Fonts.h"
 #include "Renderer/Renderer.hpp"
 #include "Renderer/Texture.h"
+#include "Layer/Layer.hpp"
+#include "Layer/LayerStack.hpp"
+#include "Application/Application.hpp"
