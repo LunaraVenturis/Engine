@@ -1,5 +1,6 @@
 #include "Application.hpp"
 #include "Engine.hpp"
+#include <Audio/AudioManager.hpp>
 
 namespace LunaraEngine
 {
@@ -7,8 +8,11 @@ namespace LunaraEngine
 
     ApplicationResult Application::Create(std::string_view name, uint32_t width, uint32_t height)
     {
-        auto result = Renderer::Init(name, width, height);
-        if (result != Renderer_Result_Success) { return ApplicationResult_Fail; }
+        auto renderer_result = Renderer::Init(name, width, height);
+        if (renderer_result != Renderer_Result_Success) { return ApplicationResult_Fail; }
+
+        auto audio_manager_result = AudioManager::Init();
+        if (audio_manager_result != AudioManager_Result_Success) { return ApplicationResult_Fail; }
 
         return ApplicationResult_Success;
     }
@@ -37,6 +41,7 @@ namespace LunaraEngine
     void Application::Close()
     {
         LayerStack::DestroyLayers();
+        AudioManager::Destroy();
         Renderer::Destroy();
     }
 
