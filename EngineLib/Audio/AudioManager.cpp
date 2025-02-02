@@ -111,14 +111,20 @@ namespace LunaraEngine
     void AudioManager::PlayAudio(std::string_view name)
     {
 
-        for (size_t i = 0; i < g_AudioManagerData.audio_views.size(); i++)
-        {
-            if (g_AudioManagerData.audio_views[i].name != name) { continue; }
+        size_t index = GetAudioIndex(name);
+        if (index == (size_t) -1) { return; }
 
-            auto& audio = g_AudioManagerData.audios[i];
-            AudioManager::SoundPlay(audio.sound);
-            break;
-        }
+        auto& audio = g_AudioManagerData.audios[index];
+        AudioManager::_SoundPlay(audio.sound);
+    }
+
+    void AudioManager::StopAudio(std::string_view name)
+    {
+        size_t index = GetAudioIndex(name);
+        if (index == (size_t) -1) { return; }
+
+        auto& audio = g_AudioManagerData.audios[index];
+        AudioManager::_SoundStop(audio.sound);
     }
 
     void AudioManager::Destroy()
@@ -146,11 +152,23 @@ namespace LunaraEngine
         return false;
     }
 
-    void AudioManager::SoundRewindToBegin(void* sound) { ma_sound_seek_to_pcm_frame((ma_sound*) sound, 0); }
+    void AudioManager::_SoundRewindToBegin(void* sound) { ma_sound_seek_to_pcm_frame((ma_sound*) sound, 0); }
 
-    void AudioManager::SoundPlay(void* sound)
+    void AudioManager::_SoundPlay(void* sound)
     {
         auto result = ma_sound_start((ma_sound*) sound);
         if (result != MA_SUCCESS) { ma_atomic_exchange_32(&((ma_sound*) sound)->atEnd, MA_TRUE); }
+    }
+
+    void AudioManager::_SoundStop(void* sound) { (void) ma_sound_stop((ma_sound*) sound); }
+
+    size_t AudioManager::GetAudioIndex(std::string_view name)
+    {
+        for (size_t i = 0; i < g_AudioManagerData.audio_views.size(); i++)
+        {
+            if (g_AudioManagerData.audio_views[i].name != name) { continue; }
+            return i;
+        }
+        return (size_t) -1;
     }
 }// namespace LunaraEngine
