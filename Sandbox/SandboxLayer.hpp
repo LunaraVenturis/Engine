@@ -47,5 +47,5 @@ public:
     virtual void End() override {}
 
 private:
-    Window* m_Window;
+    LunaraEngine::Window* m_Window;
 };
