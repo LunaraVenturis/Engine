@@ -69,12 +69,15 @@ namespace LunaraEngine
         static AudioManagerResult Init();
         static AudioManagerResult LoadAudio(std::string_view name, std::string_view path);
         static void PlayAudio(std::string_view name);
+        static void StopAudio(std::string_view name);
         static bool IsAudioPlaying(std::string_view name);
 
         static void Destroy();
 
     private:
-        static void SoundRewindToBegin(void* sound);
-        static void SoundPlay(void* sound);
+        static size_t GetAudioIndex(std::string_view name);
+        static void _SoundRewindToBegin(void* sound);
+        static void _SoundPlay(void* sound);
+        static void _SoundStop(void* sound);
     };
 }// namespace LunaraEngine
