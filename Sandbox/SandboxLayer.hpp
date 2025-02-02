@@ -10,7 +10,7 @@ public:
     ~SandboxLayer() = default;
 
 public:
-    virtual void Init() override {}
+    virtual void Init() override;
 
     virtual void OnAttach() override {}
 
@@ -45,4 +45,7 @@ public:
     virtual void Begin() override {}
 
     virtual void End() override {}
+
+private:
+    Window* m_Window;
 };

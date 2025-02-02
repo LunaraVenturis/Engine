@@ -118,7 +118,13 @@ namespace LunaraEngine
         RendererCmdClear(&clear);
     }
 
+    void Renderer::BeginRenderPass() { RendererBeginRenderPass(); }
+
+    void Renderer::EndRenderPass() { RendererEndRenderPass(); }
+
     void Renderer::Flush() { RendererCmdFlush(); }
+
+    Window* Renderer::GetWindow() { return RendererGetWindow(); }
 
 }// namespace LunaraEngine
 #endif

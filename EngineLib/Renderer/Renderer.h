@@ -152,8 +152,13 @@ Macro definitions
     } RendererCommandStack;
 
     typedef struct {
+        const char* name;
+        void* data;
+    } Window;
+
+    typedef struct {
         RendererCommandStack command_stack;
-        SDL_Window* window;
+        Window* window;
         SDL_Renderer* renderer;
         SDL_Surface* surface;
         float width;
@@ -172,8 +177,11 @@ Macro definitions
     extern void RendererCmdDrawCircle(RendererCommandDrawCircle* circle);
     extern void RendererCmdDrawText(RendererCommandDrawText* text);
     extern void RendererCmdClear(RendererCommandClear* clear);
+    extern void RendererBeginRenderPass(void);
+    extern void RendererEndRenderPass(void);
     extern void RendererCmdFlush(void);
     extern RendererDataType* RendererGet(void);
+    extern Window* RendererGetWindow(void);
 
 #ifdef __cplusplus
     }

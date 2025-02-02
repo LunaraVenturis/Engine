@@ -70,8 +70,10 @@ namespace LunaraEngine
         g_renderer->height = (float) height;
         g_renderer->command_stack.head = NULL;
 
-        g_renderer->window = SDL_CreateWindow(window_name, (int) width, (int) height, 0);
-        if (g_renderer->window == NULL) { return Renderer_Result_Error; }
+        g_renderer->window = (Window*) malloc(sizeof(Window));
+        g_renderer->window->name = window_name;
+        g_renderer->window->data = (void*) SDL_CreateWindow(window_name, (int) width, (int) height, 0);
+        if (g_renderer->window->data == NULL) { return Renderer_Result_Error; }
 
         g_renderer->renderer = SDL_CreateRenderer(g_renderer->window, NULL);
         if (g_renderer->renderer == NULL) { return Renderer_Result_Error; }
@@ -90,7 +92,8 @@ namespace LunaraEngine
         if (g_renderer == NULL) { return; }
         TTF_Quit();
         SDL_DestroyRenderer(g_renderer->renderer);
-        SDL_DestroyWindow(g_renderer->window);
+        SDL_DestroyWindow((SDL_Window*) g_renderer->window->data);
+        free(g_renderer->window);
         SDL_Quit();
         free(g_renderer);
     }
@@ -271,6 +274,12 @@ namespace LunaraEngine
     }
 
     RendererDataType* RendererGet(void) { return g_renderer; }
+
+    void RendererBeginRenderPass(void) {}
+
+    void RendererEndRenderPass(void) {}
+
+    Window* RendererGetWindow(void) { return g_renderer->window; }
 
 #ifdef __cplusplus
 }
