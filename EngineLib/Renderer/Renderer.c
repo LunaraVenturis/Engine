@@ -75,11 +75,11 @@ namespace LunaraEngine
         g_renderer->window->data = (void*) SDL_CreateWindow(window_name, (int) width, (int) height, 0);
         if (g_renderer->window->data == NULL) { return Renderer_Result_Error; }
 
-        g_renderer->renderer = SDL_CreateRenderer(g_renderer->window, NULL);
+        g_renderer->renderer = SDL_CreateRenderer((SDL_Window*) g_renderer->window->data, NULL);
         if (g_renderer->renderer == NULL) { return Renderer_Result_Error; }
         SDL_SetRenderVSync(g_renderer->renderer, 1);
 
-        g_renderer->surface = SDL_GetWindowSurface(g_renderer->window);
+        g_renderer->surface = SDL_GetWindowSurface((SDL_Window*) g_renderer->window->data);
         if (g_renderer->surface == NULL) { return Renderer_Result_Error; }
 
         TTF_Init();
