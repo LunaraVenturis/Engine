@@ -60,6 +60,11 @@ namespace LunaraEngine
         static void DrawText(std::string_view text, Font* font, float x, float y, const Color4& color,
                              RendererTextAlignAttribute align);
         static void Clear(const Color4& color);
+
+        static void BeginRenderPass();
+        static void EndRenderPass();
         static void Flush();
+
+        static Window* GetWindow();
     };
 }// namespace LunaraEngine

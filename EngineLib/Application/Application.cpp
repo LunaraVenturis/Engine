@@ -29,9 +29,6 @@ namespace LunaraEngine
             LayerStack::OnImGuiDraw();
             LayerStack::End();
 
-            //Flush command buffer for drawing
-            Renderer::Flush();
-
             //Present to screen
             Renderer::Present();
         }

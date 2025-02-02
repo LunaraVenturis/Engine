@@ -12,6 +12,7 @@ namespace LunaraEngine
     {
     public:
         LayerStack() = default;
+        ~LayerStack() = default;
 
     public:
         template <typename T, typename... Args>
