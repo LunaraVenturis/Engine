@@ -67,6 +67,7 @@ else ()
 endif ()
 
 target_include_directories(EngineLib PRIVATE "./EngineLib")
+target_include_directories(EngineLib PRIVATE "./Vendor/include")
 target_include_directories(EngineLib PUBLIC ${GLM_INCLDUE_DIR})
 target_include_directories(EngineLib PUBLIC ${VULKAN_INCLUDE_DIR})
 
@@ -84,6 +85,7 @@ target_link_libraries(EngineLib PUBLIC SDL3::SDL3 SDL3_ttf::SDL3_ttf)
 
 add_executable(Sandbox ${SANDBOX_HEADER_FILES} ${SANDBOX_SOURCE_FILES})
 target_include_directories(Sandbox PRIVATE "${CMAKE_SOURCE_DIR}/EngineLib")
+target_include_directories(Sandbox PRIVATE "${CMAKE_SOURCE_DIR}/Vendor/include")
 target_include_directories(Sandbox PRIVATE "${CMAKE_SOURCE_DIR}/Sandbox")
 target_link_libraries(Sandbox PRIVATE EngineInterfaceLibrary EngineLib)
 
@@ -101,6 +103,9 @@ elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
     target_compile_options(${target} PRIVATE -Wall -Wconversion -Werror -Wextra -Wpedantic)
 endif()
 endfunction(target_add_flags)
+
+add_custom_command(TARGET Sandbox POST_BUILD
+  COMMAND ${CMAKE_COMMAND} -E copy_directory  ${CMAKE_SOURCE_DIR}/Assets $<TARGET_FILE_DIR:Sandbox>/Assets DEPENDS Sandbox)
 
 target_add_flags(EngineLib)
 target_add_flags(Sandbox)
