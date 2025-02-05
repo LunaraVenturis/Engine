@@ -81,6 +81,35 @@ namespace LunaraEngine
         for (auto& layer: LayerStack::m_Layers) { layer->OnImGuiDraw(); }
     }
 
+    void LayerStack::OnEvent(Event* event)
+    {
+
+        for (auto& layer: LayerStack::m_Layers)
+        {
+            switch (event->type)
+            {
+                case EVENT_KEYBOARD:
+                    layer->OnKeyboardEvent(event->keyEvent.key, event->keyEvent.type);
+                    break;
+                case EVENT_MOUSE_MOTION:
+                    layer->OnMouseMoveEvent((int) event->mouseMotionEvent.x, (int) event->mouseMotionEvent.y);
+                    break;
+                case EVENT_MOUSE_BUTTON:
+                    layer->OnMouseButtonEvent(event->mouseButtonEvent.x, event->mouseButtonEvent.y,
+                                              event->mouseButtonEvent.type, event->mouseButtonEvent.button);
+                    break;
+                case EVENT_RESIZE_WINDOW:
+                    layer->OnWindowResizeEvent(event->resizeWindowEvent.width, event->resizeWindowEvent.height);
+                    break;
+                case EVENT_QUIT:
+                    layer->OnWindowShouldCloseEvent();
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
     uint32_t LayerStack::_FindLayerIndex(std::string_view name)
     {
 

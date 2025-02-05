@@ -58,7 +58,7 @@ namespace LunaraEngine
         static void DrawTexture(float x, float y, Texture* texture);
         static void DrawCircle(float x, float y, float radius, const Color4& color);
         static void DrawText(std::string_view text, Font* font, float x, float y, const Color4& color,
-                             RendererTextAlignAttribute align);
+                             RendererTextAlignAttribute align = RendererTextAlignAttribute::TextAlign_TopLeft);
         static void Clear(const Color4& color);
 
         static void BeginRenderPass();

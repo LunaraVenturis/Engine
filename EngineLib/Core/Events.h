@@ -311,10 +311,11 @@ typedef enum
 {
     EVENT_NONE = 0,
     EVENT_QUIT,
-    EVENT_KEY,
+    EVENT_KEYBOARD,
     EVENT_MOUSE,
     EVENT_MOUSE_MOTION,
     EVENT_MOUSE_BUTTON,
+    EVENT_RESIZE_WINDOW
 } EventType;
 
 typedef enum
@@ -356,12 +357,17 @@ typedef struct {
 } KeyEvent;
 
 typedef struct {
+    uint32_t width;
+    uint32_t height;
+} ResizeWindowEvent;
+
+typedef struct {
     EventType type;
 
     KeyEvent keyEvent;
     MouseButtonEvent mouseButtonEvent;
     MouseMotionEvent mouseMotionEvent;
-
+    ResizeWindowEvent resizeWindowEvent;
 } Event;
 
 /***********************************************************************************************************************
