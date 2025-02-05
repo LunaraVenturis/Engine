@@ -1,5 +1,5 @@
 #pragma once
-
+#include "Core/Events.h"
 #include <string_view>
 #include <memory>
 
@@ -30,7 +30,9 @@ namespace LunaraEngine
 
         virtual void OnMouseMoveEvent(int width, int height) = 0;
 
-        virtual void OnKeyboardEvent(int action, int key) = 0;
+        virtual void OnKeyboardEvent(uint32_t key, KeyEventType type) = 0;
+
+        virtual void OnMouseButtonEvent(float x, float y, MouseButtonEventType type, MouseButton button) = 0;
 
         virtual void OnWindowResizeEvent(int width, int height) = 0;
 

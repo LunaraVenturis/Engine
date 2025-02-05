@@ -1,5 +1,6 @@
 #pragma once
 #include "Layer.hpp"
+#include "Core/Events.h"
 #include <unordered_map>
 #include <vector>
 #include <utility>
@@ -45,6 +46,8 @@ namespace LunaraEngine
         static void OnUpdate(float dt);
 
         static void OnImGuiDraw();
+
+        static void OnEvent(Event* event);
 
     private:
         static uint32_t _FindLayerIndex(std::string_view name);

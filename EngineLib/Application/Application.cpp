@@ -1,6 +1,5 @@
 #include "Application.hpp"
 #include "Engine.hpp"
-#include <Audio/AudioManager.hpp>
 
 namespace LunaraEngine
 {
@@ -26,6 +25,8 @@ namespace LunaraEngine
             if (PollEvents(&event))
             {
                 if (event.type == EVENT_QUIT) { break; }
+
+                LayerStack::OnEvent(&event);
             }
 
             LayerStack::Begin();

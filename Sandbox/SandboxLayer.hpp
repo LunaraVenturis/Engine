@@ -22,15 +22,19 @@ public:
 
     virtual void OnImGuiDraw() override {}
 
-    virtual void OnMouseMoveEvent(int width, int height) override
+    virtual void OnMouseButtonEvent(float x, float y, MouseButtonEventType type, MouseButton button) override
     {
-        (void) width;
-        (void) height;
+        (void) x;
+        (void) y;
+        (void) type;
+        (void) button;
     }
 
-    virtual void OnKeyboardEvent(int action, int key) override
+    virtual void OnMouseMoveEvent(int width, int height) override;
+
+    virtual void OnKeyboardEvent(uint32_t key, KeyEventType type) override
     {
-        (void) action;
+        (void) type;
         (void) key;
     }
 
@@ -48,4 +52,7 @@ public:
 
 private:
     LunaraEngine::Window* m_Window;
+    LunaraEngine::Font m_Font;
+    uint32_t x{}, y{};
+    char text[100];
 };
