@@ -51,10 +51,27 @@ if(ENABLE_MEMORY_DEBUG_LOG)
 endif()
 
 if (WIN32)
-    ## __VulkanInclude  DO NOT REMOVE THIS LINE IT IS VERY IMPORTANT FOR VULKAN LIBRARY MANAGEMENT
-    set(VULKAN_INCLUDE_DIR    "C:/VulkanSDK/1.3.261.1/Include")
+    ## assume user will install this in C:/VulkanSDK/ 
+    #List All directories in the directory
+    file(GLOB DIRECTORIES "C:/VulkanSDK/*")
+    # Filter out only directories
+    set(VERSION_NAME "")
+foreach(dir IN LISTS DIRECTORIES)
+    if(IS_DIRECTORY ${dir})
+        # Extract the folder name
+        get_filename_component(VERSION_NAME ${dir} NAME)
+        break()  # Exit the loop after finding the first directory
+    endif()
+endforeach()
+# Check if a folder was found
+if(VERSION_NAME STREQUAL "")
+    message(FATAL_ERROR "No folder found in C:/VulkanSDK")
+else()
+    message(STATUS "The folder name is: ${VERSION_NAME}")
+endif()
+    set(VULKAN_INCLUDE_DIR    "C:/VulkanSDK/${VERSION_NAME}/Include")
     ## __LibVulkan  DO NOT REMOVE THIS LINE IT IS VERY IMPORTANT FOR VULKAN LIBRARY MANAGEMENT
-    set(VULKAN_LIBRARY "C:/VulkanSDK/1.3.261.1/Lib/vulkan-1.lib")
+    set(VULKAN_LIBRARY "C:/VulkanSDK/${VERSION_NAME}/Lib/vulkan-1.lib")
 
 else ()
     find_package(Vulkan REQUIRED)
