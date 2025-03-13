@@ -44,5 +44,4 @@ Platform specific std type definitions
 #ifndef _STDINT_H
 #include <stdint.h>
 #endif
-
 #endif
