@@ -429,3 +429,4 @@ cmake-build-relwithdebinfo
 .vscode/*
 .vscode/settings.json
 out/*
+CMakeSettings.json
