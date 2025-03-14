@@ -42,9 +42,6 @@ Includes
 ***********************************************************************************************************************/
 #include "Texture.h"
 #include <SDL3/SDL.h>
-#include <SDL3/SDL_render.h>
-#include "Core/STDTypes.h"
-
 #ifdef __cplusplus
 namespace LunaraEngine
 {
@@ -160,10 +157,13 @@ Macro definitions
         RendererCommandStack command_stack;
         Window* window;
         SDL_Renderer* renderer;
-        SDL_Surface* surface;
+        SDL_Surface* surface; 
         float width;
         float height;
     } RendererDataType;
+
+
+
 
     /***********************************************************************************************************************
     Functions declarations
