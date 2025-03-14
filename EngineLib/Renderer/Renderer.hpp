@@ -38,16 +38,156 @@
 /***********************************************************************************************************************
 Includes
 ***********************************************************************************************************************/
-#include "Renderer.h"
 #include "Fonts.h"
 #include "Math/Rect.h"
 #include "Math/Color.h"
 #include <string_view>
-
+#include <SDL3/SDL_render.h>
+#include "Core/STDTypes.h"
+#include "vulkan/vulkan.h"
+#include <SDL3/SDL_vulkan.h>
 struct Texture;
 
 namespace LunaraEngine
 {
+    /***********************************************************************************************************************
+Macro definitions
+***********************************************************************************************************************/
+  constexpr int RENDERER_MAX_COMMANDS = 1024;
+
+    /***********************************************************************************************************************
+    Type definitions
+    ***********************************************************************************************************************/
+    enum class RendererResultType : int
+    {
+        Renderer_Result_None = 0,
+        Renderer_Result_Success,
+        Renderer_Result_Error
+    };
+
+    enum class RendererCommandType : int
+    {
+        RendererCommandType_None = 0,
+        RendererCommandType_BindShader,
+        RendererCommandType_BindTexture,
+        RendererCommandType_Clear,
+        RendererCommandType_DrawQuad,
+        RendererCommandType_DrawTexture,
+        RendererCommandType_DrawCircle,
+        RendererCommandType_DrawText
+    };
+
+    struct RendererCommandDrawQuad {
+        float x;
+        float y;
+        float width;
+        float height;
+        float r;
+        float g;
+        float b;
+        float a;
+    };
+
+     struct RendererCommandClear {
+        float r;
+        float g;
+        float b;
+        float a;
+    };
+
+    enum class RendererTextAlignAttribute : int
+    {
+        TextAlign_TopLeft = 0,
+        TextAlign_TopCenter,
+        TextAlign_TopRight,
+        TextAlign_Left,
+        TextAlign_Center,
+        TextAlign_Right,
+        TextAlign_BottomLeft,
+        TextAlign_BottomCenter,
+        TextAlign_BottomRight,
+    };
+
+     struct RendererCommandDrawText {
+        char* text;
+        void* font;
+        float x;
+        float y;
+        float r;
+        float g;
+        float b;
+        float a;
+        RendererTextAlignAttribute align;
+    };
+
+    struct RendererCommandDrawTexture {
+        float x;
+        float y;
+        Texture* texture;
+    };
+
+    struct RendererCommandDrawCircle {
+        float x;
+        float y;
+        float radius;
+        float r;
+        float g;
+        float b;
+        float a;
+    };
+
+    struct RendererCommandNode {
+
+        void* data;
+        void* next;
+        RendererCommandType type;
+    };
+
+    using RendererCommand = void;
+
+    struct RendererCommandStack {
+        RendererCommandNode* head;
+        RendererCommandNode* current;
+    };
+
+     struct Window {
+        const char* name;
+        void* data;
+    };
+
+     struct RendererDataType {
+        RendererCommandStack command_stack;
+        Window* window;
+        SDL_Renderer* renderer;
+        SDL_Surface* surface;
+        VkInstance instance;
+        float width;
+        float height;
+    };
+
+     //to be fixed govnokod
+     class Rend
+     {
+     public:
+         static Rend& Get()
+         { 
+             return s_instance;
+         }
+
+         Rend(const Rend& other) = delete;
+         void operator=(const Rend&) = delete;
+         static Window* GetWindow() 
+         { 
+             return s_instance.renderer->window;
+         }
+     private:
+         Rend() = default;
+         RendererDataType* renderer;
+         static Rend s_instance;
+         
+     };
+
+     Rend Rend::s_instance;
     class Renderer
     {
     public:
@@ -64,7 +204,7 @@ namespace LunaraEngine
         static void BeginRenderPass();
         static void EndRenderPass();
         static void Flush();
-
+        static void CreateInstance();
         static Window* GetWindow();
     };
 }// namespace LunaraEngine

@@ -48,14 +48,15 @@ namespace LunaraEngine
 {
 
     RendererResultType Renderer::Init(std::string_view window_name, uint32_t width, uint32_t height)
-    {
-        return RendererInit(window_name.data(), width, height);
+    { 
+        return RendererResultType::Renderer_Result_Error;
     }
 
-    void Renderer::Destroy() { RendererDestroy(); }
+    void Renderer::Destroy() { }
 
-    void Renderer::Present() { RendererPresent(); }
+    void Renderer::Present() { }
 
+    /*
     void Renderer::DrawQuad(const FRect& rect, const Color4& color)
     {
         RendererCommandDrawQuad quad;
@@ -67,7 +68,7 @@ namespace LunaraEngine
         quad.g = (uint8_t) color.g;
         quad.b = (uint8_t) color.b;
         quad.a = (uint8_t) color.a;
-        RendererCmdDrawQuad(&quad);
+        //RendererCmdDrawQuad(&quad);
     }
 
     void Renderer::DrawTexture(float x, float y, Texture* texture)
@@ -76,7 +77,7 @@ namespace LunaraEngine
         tex.x = x;
         tex.y = y;
         tex.texture = texture;
-        RendererCmdDrawTexture(&tex);
+       // RendererCmdDrawTexture(&tex);
     }
 
     void Renderer::DrawCircle(float x, float y, float radius, const Color4& color)
@@ -89,7 +90,7 @@ namespace LunaraEngine
         circle.g = (uint8_t) color.g;
         circle.b = (uint8_t) color.b;
         circle.a = (uint8_t) color.a;
-        RendererCmdDrawCircle(&circle);
+      //  RendererCmdDrawCircle(&circle);
     }
 
     void Renderer::DrawText(std::string_view text, Font* font, float x, float y, const Color4& color,
@@ -105,7 +106,7 @@ namespace LunaraEngine
         text_cmd.b = (uint8_t) color.b;
         text_cmd.a = (uint8_t) color.a;
         text_cmd.align = align;
-        RendererCmdDrawText(&text_cmd);
+       // RendererCmdDrawText(&text_cmd);
     }
 
     void Renderer::Clear(const Color4& color)
@@ -115,16 +116,33 @@ namespace LunaraEngine
         clear.g = (uint8_t) color.g;
         clear.b = (uint8_t) color.b;
         clear.a = (uint8_t) color.a;
-        RendererCmdClear(&clear);
+        //RendererCmdClear(&clear);
+    }
+    */
+    void Renderer::BeginRenderPass() {  }
+
+    void Renderer::EndRenderPass() {  }
+
+    void Renderer::Flush() {  }
+
+    void Renderer::CreateInstance() 
+    { 
+        VkApplicationInfo appInfo {};
+        appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
+        appInfo.pApplicationName = "Tobenamed";
+        appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
+        appInfo.pEngineName = "KrustyoManja";
+        appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
+        appInfo.apiVersion = VK_MAKE_VERSION(1, 3, 0);
+
+        VkInstanceCreateInfo createInfo {};
+        createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
+        createInfo.pApplicationInfo = &appInfo;
+
+        uint32_t extensionCount = 0;
     }
 
-    void Renderer::BeginRenderPass() { RendererBeginRenderPass(); }
-
-    void Renderer::EndRenderPass() { RendererEndRenderPass(); }
-
-    void Renderer::Flush() { RendererCmdFlush(); }
-
-    Window* Renderer::GetWindow() { return RendererGetWindow(); }
+    Window* Renderer::GetWindow() { return Rend::GetWindow(); }
 
 }// namespace LunaraEngine
 #endif
