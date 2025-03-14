@@ -1,6 +1,7 @@
 /**
  * @file
- * @author Krusto Stoyanov ( k.stoianov2@gmail.com )
+ * @author Krusto Stoyanov ( k.stoianov2@gmail.com ) 
+ * @coauthor Neyko Naydenov (neyko641@gmail.com)
  * @brief 
  * @version 1.0
  * @date 
@@ -8,7 +9,7 @@
  * @section LICENSE
  * MIT License
  * 
- * Copyright (c) 2025 Krusto
+ * Copyright (c) 2025 Krusto, Neyko
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -45,7 +46,9 @@ Includes
 #include <SDL3/SDL_render.h>
 #include "Core/STDTypes.h"
 #include "vulkan/vulkan.h"
-#include <SDL3/SDL_vulkan.h>
+#include <array>
+#include <exception>
+#include <stdexcept>
 struct Texture;
 
 namespace LunaraEngine
@@ -176,10 +179,9 @@ Macro definitions
 
          Rend(const Rend& other) = delete;
          void operator=(const Rend&) = delete;
-         static Window* GetWindow() 
-         { 
-             return s_instance.renderer->window;
-         }
+
+         static VkInstance* GetInstance() { return &s_instance.renderer->instance; }
+         static Window* GetWindow() { return s_instance.renderer->window;}
      private:
          Rend() = default;
          RendererDataType* renderer;
@@ -194,12 +196,12 @@ Macro definitions
         static RendererResultType Init(std::string_view window_name, uint32_t width, uint32_t height);
         static void Destroy();
         static void Present();
-        static void DrawQuad(const FRect& rect, const Color4& color);
-        static void DrawTexture(float x, float y, Texture* texture);
-        static void DrawCircle(float x, float y, float radius, const Color4& color);
-        static void DrawText(std::string_view text, Font* font, float x, float y, const Color4& color,
-                             RendererTextAlignAttribute align = RendererTextAlignAttribute::TextAlign_TopLeft);
-        static void Clear(const Color4& color);
+       // static void DrawQuad(const FRect& rect, const Color4& color);
+       // static void DrawTexture(float x, float y, Texture* texture);
+       // static void DrawCircle(float x, float y, float radius, const Color4& color);
+       // static void DrawText(std::string_view text, Font* font, float x, float y, const Color4& color,
+         //                    RendererTextAlignAttribute align = RendererTextAlignAttribute::TextAlign_TopLeft);
+        //static void Clear(const Color4& color);
 
         static void BeginRenderPass();
         static void EndRenderPass();

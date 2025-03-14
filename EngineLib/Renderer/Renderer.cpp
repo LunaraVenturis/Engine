@@ -139,7 +139,17 @@ namespace LunaraEngine
         createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
         createInfo.pApplicationInfo = &appInfo;
 
-        uint32_t extensionCount = 0;
+        const std::array<const char*, 1> names = {"VK_KHR_surface"};
+        uint32_t extensionCount = names.size();
+        createInfo.enabledExtensionCount = extensionCount;
+        createInfo.ppEnabledExtensionNames = names.data();
+
+        createInfo.enabledLayerCount = 0;
+
+        if (vkCreateInstance(&createInfo, nullptr, Rend::GetInstance()) != VK_SUCCESS)
+        {
+            throw std::runtime_error("Failed to create instance!");
+        }
     }
 
     Window* Renderer::GetWindow() { return Rend::GetWindow(); }
