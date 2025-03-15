@@ -46,6 +46,7 @@ Includes
 #include <SDL3/SDL_render.h>
 #include "Core/STDTypes.h"
 #include "vulkan/vulkan.h"
+#include <vector>
 #include <array>
 #include <exception>
 #include <stdexcept>
@@ -164,6 +165,7 @@ Macro definitions
         SDL_Renderer* renderer;
         SDL_Surface* surface;
         VkInstance instance;
+        VkDebugUtilsMessengerEXT debug;
         float width;
         float height;
     };
@@ -182,6 +184,12 @@ Macro definitions
 
          static VkInstance* GetInstance() { return &s_instance.renderer->instance; }
          static Window* GetWindow() { return s_instance.renderer->window;}
+         static
+         static void DestroyRend() 
+         { 
+             vkDestroyInstance(s_instance.renderer->instance, nullptr);
+
+         }
      private:
          Rend() = default;
          RendererDataType* renderer;
@@ -207,6 +215,8 @@ Macro definitions
         static void EndRenderPass();
         static void Flush();
         static void CreateInstance();
+        static void GetPlatformExtensions(std::vector<const char*>& extensions);
         static Window* GetWindow();
+        void CleanUpVulkan();
     };
 }// namespace LunaraEngine
