@@ -259,13 +259,6 @@ namespace LunaraEngine
         if (Rend::GetDevice() == VK_NULL_HANDLE) { throw std::runtime_error("failed to find a suitable GPU!"); }
     }
 
-    bool isDeviceSuitable(VkPhysicalDevice device)
-    {
-        QueueFamilyIndices indices = findQueueFamilies(device);
-
-        return indices.isComplete();
-    }
-
     bool Renderer::isDeviceSuitable(VkPhysicalDevice device)
     { 
          QueueFamilyIndices indicies = findQueueFamilies(device);
