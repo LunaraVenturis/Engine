@@ -50,6 +50,8 @@ Includes
 #include <array>
 #include <exception>
 #include <stdexcept>
+#include <map>
+#include <optional>
 struct Texture;
 
 namespace LunaraEngine
@@ -159,6 +161,12 @@ Macro definitions
         void* data;
     };
 
+     struct QueueFamilyIndices {
+         std::optional<uint32_t> graphicsFamily;
+
+         bool isComplete() { return graphicsFamily.has_value(); }
+     };
+
      struct RendererDataType {
         RendererCommandStack command_stack;
         Window* window;
@@ -166,6 +174,8 @@ Macro definitions
         SDL_Surface* surface;
         VkInstance instance;
         VkDebugUtilsMessengerEXT debug;
+        VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
+        VkDevice device;
         float width;
         float height;
     };
@@ -184,7 +194,10 @@ Macro definitions
 
          static VkInstance* GetInstance() { return &s_instance.renderer->instance; }
          static Window* GetWindow() { return s_instance.renderer->window;}
-         static
+
+         static void SetDevice(VkPhysicalDevice device) { s_instance.renderer->physicalDevice = device; }
+         static VkPhysicalDevice* GetDevice() { return &s_instance.renderer->physicalDevice; }
+         static VkDebugUtilsMessengerEXT* GetDebug() { return &s_instance.renderer->debug; }
          static void DestroyRend() 
          { 
              vkDestroyInstance(s_instance.renderer->instance, nullptr);
@@ -216,6 +229,10 @@ Macro definitions
         static void Flush();
         static void CreateInstance();
         static void GetPlatformExtensions(std::vector<const char*>& extensions);
+        static void CreateDevice();
+        static void PickPhysicalDevice();
+        static bool isDeviceSuitable(VkPhysicalDevice device);
+        static QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
         static Window* GetWindow();
         void CleanUpVulkan();
     };
