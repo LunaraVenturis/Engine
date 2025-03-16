@@ -3,7 +3,7 @@
 
 void SandboxLayer::Init()
 {
-    m_Window = LunaraEngine::Renderer::GetWindow();
+    m_Window = LunaraEngine::RendererAPI::GetWindow();
     LunaraEngine::AudioManager::LoadAudio("AudioTest", "Assets/Audio/AudioTest.wav");
     auto result = LunaraEngine::LoadFont("Assets/Fonts/joystixmonospace.ttf", 24, &m_Font);
     if (result != LunaraEngine::FontResultType::FONT_RESULT_SUCCESS) { exit(-6); }

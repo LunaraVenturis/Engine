@@ -42,6 +42,7 @@ Includes
 #include "Fonts.h"
 #include "Math/Rect.h"
 #include "Math/Color.h"
+#include "Texture.h"
 #include <string_view>
 #include <SDL3/SDL_render.h>
 #include "Core/STDTypes.h"
@@ -52,11 +53,11 @@ Includes
 #include <stdexcept>
 #include <map>
 #include <optional>
-struct Texture;
 
 namespace LunaraEngine
 {
-    /***********************************************************************************************************************
+
+/***********************************************************************************************************************
 Macro definitions
 ***********************************************************************************************************************/
   constexpr int RENDERER_MAX_COMMANDS = 1024;
@@ -163,8 +164,8 @@ Macro definitions
 
      struct QueueFamilyIndices {
          std::optional<uint32_t> graphicsFamily;
-
-         bool isComplete() { return graphicsFamily.has_value(); }
+         std::optional<uint32_t> computeFamily;
+         bool isComplete() { return graphicsFamily.has_value() && computeFamily.has_value(); }
      };
 
      struct RendererDataType {
@@ -181,19 +182,29 @@ Macro definitions
     };
 
      //to be fixed govnokod
-     class Rend
+     class RendererAPI
      {
      public:
-         static Rend& Get()
+         RendererAPI() = default;
+
+         static RendererAPI& Get()
          { 
              return s_instance;
          }
 
-         Rend(const Rend& other) = delete;
-         void operator=(const Rend&) = delete;
+         RendererAPI(const RendererAPI& other) = delete;
+         void operator=(const RendererAPI&) = delete;
 
          static VkInstance* GetInstance() { return &s_instance.renderer->instance; }
          static Window* GetWindow() { return s_instance.renderer->window;}
+
+         static void CreateInstance();
+         static void GetPlatformExtensions(std::vector<const char*>& extensions);
+         static void CreateDevice();
+         static void PickPhysicalDevice();
+         static bool isDeviceSuitable(VkPhysicalDevice device);
+         static QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
+         void CleanUpVulkan();
 
          static VkDevice GetLogicalDevice() { return s_instance.renderer->device; }
          static void SetDevice(VkPhysicalDevice device) { s_instance.renderer->physicalDevice = device; }
@@ -202,39 +213,29 @@ Macro definitions
          static void DestroyRend() 
          { 
              vkDestroyInstance(s_instance.renderer->instance, nullptr);
-
          }
+
+     ~RendererAPI() = default;
      private:
-         Rend() = default;
          RendererDataType* renderer;
-         static Rend s_instance;
+         static RendererAPI s_instance;
          
      };
-
-     Rend Rend::s_instance;
     class Renderer
     {
     public:
         static RendererResultType Init(std::string_view window_name, uint32_t width, uint32_t height);
         static void Destroy();
         static void Present();
-       // static void DrawQuad(const FRect& rect, const Color4& color);
-       // static void DrawTexture(float x, float y, Texture* texture);
-       // static void DrawCircle(float x, float y, float radius, const Color4& color);
-       // static void DrawText(std::string_view text, Font* font, float x, float y, const Color4& color,
-         //                    RendererTextAlignAttribute align = RendererTextAlignAttribute::TextAlign_TopLeft);
-        //static void Clear(const Color4& color);
+        static void DrawQuad(const FRect& rect, const Color4& color);
+        static void DrawTexture(float x, float y, Texture* texture);
+        static void DrawCircle(float x, float y, float radius, const Color4& color);
+        static void DrawText(std::string_view text, Font* font, float x, float y, const Color4& color,
+                             RendererTextAlignAttribute align = RendererTextAlignAttribute::TextAlign_TopLeft);
+        static void Clear(const Color4& color);
 
         static void BeginRenderPass();
         static void EndRenderPass();
         static void Flush();
-        static void CreateInstance();
-        static void GetPlatformExtensions(std::vector<const char*>& extensions);
-        static void CreateDevice();
-        static void PickPhysicalDevice();
-        static bool isDeviceSuitable(VkPhysicalDevice device);
-        static QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
-        static Window* GetWindow();
-        void CleanUpVulkan();
     };
 }// namespace LunaraEngine
