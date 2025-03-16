@@ -1,6 +1,7 @@
 /**
  * @file
- * @author Krusto Stoyanov ( k.stoianov2@gmail.com )
+ * @author Krusto Stoyanov ( k.stoianov2@gmail.com ) 
+ * @coauthor Neyko Naydenov ( neyko641@gmail.com )
  * @brief 
  * @version 1.0
  * @date 
@@ -8,7 +9,7 @@
  * @section LICENSE
  * MIT License
  * 
- * Copyright (c) 2025 Krusto
+ * Copyright (c) 2025 Krusto, Neyko
  * 
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -119,15 +120,23 @@ namespace LunaraEngine
         //RendererCmdClear(&clear);
     }
     */
+    bool isDeviceSuitable(VkPhysicalDevice device)
+    { 
+        VkPhysicalDeviceProperties deviceProperties;
+        VkPhysicalDeviceFeatures deviceFeatures;
+        vkGetPhysicalDeviceProperties(*Rend::GetDevice(), &deviceProperties);
+        vkGetPhysicalDeviceFeatures(*Rend::GetDevice(), &deviceFeatures);
+        return deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU && deviceFeatures.geometryShader;
+    }
     static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
                                                         VkDebugUtilsMessageTypeFlagsEXT messageType,
                                                         const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
                                                         void* pUserData)
     {
         if (messageSeverity == VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT)
-            printf("%s\n", std::string(pCallbackData->pMessage));
+            printf("%s\n", pCallbackData->pMessage);
         if (messageSeverity == VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT)
-            printf("%s\n", std::string(pCallbackData->pMessage));
+            printf("%s\n", pCallbackData->pMessage);
 
         return VK_FALSE;
     }
@@ -201,6 +210,8 @@ namespace LunaraEngine
         debugCreateInfo.pUserData = nullptr;// Optional
 
         CreateDebugUtilsMessengerEXT(*Rend::GetInstance(), &debugCreateInfo, nullptr, Rend::GetDebug());
+        
+
     }
 
     void Renderer::GetPlatformExtensions(std::vector<const char*>& extensions) 
@@ -210,6 +221,80 @@ namespace LunaraEngine
        #elif LINUX
         extensions.emplace_back("VK_KHR_xlib_surface");
        #endif 
+    }
+
+    void Renderer::CreateDevice() 
+    { 
+        uint32_t deviceCount = 0;
+        vkEnumeratePhysicalDevices(*Rend::GetInstance(), &deviceCount, Rend::GetDevice());
+
+        if (deviceCount == 0) 
+        { 
+            throw std::runtime_error("Failed to find compatible GPUs");
+        }
+        std::vector<VkPhysicalDevice> devices(deviceCount);
+        vkEnumeratePhysicalDevices(*Rend::GetInstance(), &deviceCount, devices.data());
+        
+    }
+
+    void Renderer::PickPhysicalDevice()
+    {
+        uint32_t deviceCount = 0;
+        vkEnumeratePhysicalDevices(*Rend::GetInstance(), &deviceCount, nullptr);
+
+        if (deviceCount == 0) { throw std::runtime_error("failed to find GPUs with Vulkan support!"); }
+
+        std::vector<VkPhysicalDevice> devices(deviceCount);
+        vkEnumeratePhysicalDevices(*Rend::GetInstance(), &deviceCount, devices.data());
+
+        for (const auto& device: devices)
+        {
+            if (isDeviceSuitable(device))
+            {
+                Rend::SetDevice(device);
+                break;
+            }
+        }
+
+        if (Rend::GetDevice() == VK_NULL_HANDLE) { throw std::runtime_error("failed to find a suitable GPU!"); }
+    }
+
+    bool isDeviceSuitable(VkPhysicalDevice device)
+    {
+        QueueFamilyIndices indices = findQueueFamilies(device);
+
+        return indices.isComplete();
+    }
+
+    bool Renderer::isDeviceSuitable(VkPhysicalDevice device)
+    { 
+         QueueFamilyIndices indicies = findQueueFamilies(device);
+
+         return indicies.isComplete();
+    }
+
+    QueueFamilyIndices Renderer::findQueueFamilies(VkPhysicalDevice device)
+    { 
+        QueueFamilyIndices indices;
+
+        uint32_t queueFamilyCount = 0;
+        vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
+
+        
+        std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
+        vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
+
+        int i = 0;
+        for (const auto& queueFamily: queueFamilies)
+        {
+            if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) { indices.graphicsFamily = i; }
+
+            if (indices.isComplete()) { break; }
+
+            i++;
+        }
+
+        return indices;
     }
 
     Window* Renderer::GetWindow() { return Rend::GetWindow(); }
