@@ -52,11 +52,12 @@ namespace LunaraEngine
         (void) window_name;
         (void) width;
         (void) height;
-        RendererAPI::InitRendererAPI();
+        RendererAPI::CreateRendererAPI();
+        RendererAPI::GetInstance()->Init();
         return RendererResultType::Renderer_Result_Error;
     }
 
-    void Renderer::Destroy() { RendererAPI::DestroyRendererAPI(); }
+    void Renderer::Destroy() { RendererAPI::GetInstance()->Destroy(); }
 
     void Renderer::Present() {}
 
@@ -133,7 +134,7 @@ namespace LunaraEngine
 
     void Renderer::Flush() {}
 
-    Window* Renderer::GetWindow() { return RendererAPI::GetWindow(); }
+    Window* Renderer::GetWindow() { return RendererAPI::GetInstance()->GetWindow(); }
 
 
 }// namespace LunaraEngine

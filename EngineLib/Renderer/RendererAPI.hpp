@@ -40,11 +40,7 @@
 Includes
 ***********************************************************************************************************************/
 #include "Core/STDTypes.h"
-#include "RendererCommands.hpp"
 #include "Window.hpp"
-
-#include <vulkan/vulkan.h>
-#include <SDL3/SDL_render.h>
 
 #include <string_view>
 #include <vector>
@@ -53,83 +49,31 @@ Includes
 namespace LunaraEngine
 {
 
-    /***********************************************************************************************************************
-Macro definitions
-***********************************************************************************************************************/
-
-    struct RendererDataType {
-        std::vector<RendererCommand*> command_stack;
-        LunaraEngine::Window* window;
-        SDL_Renderer* renderer;
-        SDL_Surface* surface;
-        VkInstance instance;
-        VkDebugUtilsMessengerEXT debug;
-        VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
-        VkDevice device;
-        float width;
-        float height;
+    enum class RendererAPIType
+    {
+        Vulkan,
+        None
     };
-
-    struct QueueFamilyIndices;
 
     class RendererAPI
     {
     public:
-        RendererAPI() = default;
-        ~RendererAPI() = default;
-        RendererAPI(const RendererAPI& other) = delete;
-        void operator=(const RendererAPI&) = delete;
+        inline static RendererAPI* GetInstance() { return s_Instance; }
 
-        inline static RendererAPI* GetAPIInstance() { return &s_Instance; }
-
-    public:
-        static void InitRendererAPI();
+        static void CreateRendererAPI();
         static void DestroyRendererAPI();
 
     public:
-        static void CreateInstance();
-        static void CreateDevice();
+        virtual ~RendererAPI() = default;
+
+        virtual void Init() = 0;
+        virtual void Destroy() = 0;
+        virtual Window* GetWindow() = 0;
+        virtual void Present() = 0;
 
     public:
-        static VkInstance* GetVkInstance() { return &s_Instance.m_RendererData->instance; }
-
-        static Window* GetWindow() { return s_Instance.m_RendererData->window; }
-
-        static VkDevice GetDevice() { return s_Instance.m_RendererData->device; }
-
-        static VkPhysicalDevice* GetPhysicalDevice() { return &s_Instance.m_RendererData->physicalDevice; }
-
-        static VkDebugUtilsMessengerEXT* GetDebugHandler() { return &s_Instance.m_RendererData->debug; }
-
-    private:
-        void CleanUpVulkan();
-
-        void SetPhysicalDevice(VkPhysicalDevice device) { s_Instance.m_RendererData->physicalDevice = device; }
-
-        void SetDevice(VkDevice device) { s_Instance.m_RendererData->device = device; }
-
-        void GetPlatformExtensions(std::vector<const char*>& extensions);
-        void PickPhysicalDevice();
-        bool IsDeviceSuitable(VkPhysicalDevice device);
-        QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice device);
-
-        static VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
-                                                            VkDebugUtilsMessageTypeFlagsEXT messageType,
-                                                            const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
-                                                            void* pUserData);
-        static void DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger,
-                                                  const VkAllocationCallbacks* pAllocator);
-
-        static VkResult CreateDebugUtilsMessengerEXT(VkInstance instance,
-                                                     const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
-                                                     const VkAllocationCallbacks* pAllocator,
-                                                     VkDebugUtilsMessengerEXT* pDebugMessenger);
-
-    private:
-        std::unique_ptr<RendererDataType> m_RendererData;
-
-    private:
-        static RendererAPI s_Instance;
+        inline static RendererAPI* s_Instance;
+        inline static RendererAPIType s_APIType = RendererAPIType::Vulkan;
     };
 
 }// namespace LunaraEngine
