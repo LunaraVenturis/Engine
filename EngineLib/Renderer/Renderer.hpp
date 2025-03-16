@@ -195,6 +195,7 @@ Macro definitions
          static VkInstance* GetInstance() { return &s_instance.renderer->instance; }
          static Window* GetWindow() { return s_instance.renderer->window;}
 
+         static VkDevice GetLogicalDevice() { return s_instance.renderer->device; }
          static void SetDevice(VkPhysicalDevice device) { s_instance.renderer->physicalDevice = device; }
          static VkPhysicalDevice* GetDevice() { return &s_instance.renderer->physicalDevice; }
          static VkDebugUtilsMessengerEXT* GetDebug() { return &s_instance.renderer->debug; }
