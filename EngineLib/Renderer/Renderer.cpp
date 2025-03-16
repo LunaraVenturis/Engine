@@ -47,9 +47,10 @@ Includes
 
 namespace LunaraEngine
 {
-
+    RendererAPI RendererAPI::s_instance;
     RendererResultType Renderer::Init(std::string_view window_name, uint32_t width, uint32_t height)
     { 
+        RendererAPI::Get().CreateInstance();
         return RendererResultType::Renderer_Result_Error;
     }
 
@@ -57,7 +58,7 @@ namespace LunaraEngine
 
     void Renderer::Present() { }
 
-    /*
+    
     void Renderer::DrawQuad(const FRect& rect, const Color4& color)
     {
         RendererCommandDrawQuad quad;
@@ -119,15 +120,8 @@ namespace LunaraEngine
         clear.a = (uint8_t) color.a;
         //RendererCmdClear(&clear);
     }
-    */
-    bool isDeviceSuitable(VkPhysicalDevice device)
-    { 
-        VkPhysicalDeviceProperties deviceProperties;
-        VkPhysicalDeviceFeatures deviceFeatures;
-        vkGetPhysicalDeviceProperties(*Rend::GetDevice(), &deviceProperties);
-        vkGetPhysicalDeviceFeatures(*Rend::GetDevice(), &deviceFeatures);
-        return deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU && deviceFeatures.geometryShader;
-    }
+    
+
     static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
                                                         VkDebugUtilsMessageTypeFlagsEXT messageType,
                                                         const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
@@ -165,13 +159,13 @@ namespace LunaraEngine
 
     void Renderer::Flush() {  }
 
-    void Renderer::CreateInstance() 
+    void RendererAPI::CreateInstance() 
     { 
         VkApplicationInfo appInfo {};
         appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-        appInfo.pApplicationName = "Tobenamed";
+        appInfo.pApplicationName = "Name";
         appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
-        appInfo.pEngineName = "KrustyoManja";
+        appInfo.pEngineName = "LunaraEngine";
         appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
         appInfo.apiVersion = VK_MAKE_VERSION(1, 3, 0);
 
@@ -194,7 +188,7 @@ namespace LunaraEngine
         createInfo.enabledExtensionCount = names.size();
         createInfo.ppEnabledExtensionNames = names.data();
 
-        if (vkCreateInstance(&createInfo, nullptr, Rend::GetInstance()) != VK_SUCCESS)
+        if (vkCreateInstance(&createInfo, nullptr, RendererAPI::GetInstance()) != VK_SUCCESS)
         {
             throw std::runtime_error("Failed to create instance!");
         }
@@ -209,12 +203,12 @@ namespace LunaraEngine
         debugCreateInfo.pfnUserCallback = debugCallback;
         debugCreateInfo.pUserData = nullptr;// Optional
 
-        CreateDebugUtilsMessengerEXT(*Rend::GetInstance(), &debugCreateInfo, nullptr, Rend::GetDebug());
+        CreateDebugUtilsMessengerEXT(*RendererAPI::GetInstance(), &debugCreateInfo, nullptr, RendererAPI::GetDebug());
         
 
     }
 
-    void Renderer::GetPlatformExtensions(std::vector<const char*>& extensions) 
+    void RendererAPI::GetPlatformExtensions(std::vector<const char*>& extensions) 
     {
        #ifdef _WIN32
         extensions.emplace_back("VK_KHR_win32_surface");
@@ -223,50 +217,50 @@ namespace LunaraEngine
        #endif 
     }
 
-    void Renderer::CreateDevice() 
+    void RendererAPI::CreateDevice() 
     { 
         uint32_t deviceCount = 0;
-        vkEnumeratePhysicalDevices(*Rend::GetInstance(), &deviceCount, Rend::GetDevice());
+        vkEnumeratePhysicalDevices(*RendererAPI::GetInstance(), &deviceCount, RendererAPI::GetDevice());
 
         if (deviceCount == 0) 
         { 
             throw std::runtime_error("Failed to find compatible GPUs");
         }
         std::vector<VkPhysicalDevice> devices(deviceCount);
-        vkEnumeratePhysicalDevices(*Rend::GetInstance(), &deviceCount, devices.data());
+        vkEnumeratePhysicalDevices(*RendererAPI::GetInstance(), &deviceCount, devices.data());
         
     }
 
-    void Renderer::PickPhysicalDevice()
+    void RendererAPI::PickPhysicalDevice()
     {
         uint32_t deviceCount = 0;
-        vkEnumeratePhysicalDevices(*Rend::GetInstance(), &deviceCount, nullptr);
+        vkEnumeratePhysicalDevices(*RendererAPI::GetInstance(), &deviceCount, nullptr);
 
         if (deviceCount == 0) { throw std::runtime_error("failed to find GPUs with Vulkan support!"); }
 
         std::vector<VkPhysicalDevice> devices(deviceCount);
-        vkEnumeratePhysicalDevices(*Rend::GetInstance(), &deviceCount, devices.data());
+        vkEnumeratePhysicalDevices(*RendererAPI::GetInstance(), &deviceCount, devices.data());
 
         for (const auto& device: devices)
         {
             if (isDeviceSuitable(device))
             {
-                Rend::SetDevice(device);
+                RendererAPI::SetDevice(device);
                 break;
             }
         }
 
-        if (Rend::GetDevice() == VK_NULL_HANDLE) { throw std::runtime_error("failed to find a suitable GPU!"); }
+        if (RendererAPI::GetDevice() == VK_NULL_HANDLE) { throw std::runtime_error("failed to find a suitable GPU!"); }
     }
 
-    bool Renderer::isDeviceSuitable(VkPhysicalDevice device)
+    bool RendererAPI::isDeviceSuitable(VkPhysicalDevice device)
     { 
          QueueFamilyIndices indicies = findQueueFamilies(device);
 
          return indicies.isComplete();
     }
 
-    QueueFamilyIndices Renderer::findQueueFamilies(VkPhysicalDevice device)
+    QueueFamilyIndices RendererAPI::findQueueFamilies(VkPhysicalDevice device)
     { 
         QueueFamilyIndices indices;
 
@@ -281,7 +275,7 @@ namespace LunaraEngine
         for (const auto& queueFamily: queueFamilies)
         {
             if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) { indices.graphicsFamily = i; }
-
+            if (queueFamily.queueFlags & VK_QUEUE_COMPUTE_BIT) { indices.computeFamily = i; }
             if (indices.isComplete()) { break; }
 
             i++;
@@ -290,11 +284,9 @@ namespace LunaraEngine
         return indices;
     }
 
-    Window* Renderer::GetWindow() { return Rend::GetWindow(); }
-
-    void Renderer::CleanUpVulkan() 
+    void RendererAPI::CleanUpVulkan() 
     { 
-        Rend::DestroyRend();
+        RendererAPI::DestroyRend();
     }
 
 }// namespace LunaraEngine
