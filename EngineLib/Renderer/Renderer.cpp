@@ -34,31 +34,32 @@
  * Renderer definitions
  */
 
-#ifndef ENGINELIB_RENDERER_RENDERER_CPP
-#define ENGINELIB_RENDERER_RENDERER_CPP
 
 /***********************************************************************************************************************
 Includes
 ***********************************************************************************************************************/
 #include "Renderer.hpp"
-#include "Texture.h"
-#include "Fonts.h"
+#include "RendererAPI.hpp"
+#include "Texture.hpp"
+#include "Fonts.hpp"
 #include <string_view>
 
 namespace LunaraEngine
 {
-    RendererAPI RendererAPI::s_instance;
+
     RendererResultType Renderer::Init(std::string_view window_name, uint32_t width, uint32_t height)
-    { 
-        RendererAPI::Get().CreateInstance();
+    {
+        (void) window_name;
+        (void) width;
+        (void) height;
+        RendererAPI::InitRendererAPI();
         return RendererResultType::Renderer_Result_Error;
     }
 
-    void Renderer::Destroy() { }
+    void Renderer::Destroy() { RendererAPI::DestroyRendererAPI(); }
 
-    void Renderer::Present() { }
+    void Renderer::Present() {}
 
-    
     void Renderer::DrawQuad(const FRect& rect, const Color4& color)
     {
         RendererCommandDrawQuad quad;
@@ -70,6 +71,7 @@ namespace LunaraEngine
         quad.g = (uint8_t) color.g;
         quad.b = (uint8_t) color.b;
         quad.a = (uint8_t) color.a;
+        (void) quad;
         //RendererCmdDrawQuad(&quad);
     }
 
@@ -79,7 +81,8 @@ namespace LunaraEngine
         tex.x = x;
         tex.y = y;
         tex.texture = texture;
-       // RendererCmdDrawTexture(&tex);
+        (void) tex;
+        // RendererCmdDrawTexture(&tex);
     }
 
     void Renderer::DrawCircle(float x, float y, float radius, const Color4& color)
@@ -92,7 +95,8 @@ namespace LunaraEngine
         circle.g = (uint8_t) color.g;
         circle.b = (uint8_t) color.b;
         circle.a = (uint8_t) color.a;
-      //  RendererCmdDrawCircle(&circle);
+        (void) circle;
+        //  RendererCmdDrawCircle(&circle);
     }
 
     void Renderer::DrawText(std::string_view text, Font* font, float x, float y, const Color4& color,
@@ -108,7 +112,8 @@ namespace LunaraEngine
         text_cmd.b = (uint8_t) color.b;
         text_cmd.a = (uint8_t) color.a;
         text_cmd.align = align;
-       // RendererCmdDrawText(&text_cmd);
+        (void) text_cmd;
+        // RendererCmdDrawText(&text_cmd);
     }
 
     void Renderer::Clear(const Color4& color)
@@ -118,176 +123,17 @@ namespace LunaraEngine
         clear.g = (uint8_t) color.g;
         clear.b = (uint8_t) color.b;
         clear.a = (uint8_t) color.a;
+        (void) clear;
         //RendererCmdClear(&clear);
     }
-    
 
-    static VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
-                                                        VkDebugUtilsMessageTypeFlagsEXT messageType,
-                                                        const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
-                                                        void* pUserData)
-    {
-        if (messageSeverity == VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT)
-            printf("%s\n", pCallbackData->pMessage);
-        if (messageSeverity == VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT)
-            printf("%s\n", pCallbackData->pMessage);
+    void Renderer::BeginRenderPass() {}
 
-        return VK_FALSE;
-    }
+    void Renderer::EndRenderPass() {}
 
-    void DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger,
-                                       const VkAllocationCallbacks* pAllocator)
-    {
-        auto func = (PFN_vkDestroyDebugUtilsMessengerEXT) vkGetInstanceProcAddr(instance,
-                                                                                "vkDestroyDebugUtilsMessengerEXT");
-        if (func != nullptr) { func(instance, debugMessenger, pAllocator); }
-    }
+    void Renderer::Flush() {}
 
-    VkResult CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
-                                          const VkAllocationCallbacks* pAllocator,
-                                          VkDebugUtilsMessengerEXT* pDebugMessenger)
-    {
-        auto func =
-                (PFN_vkCreateDebugUtilsMessengerEXT) vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
-        if (func != nullptr) { return func(instance, pCreateInfo, pAllocator, pDebugMessenger); }
-        else { return VK_ERROR_EXTENSION_NOT_PRESENT; }
-    }
+    Window* Renderer::GetWindow() { return RendererAPI::GetWindow(); }
 
-    void Renderer::BeginRenderPass() {  }
-
-    void Renderer::EndRenderPass() {  }
-
-    void Renderer::Flush() {  }
-
-    void RendererAPI::CreateInstance() 
-    { 
-        VkApplicationInfo appInfo {};
-        appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-        appInfo.pApplicationName = "Name";
-        appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
-        appInfo.pEngineName = "LunaraEngine";
-        appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
-        appInfo.apiVersion = VK_MAKE_VERSION(1, 3, 0);
-
-        VkInstanceCreateInfo createInfo {};
-        createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-        createInfo.pApplicationInfo = &appInfo;
-
-        std::vector<const char*> names = {"VK_KHR_surface"};
-        GetPlatformExtensions(names);
-        #ifdef _DEBUG
-        createInfo.enabledLayerCount = 1;
-        std::array<const char*, 1> layers = {"VK_LAYER_KHRONOS_validation"};
-        createInfo.ppEnabledLayerNames = layers.data();
-        names.push_back("VK_EXT_debug_utils");
-        names.push_back("VK_EXT_debug_report");
-        #else
-        createInfo.enabledLayerCount = 0;
-        createInfo.ppEnabledLayerNames = nullptr;
-        #endif
-        createInfo.enabledExtensionCount = names.size();
-        createInfo.ppEnabledExtensionNames = names.data();
-
-        if (vkCreateInstance(&createInfo, nullptr, RendererAPI::GetInstance()) != VK_SUCCESS)
-        {
-            throw std::runtime_error("Failed to create instance!");
-        }
-        VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
-        debugCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
-        debugCreateInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT |
-                                          VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
-                                          VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
-        debugCreateInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT |
-                                      VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
-                                      VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
-        debugCreateInfo.pfnUserCallback = debugCallback;
-        debugCreateInfo.pUserData = nullptr;// Optional
-
-        CreateDebugUtilsMessengerEXT(*RendererAPI::GetInstance(), &debugCreateInfo, nullptr, RendererAPI::GetDebug());
-        
-
-    }
-
-    void RendererAPI::GetPlatformExtensions(std::vector<const char*>& extensions) 
-    {
-       #ifdef _WIN32
-        extensions.emplace_back("VK_KHR_win32_surface");
-       #elif LINUX
-        extensions.emplace_back("VK_KHR_xlib_surface");
-       #endif 
-    }
-
-    void RendererAPI::CreateDevice() 
-    { 
-        uint32_t deviceCount = 0;
-        vkEnumeratePhysicalDevices(*RendererAPI::GetInstance(), &deviceCount, RendererAPI::GetDevice());
-
-        if (deviceCount == 0) 
-        { 
-            throw std::runtime_error("Failed to find compatible GPUs");
-        }
-        std::vector<VkPhysicalDevice> devices(deviceCount);
-        vkEnumeratePhysicalDevices(*RendererAPI::GetInstance(), &deviceCount, devices.data());
-        
-    }
-
-    void RendererAPI::PickPhysicalDevice()
-    {
-        uint32_t deviceCount = 0;
-        vkEnumeratePhysicalDevices(*RendererAPI::GetInstance(), &deviceCount, nullptr);
-
-        if (deviceCount == 0) { throw std::runtime_error("failed to find GPUs with Vulkan support!"); }
-
-        std::vector<VkPhysicalDevice> devices(deviceCount);
-        vkEnumeratePhysicalDevices(*RendererAPI::GetInstance(), &deviceCount, devices.data());
-
-        for (const auto& device: devices)
-        {
-            if (isDeviceSuitable(device))
-            {
-                RendererAPI::SetDevice(device);
-                break;
-            }
-        }
-
-        if (RendererAPI::GetDevice() == VK_NULL_HANDLE) { throw std::runtime_error("failed to find a suitable GPU!"); }
-    }
-
-    bool RendererAPI::isDeviceSuitable(VkPhysicalDevice device)
-    { 
-         QueueFamilyIndices indicies = findQueueFamilies(device);
-
-         return indicies.isComplete();
-    }
-
-    QueueFamilyIndices RendererAPI::findQueueFamilies(VkPhysicalDevice device)
-    { 
-        QueueFamilyIndices indices;
-
-        uint32_t queueFamilyCount = 0;
-        vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
-
-        
-        std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
-        vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
-
-        int i = 0;
-        for (const auto& queueFamily: queueFamilies)
-        {
-            if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) { indices.graphicsFamily = i; }
-            if (queueFamily.queueFlags & VK_QUEUE_COMPUTE_BIT) { indices.computeFamily = i; }
-            if (indices.isComplete()) { break; }
-
-            i++;
-        }
-
-        return indices;
-    }
-
-    void RendererAPI::CleanUpVulkan() 
-    { 
-        RendererAPI::DestroyRend();
-    }
 
 }// namespace LunaraEngine
-#endif

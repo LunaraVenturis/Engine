@@ -33,54 +33,47 @@
  * Texture declarations
  */
 
-#ifndef ENG_Texture
-#define ENG_Texture
-
 /***********************************************************************************************************************
 Includes
 ***********************************************************************************************************************/
-#include "Core/STDTypes.h"
-#ifdef __cplusplus
+#include "Texture.hpp"
+#include <SDL3/SDL_render.h>
+
 namespace LunaraEngine
 {
-    extern "C" {
-#endif
     /***********************************************************************************************************************
     Macro definitions
     ***********************************************************************************************************************/
 
     /***********************************************************************************************************************
-    Type definitions
-    ***********************************************************************************************************************/
-    typedef struct {
-        float width;
-        float height;
-        uint32_t channels;
-    } TextureInfo;
-
-    typedef enum
-    {
-        TextureResult_None = 0,
-        TextureResult_Success,
-        TextureResult_Error
-    } TextureResultType;
-
-    typedef struct {
-        TextureInfo info;
-        void* data;
-    } Texture;
-
-    /***********************************************************************************************************************
     Functions declarations
     ************************************************************************************************************************/
 
-    extern TextureResultType Texture_Init(Texture* texture, uint32_t width, uint32_t height, uint32_t channels);
-    extern TextureResultType Texture_SetData(Texture* texture, void* data);
-    extern TextureResultType Texture_GetInfo(Texture* texture, TextureInfo** info);
-    extern TextureResultType Texture_Destroy(Texture* texture);
+    TextureResultType Texture_Init(Texture* texture, uint32_t width, uint32_t height, uint32_t channels)
+    {
+        texture->info.width = (float) width;
+        texture->info.height = (float) height;
+        texture->info.channels = channels;
+        texture->data = NULL;
 
-#ifdef __cplusplus
+        return TextureResult_Success;
     }
-}
-#endif
-#endif
+
+    TextureResultType Texture_SetData(Texture* texture, void* data)
+    {
+        texture->data = data;
+        return TextureResult_Success;
+    }
+
+    TextureResultType Texture_GetInfo(Texture* texture, TextureInfo** info)
+    {
+        *info = &texture->info;
+        return TextureResult_Success;
+    }
+
+    TextureResultType Texture_Destroy(Texture* texture)
+    {
+        texture->data = NULL;
+        return TextureResult_Success;
+    }
+}// namespace LunaraEngine

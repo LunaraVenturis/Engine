@@ -39,188 +39,21 @@
 /***********************************************************************************************************************
 Includes
 ***********************************************************************************************************************/
-#include "Fonts.h"
+#include "Core/STDTypes.h"
+#include "Window.hpp"
 #include "Math/Rect.h"
 #include "Math/Color.h"
-#include "Texture.h"
-#include <string_view>
+#include "RendererCommands.hpp"
+#include "Fonts.hpp"
+#include "Texture.hpp"
+
 #include <SDL3/SDL_render.h>
-#include "Core/STDTypes.h"
-#include "vulkan/vulkan.h"
-#include <vector>
-#include <array>
-#include <exception>
-#include <stdexcept>
-#include <map>
-#include <optional>
+
+#include <string_view>
 
 namespace LunaraEngine
 {
 
-/***********************************************************************************************************************
-Macro definitions
-***********************************************************************************************************************/
-  constexpr int RENDERER_MAX_COMMANDS = 1024;
-
-    /***********************************************************************************************************************
-    Type definitions
-    ***********************************************************************************************************************/
-    enum class RendererResultType : int
-    {
-        Renderer_Result_None = 0,
-        Renderer_Result_Success,
-        Renderer_Result_Error
-    };
-
-    enum class RendererCommandType : int
-    {
-        RendererCommandType_None = 0,
-        RendererCommandType_BindShader,
-        RendererCommandType_BindTexture,
-        RendererCommandType_Clear,
-        RendererCommandType_DrawQuad,
-        RendererCommandType_DrawTexture,
-        RendererCommandType_DrawCircle,
-        RendererCommandType_DrawText
-    };
-
-    struct RendererCommandDrawQuad {
-        float x;
-        float y;
-        float width;
-        float height;
-        float r;
-        float g;
-        float b;
-        float a;
-    };
-
-     struct RendererCommandClear {
-        float r;
-        float g;
-        float b;
-        float a;
-    };
-
-    enum class RendererTextAlignAttribute : int
-    {
-        TextAlign_TopLeft = 0,
-        TextAlign_TopCenter,
-        TextAlign_TopRight,
-        TextAlign_Left,
-        TextAlign_Center,
-        TextAlign_Right,
-        TextAlign_BottomLeft,
-        TextAlign_BottomCenter,
-        TextAlign_BottomRight,
-    };
-
-     struct RendererCommandDrawText {
-        char* text;
-        void* font;
-        float x;
-        float y;
-        float r;
-        float g;
-        float b;
-        float a;
-        RendererTextAlignAttribute align;
-    };
-
-    struct RendererCommandDrawTexture {
-        float x;
-        float y;
-        Texture* texture;
-    };
-
-    struct RendererCommandDrawCircle {
-        float x;
-        float y;
-        float radius;
-        float r;
-        float g;
-        float b;
-        float a;
-    };
-
-    struct RendererCommandNode {
-
-        void* data;
-        void* next;
-        RendererCommandType type;
-    };
-
-    using RendererCommand = void;
-
-    struct RendererCommandStack {
-        RendererCommandNode* head;
-        RendererCommandNode* current;
-    };
-
-     struct Window {
-        const char* name;
-        void* data;
-    };
-
-     struct QueueFamilyIndices {
-         std::optional<uint32_t> graphicsFamily;
-         std::optional<uint32_t> computeFamily;
-         bool isComplete() { return graphicsFamily.has_value() && computeFamily.has_value(); }
-     };
-
-     struct RendererDataType {
-        RendererCommandStack command_stack;
-        Window* window;
-        SDL_Renderer* renderer;
-        SDL_Surface* surface;
-        VkInstance instance;
-        VkDebugUtilsMessengerEXT debug;
-        VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
-        VkDevice device;
-        float width;
-        float height;
-    };
-
-     //to be fixed govnokod
-     class RendererAPI
-     {
-     public:
-         RendererAPI() = default;
-
-         static RendererAPI& Get()
-         { 
-             return s_instance;
-         }
-
-         RendererAPI(const RendererAPI& other) = delete;
-         void operator=(const RendererAPI&) = delete;
-
-         static VkInstance* GetInstance() { return &s_instance.renderer->instance; }
-         static Window* GetWindow() { return s_instance.renderer->window;}
-
-         static void CreateInstance();
-         static void GetPlatformExtensions(std::vector<const char*>& extensions);
-         static void CreateDevice();
-         static void PickPhysicalDevice();
-         static bool isDeviceSuitable(VkPhysicalDevice device);
-         static QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
-         void CleanUpVulkan();
-
-         static VkDevice GetLogicalDevice() { return s_instance.renderer->device; }
-         static void SetDevice(VkPhysicalDevice device) { s_instance.renderer->physicalDevice = device; }
-         static VkPhysicalDevice* GetDevice() { return &s_instance.renderer->physicalDevice; }
-         static VkDebugUtilsMessengerEXT* GetDebug() { return &s_instance.renderer->debug; }
-         static void DestroyRend() 
-         { 
-             vkDestroyInstance(s_instance.renderer->instance, nullptr);
-         }
-
-     ~RendererAPI() = default;
-     private:
-         RendererDataType* renderer;
-         static RendererAPI s_instance;
-         
-     };
     class Renderer
     {
     public:
@@ -237,5 +70,7 @@ Macro definitions
         static void BeginRenderPass();
         static void EndRenderPass();
         static void Flush();
+
+        static Window* GetWindow();
     };
 }// namespace LunaraEngine
