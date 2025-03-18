@@ -24,7 +24,7 @@ message("${PROJECT_NAME}: Adding source files")
 file(GLOB_RECURSE SANDBOX_SOURCE_FILES ./Sandbox/*.cpp ./Sandbox/*.c)
 file(GLOB_RECURSE SANDBOX_HEADER_FILES ./Sandbox/*.hpp ./Sandbox/*.h)
 
-file(GLOB_RECURSE ENGINE_SOURCE_FILES ./EngineLib/*.cpp ./EngineLib/*.c)
+file(GLOB_RECURSE ENGINE_SOURCE_FILES ./EngineLib/*.cpp ./EngineLib/*.c) 
 file(GLOB_RECURSE ENGINE_HEADER_FILES ./EngineLib/*.hpp ./EngineLib/*.h)
 
 add_compile_definitions(GLM_ENABLE_EXPERIMENTAL)
