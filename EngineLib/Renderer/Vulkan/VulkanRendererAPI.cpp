@@ -152,12 +152,12 @@ namespace LunaraEngine
     void VulkanRendererAPI::PickPhysicalDevice()
     {
         uint32_t deviceCount = 0;
-        vkEnumeratePhysicalDevices(*GetVkInstance(), &deviceCount, nullptr);
+        vkEnumeratePhysicalDevices(m_RendererData->instance, &deviceCount, nullptr);
 
         if (deviceCount == 0) { throw std::runtime_error("failed to find GPUs with Vulkan support!"); }
 
         std::vector<VkPhysicalDevice> devices(deviceCount);
-        vkEnumeratePhysicalDevices(*GetVkInstance(), &deviceCount, devices.data());
+        vkEnumeratePhysicalDevices(m_RendererData->instance, &deviceCount, devices.data());
 
         for (const auto& device: devices)
         {
