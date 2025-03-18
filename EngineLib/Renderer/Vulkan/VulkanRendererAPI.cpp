@@ -55,6 +55,8 @@ namespace LunaraEngine
     {
         m_RendererData = std::make_unique<RendererDataType>();
         CreateInstance();
+        PickPhysicalDevice();
+        CreateLogicalDevice();
     }
 
     void VulkanRendererAPI::Destroy() { CleanUpVulkan(); }
@@ -89,7 +91,7 @@ namespace LunaraEngine
         createInfo.enabledExtensionCount = static_cast<uint32_t>(names.size());
         createInfo.ppEnabledExtensionNames = names.data();
 
-        if (vkCreateInstance(&createInfo, nullptr, GetVkInstance()) != VK_SUCCESS)
+        if (vkCreateInstance(&createInfo, nullptr, &m_RendererData->instance) != VK_SUCCESS)
         {
             throw std::runtime_error("Failed to create instance!");
         }
@@ -103,8 +105,8 @@ namespace LunaraEngine
                                       VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
         debugCreateInfo.pfnUserCallback = VulkanRendererAPI::DebugCallback;
         debugCreateInfo.pUserData = nullptr;// Optional
-
-        CreateDebugUtilsMessengerEXT(*GetVkInstance(), &debugCreateInfo, nullptr, GetDebugHandler());
+        
+        CreateDebugUtilsMessengerEXT(m_RendererData->instance, &debugCreateInfo, nullptr, &m_RendererData->debug);
     }
 
     void VulkanRendererAPI::GetPlatformExtensions(std::vector<const char*>& extensions)
@@ -117,6 +119,35 @@ namespace LunaraEngine
     }
 
     void VulkanRendererAPI::CreateDevice() { throw std::runtime_error("Not implemented"); }
+
+    void VulkanRendererAPI::CreateLogicalDevice()
+    {
+        QueueFamilyIndices indices = FindQueueFamilies(m_RendererData->physicalDevice);
+
+        VkDeviceQueueCreateInfo queueCreateInfo {};
+        queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+        queueCreateInfo.queueFamilyIndex = indices.graphicsFamily.has_value();
+        queueCreateInfo.queueCount = 1;
+        float queuePriority = 1.0f;
+        queueCreateInfo.pQueuePriorities = &queuePriority;
+
+        VkPhysicalDeviceFeatures deviceFeatures{};
+        VkDeviceCreateInfo createInfo{};
+        createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+
+        createInfo.pQueueCreateInfos = &queueCreateInfo;
+        createInfo.queueCreateInfoCount = 1;
+
+        createInfo.pEnabledFeatures = &deviceFeatures;
+        createInfo.enabledExtensionCount = 0;
+
+        if (vkCreateDevice(m_RendererData->physicalDevice, &createInfo, nullptr, &m_RendererData->device) != VK_SUCCESS)
+        {
+            throw std::runtime_error("failed to create logical device!");
+        }
+        vkGetDeviceQueue(m_RendererData->device, indices.graphicsFamily.value(), 0, &m_RendererData->gfxQueue);
+
+    }
 
     void VulkanRendererAPI::PickPhysicalDevice()
     {
@@ -136,8 +167,8 @@ namespace LunaraEngine
                 break;
             }
         }
-
-        if (GetDevice() == VK_NULL_HANDLE) { throw std::runtime_error("failed to find a suitable GPU!"); }
+        
+        if (m_RendererData->device == VK_NULL_HANDLE) { throw std::runtime_error("failed to find a suitable GPU!"); }
     }
 
     bool VulkanRendererAPI::IsDeviceSuitable(VkPhysicalDevice device)
@@ -171,7 +202,11 @@ namespace LunaraEngine
         return indices;
     }
 
-    void VulkanRendererAPI::CleanUpVulkan() { vkDestroyInstance(m_RendererData->instance, nullptr); }
+    void VulkanRendererAPI::CleanUpVulkan() 
+    { 
+        vkDestroyInstance(m_RendererData->instance, nullptr);
+        vkDestroyDevice(m_RendererData->device, nullptr);
+    }
 
     VKAPI_ATTR VkBool32 VKAPI_CALL VulkanRendererAPI::DebugCallback(
             VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType,

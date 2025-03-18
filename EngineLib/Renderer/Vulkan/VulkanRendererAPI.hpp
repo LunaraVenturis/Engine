@@ -39,7 +39,7 @@
 /***********************************************************************************************************************
 Includes
 ***********************************************************************************************************************/
-#include "Core/STDTypes.h"
+#include <Core/STDTypes.h>
 #include <Renderer/RendererAPI.hpp>
 #include <Renderer/RendererCommands.hpp>
 #include <Renderer/Window.hpp>
@@ -67,6 +67,7 @@ Macro definitions
         VkDebugUtilsMessengerEXT debug;
         VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
         VkDevice device;
+        VkQueue gfxQueue;
         float width;
         float height;
     };
@@ -92,11 +93,13 @@ Macro definitions
     private:
         void CreateInstance();
         void CreateDevice();
+        void PickPhysicalDevice();
+        void CreateLogicalDevice();
 
     private:
         VkInstance* GetVkInstance() { return &m_RendererData->instance; }
 
-        VkDevice GetDevice() { return m_RendererData->device; }
+        VkDevice* GetDevice() { return &m_RendererData->device; }
 
         VkPhysicalDevice* GetPhysicalDevice() { return &m_RendererData->physicalDevice; }
 
@@ -109,7 +112,6 @@ Macro definitions
         void SetDevice(VkDevice device) { m_RendererData->device = device; }
 
         void GetPlatformExtensions(std::vector<const char*>& extensions);
-        void PickPhysicalDevice();
         bool IsDeviceSuitable(VkPhysicalDevice device);
         QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice device);
 
