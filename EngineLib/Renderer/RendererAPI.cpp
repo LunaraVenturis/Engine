@@ -41,7 +41,6 @@ Includes
 #include "RendererAPI.hpp"
 #include "Vulkan/VulkanRendererAPI.hpp"
 #include <stdexcept>
-//#include "OpenGLRendererAPI.hpp" // TODO: add support for OpenGL maybe?
 namespace LunaraEngine
 {
 

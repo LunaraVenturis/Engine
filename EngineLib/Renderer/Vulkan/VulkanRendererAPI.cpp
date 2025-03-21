@@ -47,8 +47,9 @@ namespace LunaraEngine
     struct QueueFamilyIndices {
         std::optional<uint32_t> graphicsFamily;
         std::optional<uint32_t> computeFamily;
+        std::optional<uint32_t> presentFamily;
 
-        bool isComplete() { return graphicsFamily.has_value() && computeFamily.has_value(); }
+        bool isComplete() { return graphicsFamily.has_value() && computeFamily.has_value() && presentFamily.has_value(); }
     };
 
     void VulkanRendererAPI::Init()
@@ -113,7 +114,7 @@ namespace LunaraEngine
     {
 #ifdef _WIN32
         extensions.emplace_back("VK_KHR_win32_surface");
-#elif LINUX
+#elif __linux__
         extensions.emplace_back("VK_KHR_xlib_surface");
 #endif
     }
@@ -168,7 +169,7 @@ namespace LunaraEngine
             }
         }
         
-        if (m_RendererData->device == VK_NULL_HANDLE) { throw std::runtime_error("failed to find a suitable GPU!"); }
+        if (m_RendererData->physicalDevice == VK_NULL_HANDLE) { throw std::runtime_error("failed to find a suitable GPU!"); }
     }
 
     bool VulkanRendererAPI::IsDeviceSuitable(VkPhysicalDevice device)
@@ -183,6 +184,8 @@ namespace LunaraEngine
         QueueFamilyIndices indices;
 
         uint32_t queueFamilyCount = 0;
+        VkBool32 presentSupport = false;
+        //vkGetPhysicalDeviceSurfaceSupportKHR(device, i, surface, &presentSupport);
         vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
 
 
