@@ -47,9 +47,9 @@ namespace LunaraEngine
     struct QueueFamilyIndices {
         std::optional<uint32_t> graphicsFamily;
         std::optional<uint32_t> computeFamily;
-        std::optional<uint32_t> presentFamily;
+        //std::optional<uint32_t> presentFamily;
 
-        bool isComplete() { return graphicsFamily.has_value() && computeFamily.has_value() && presentFamily.has_value(); }
+        bool isComplete() { return graphicsFamily.has_value() && computeFamily.has_value();}
     };
 
     void VulkanRendererAPI::Init()
@@ -114,7 +114,7 @@ namespace LunaraEngine
     {
 #ifdef _WIN32
         extensions.emplace_back("VK_KHR_win32_surface");
-#elif __linux__
+#elif linux
         extensions.emplace_back("VK_KHR_xlib_surface");
 #endif
     }
@@ -184,7 +184,7 @@ namespace LunaraEngine
         QueueFamilyIndices indices;
 
         uint32_t queueFamilyCount = 0;
-        VkBool32 presentSupport = false;
+        //VkBool32 presentSupport = false;
         //vkGetPhysicalDeviceSurfaceSupportKHR(device, i, surface, &presentSupport);
         vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
 

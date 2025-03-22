@@ -68,7 +68,7 @@ Macro definitions
         VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
         VkDevice device;
         VkQueue gfxQueue;
-        VkSurfaceKHR surface;
+        VkSurfaceKHR vkSurface;
         float width;
         float height;
     };
