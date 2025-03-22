@@ -38,6 +38,9 @@
 Includes
 ***********************************************************************************************************************/
 #include "VulkanRendererAPI.hpp"
+#include "Renderer/Window.hpp"
+#include "SDL3/SDL_vulkan.h"
+#include <cstdint>
 #include <optional>
 #include <stdexcept>
 #include <array>
@@ -51,10 +54,21 @@ namespace LunaraEngine
 
         bool isComplete() { return graphicsFamily.has_value() && computeFamily.has_value();}
     };
-
+    
+    void VulkanRendererAPI::CreateWindow()
+    {
+        m_RendererData->window = new Window;
+        m_RendererData->window->name = "Test";
+        m_RendererData->window->data = (void*)SDL_CreateWindow(m_RendererData->window->name, 1280, 720, SDL_WINDOW_VULKAN);
+        if(m_RendererData->window->data == nullptr)
+        {
+            throw std::runtime_error("Couldn't create Window");
+        }
+    }
     void VulkanRendererAPI::Init()
     {
         m_RendererData = std::make_unique<RendererDataType>();
+        CreateWindow();
         CreateInstance();
         PickPhysicalDevice();
         CreateLogicalDevice();
@@ -76,8 +90,9 @@ namespace LunaraEngine
         createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
         createInfo.pApplicationInfo = &appInfo;
 
-        std::vector<const char*> names = {"VK_KHR_surface"};
+        std::vector<const char*> names;
         GetPlatformExtensions(names);
+        
 
 #ifdef _DEBUG
         createInfo.enabledLayerCount = 1;
@@ -112,11 +127,20 @@ namespace LunaraEngine
 
     void VulkanRendererAPI::GetPlatformExtensions(std::vector<const char*>& extensions)
     {
+        uint32_t extensionCount = 0;
+       const char* const * neededExtensions = SDL_Vulkan_GetInstanceExtensions(&extensionCount);
+      while(*neededExtensions != nullptr)
+      {
+          extensions.emplace_back(*neededExtensions);
+          neededExtensions++;
+      }
+      /* this will get refactored once we agree upon how to get extensions.
 #ifdef _WIN32
         extensions.emplace_back("VK_KHR_win32_surface");
 #elif linux
         extensions.emplace_back("VK_KHR_xlib_surface");
 #endif
+*/
     }
 
     void VulkanRendererAPI::CreateDevice() { throw std::runtime_error("Not implemented"); }
@@ -209,6 +233,7 @@ namespace LunaraEngine
     { 
         vkDestroyInstance(m_RendererData->instance, nullptr);
         vkDestroyDevice(m_RendererData->device, nullptr);
+        SDL_DestroyWindow((SDL_Window*)m_RendererData->window->data);
     }
 
     VKAPI_ATTR VkBool32 VKAPI_CALL VulkanRendererAPI::DebugCallback(

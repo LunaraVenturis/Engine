@@ -92,6 +92,7 @@ Macro definitions
         virtual void Destroy() override;
 
     private:
+        void CreateWindow();
         void CreateInstance();
         void CreateDevice();
         void PickPhysicalDevice();
