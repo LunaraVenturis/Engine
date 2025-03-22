@@ -1,6 +1,6 @@
 #pragma once
 #include <string_view>
-
+#include <Core/STDTypes.h>
 namespace LunaraEngine
 {
     typedef enum ApplicationResult

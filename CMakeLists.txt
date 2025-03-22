@@ -105,12 +105,12 @@ target_include_directories(Sandbox PRIVATE "${CMAKE_SOURCE_DIR}/EngineLib")
 target_include_directories(Sandbox PRIVATE "${CMAKE_SOURCE_DIR}/Vendor/include")
 target_include_directories(Sandbox PRIVATE "${CMAKE_SOURCE_DIR}/Sandbox")
 target_link_libraries(Sandbox PRIVATE EngineInterfaceLibrary EngineLib)
-
+if(WIN32)
 add_custom_command(TARGET Sandbox POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_RUNTIME_DLLS:Sandbox> $<TARGET_FILE_DIR:Sandbox>
   COMMAND_EXPAND_LISTS
   )
-
+endif()
 function(target_add_flags target)
 if(CMAKE_CXX_COMPILE_ID MATCHES "MSVC")
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
@@ -123,6 +123,6 @@ endfunction(target_add_flags)
 
 add_custom_command(TARGET Sandbox POST_BUILD
   COMMAND ${CMAKE_COMMAND} -E copy_directory  ${CMAKE_SOURCE_DIR}/Assets $<TARGET_FILE_DIR:Sandbox>/Assets DEPENDS Sandbox)
-    
+
 target_add_flags(EngineLib)
 target_add_flags(Sandbox)
