@@ -43,6 +43,7 @@ Includes
 #include <cstdint>
 #include <optional>
 #include <stdexcept>
+#include <set>
 #include <array>
 
 namespace LunaraEngine
@@ -50,26 +51,30 @@ namespace LunaraEngine
     struct QueueFamilyIndices {
         std::optional<uint32_t> graphicsFamily;
         std::optional<uint32_t> computeFamily;
-        //std::optional<uint32_t> presentFamily;
+        std::optional<uint32_t> presentFamily;
 
-        bool isComplete() { return graphicsFamily.has_value() && computeFamily.has_value();}
+        [[nodiscard]] bool isComplete() const
+        {
+            return graphicsFamily.has_value() && computeFamily.has_value() && presentFamily.has_value();
+            ;
+        }
     };
-    
+
     void VulkanRendererAPI::CreateWindow()
     {
         m_RendererData->window = new Window;
         m_RendererData->window->name = "Test";
-        m_RendererData->window->data = (void*)SDL_CreateWindow(m_RendererData->window->name, 1280, 720, SDL_WINDOW_VULKAN);
-        if(m_RendererData->window->data == nullptr)
-        {
-            throw std::runtime_error("Couldn't create Window");
-        }
+        m_RendererData->window->data =
+                static_cast<void*>(SDL_CreateWindow(m_RendererData->window->name, 1280, 720, SDL_WINDOW_VULKAN));
+        if (m_RendererData->window->data == nullptr) { throw std::runtime_error("Couldn't create Window"); }
     }
+
     void VulkanRendererAPI::Init()
     {
         m_RendererData = std::make_unique<RendererDataType>();
         CreateWindow();
         CreateInstance();
+        CreateSurface();
         PickPhysicalDevice();
         CreateLogicalDevice();
     }
@@ -92,7 +97,7 @@ namespace LunaraEngine
 
         std::vector<const char*> names;
         GetPlatformExtensions(names);
-        
+
 
 #ifdef _DEBUG
         createInfo.enabledLayerCount = 1;
@@ -121,23 +126,24 @@ namespace LunaraEngine
                                       VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
         debugCreateInfo.pfnUserCallback = VulkanRendererAPI::DebugCallback;
         debugCreateInfo.pUserData = nullptr;// Optional
-        
+
         CreateDebugUtilsMessengerEXT(m_RendererData->instance, &debugCreateInfo, nullptr, &m_RendererData->debug);
     }
 
     void VulkanRendererAPI::GetPlatformExtensions(std::vector<const char*>& extensions)
     {
         uint32_t extensionCount = 0;
-       const char* const * neededExtensions = SDL_Vulkan_GetInstanceExtensions(&extensionCount);
-      while(*neededExtensions != nullptr)
-      {
-          extensions.emplace_back(*neededExtensions);
-          neededExtensions++;
-      }
-      /* this will get refactored once we agree upon how to get extensions.
+        const char* const* neededExtensions = SDL_Vulkan_GetInstanceExtensions(&extensionCount);
+        while (*neededExtensions != nullptr)
+        {
+            extensions.emplace_back(*neededExtensions);
+            neededExtensions++;
+        }
+        // this will get refactored once we agree upon how to get extensions.
+        /*
 #ifdef _WIN32
         extensions.emplace_back("VK_KHR_win32_surface");
-#elif linux
+#else 
         extensions.emplace_back("VK_KHR_xlib_surface");
 #endif
 */
@@ -149,19 +155,26 @@ namespace LunaraEngine
     {
         QueueFamilyIndices indices = FindQueueFamilies(m_RendererData->physicalDevice);
 
-        VkDeviceQueueCreateInfo queueCreateInfo {};
-        queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-        queueCreateInfo.queueFamilyIndex = indices.graphicsFamily.has_value();
-        queueCreateInfo.queueCount = 1;
+        std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
+        std::set<uint32_t> uniqueQueueFamilies = {indices.graphicsFamily.value(), indices.presentFamily.value(),
+                                                  indices.computeFamily.value()};
         float queuePriority = 1.0f;
-        queueCreateInfo.pQueuePriorities = &queuePriority;
 
+        for (uint32_t queueFamily: uniqueQueueFamilies)
+        {
+            VkDeviceQueueCreateInfo queueCreateInfo{};
+            queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+            queueCreateInfo.queueFamilyIndex = queueFamily;
+            queueCreateInfo.queueCount = 1;
+            queueCreateInfo.pQueuePriorities = &queuePriority;
+            queueCreateInfos.push_back(queueCreateInfo);
+        }
         VkPhysicalDeviceFeatures deviceFeatures{};
         VkDeviceCreateInfo createInfo{};
         createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
 
-        createInfo.pQueueCreateInfos = &queueCreateInfo;
-        createInfo.queueCreateInfoCount = 1;
+        createInfo.pQueueCreateInfos = queueCreateInfos.data();
+        createInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
 
         createInfo.pEnabledFeatures = &deviceFeatures;
         createInfo.enabledExtensionCount = 0;
@@ -171,7 +184,17 @@ namespace LunaraEngine
             throw std::runtime_error("failed to create logical device!");
         }
         vkGetDeviceQueue(m_RendererData->device, indices.graphicsFamily.value(), 0, &m_RendererData->gfxQueue);
+        vkGetDeviceQueue(m_RendererData->device, indices.presentFamily.value(), 0, &m_RendererData->presentQueue);
+        vkGetDeviceQueue(m_RendererData->device, indices.computeFamily.value(), 0, &m_RendererData->computeQueue);
+    }
 
+    void VulkanRendererAPI::CreateSurface()
+    {
+        if (!(SDL_Vulkan_CreateSurface(static_cast<SDL_Window*>(m_RendererData->window->data), m_RendererData->instance,
+                                       nullptr, &m_RendererData->vkSurface)))
+        {
+            throw std::runtime_error("failed to create surface!");
+        }
     }
 
     void VulkanRendererAPI::PickPhysicalDevice()
@@ -192,15 +215,18 @@ namespace LunaraEngine
                 break;
             }
         }
-        
-        if (m_RendererData->physicalDevice == VK_NULL_HANDLE) { throw std::runtime_error("failed to find a suitable GPU!"); }
+
+        if (m_RendererData->physicalDevice == VK_NULL_HANDLE)
+        {
+            throw std::runtime_error("failed to find a suitable GPU!");
+        }
     }
 
     bool VulkanRendererAPI::IsDeviceSuitable(VkPhysicalDevice device)
     {
-        QueueFamilyIndices indicies = FindQueueFamilies(device);
+        QueueFamilyIndices indices = FindQueueFamilies(device);
 
-        return indicies.isComplete();
+        return indices.isComplete();
     }
 
     QueueFamilyIndices VulkanRendererAPI::FindQueueFamilies(VkPhysicalDevice device)
@@ -208,19 +234,21 @@ namespace LunaraEngine
         QueueFamilyIndices indices;
 
         uint32_t queueFamilyCount = 0;
-        //VkBool32 presentSupport = false;
-        //vkGetPhysicalDeviceSurfaceSupportKHR(device, i, surface, &presentSupport);
         vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
-
-
         std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
         vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
 
         int i = 0;
+
         for (const auto& queueFamily: queueFamilies)
         {
             if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) { indices.graphicsFamily = i; }
             if (queueFamily.queueFlags & VK_QUEUE_COMPUTE_BIT) { indices.computeFamily = i; }
+
+            VkBool32 presentSupport = false;
+            vkGetPhysicalDeviceSurfaceSupportKHR(device, i, m_RendererData->vkSurface, &presentSupport);
+
+            if (presentSupport) { indices.presentFamily = i; }
             if (indices.isComplete()) { break; }
 
             i++;
@@ -229,11 +257,12 @@ namespace LunaraEngine
         return indices;
     }
 
-    void VulkanRendererAPI::CleanUpVulkan() 
-    { 
+    void VulkanRendererAPI::CleanUpVulkan()
+    {
         vkDestroyInstance(m_RendererData->instance, nullptr);
         vkDestroyDevice(m_RendererData->device, nullptr);
-        SDL_DestroyWindow((SDL_Window*)m_RendererData->window->data);
+        vkDestroySurfaceKHR(m_RendererData->instance, m_RendererData->vkSurface, nullptr);
+        SDL_DestroyWindow(static_cast<SDL_Window*>(m_RendererData->window->data));
     }
 
     VKAPI_ATTR VkBool32 VKAPI_CALL VulkanRendererAPI::DebugCallback(
@@ -251,8 +280,8 @@ namespace LunaraEngine
     void VulkanRendererAPI::DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger,
                                                           const VkAllocationCallbacks* pAllocator)
     {
-        auto func = (PFN_vkDestroyDebugUtilsMessengerEXT) vkGetInstanceProcAddr(instance,
-                                                                                "vkDestroyDebugUtilsMessengerEXT");
+        const auto func = reinterpret_cast<PFN_vkDestroyDebugUtilsMessengerEXT>(
+                vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT"));
         if (func != nullptr) { func(instance, debugMessenger, pAllocator); }
     }
 
@@ -261,8 +290,8 @@ namespace LunaraEngine
                                                              const VkAllocationCallbacks* pAllocator,
                                                              VkDebugUtilsMessengerEXT* pDebugMessenger)
     {
-        auto func =
-                (PFN_vkCreateDebugUtilsMessengerEXT) vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT");
+        const auto func = reinterpret_cast<PFN_vkCreateDebugUtilsMessengerEXT>(
+                vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT"));
         if (func != nullptr) { return func(instance, pCreateInfo, pAllocator, pDebugMessenger); }
         else { return VK_ERROR_EXTENSION_NOT_PRESENT; }
     }

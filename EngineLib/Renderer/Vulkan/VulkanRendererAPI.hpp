@@ -69,6 +69,8 @@ Macro definitions
         VkDevice device;
         VkQueue gfxQueue;
         VkSurfaceKHR vkSurface;
+        VkQueue presentQueue;
+        VkQueue computeQueue;
         float width;
         float height;
     };
@@ -97,7 +99,7 @@ Macro definitions
         void CreateDevice();
         void PickPhysicalDevice();
         void CreateLogicalDevice();
-
+        void CreateSurface();
     private:
         VkInstance* GetVkInstance() { return &m_RendererData->instance; }
 
