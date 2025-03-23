@@ -59,6 +59,12 @@ namespace LunaraEngine
             ;
         }
     };
+    struct SwapChainSupportDetails {
+        VkSurfaceCapabilitiesKHR capabilities;
+        std::vector<VkSurfaceFormatKHR> formats;
+        std::vector<VkPresentModeKHR> presentModes;
+    };
+    const std::array<const char*, 1> swapChainExtensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
 
     void VulkanRendererAPI::CreateWindow()
     {
@@ -68,7 +74,22 @@ namespace LunaraEngine
                 static_cast<void*>(SDL_CreateWindow(m_RendererData->window->name, 1280, 720, SDL_WINDOW_VULKAN));
         if (m_RendererData->window->data == nullptr) { throw std::runtime_error("Couldn't create Window"); }
     }
+    bool CheckDeviceExtensionSupport(VkPhysicalDevice device)
+    {
+        uint32_t extensionCount;
+        vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
 
+        std::vector<VkExtensionProperties> availableExtensions(extensionCount);
+        vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, availableExtensions.data());
+
+        std::set<std::string> requiredExtensions(swapChainExtensions.begin(), swapChainExtensions.end());
+
+        for (const auto& extension : availableExtensions) {
+            requiredExtensions.erase(extension.extensionName);
+        }
+
+        return requiredExtensions.empty();
+    }
     void VulkanRendererAPI::Init()
     {
         m_RendererData = std::make_unique<RendererDataType>();
@@ -101,7 +122,7 @@ namespace LunaraEngine
 
 #ifdef _DEBUG
         createInfo.enabledLayerCount = 1;
-        std::array<const char*, 1> layers = {"VK_LAYER_KHRONOS_validation"};
+        const std::array<const char*, 1> layers = {"VK_LAYER_KHRONOS_validation"};
         createInfo.ppEnabledLayerNames = layers.data();
         names.push_back("VK_EXT_debug_utils");
         names.push_back("VK_EXT_debug_report");
@@ -109,8 +130,8 @@ namespace LunaraEngine
         createInfo.enabledLayerCount = 0;
         createInfo.ppEnabledLayerNames = nullptr;
 #endif
-        createInfo.enabledExtensionCount = static_cast<uint32_t>(names.size());
-        createInfo.ppEnabledExtensionNames = names.data();
+        createInfo.enabledExtensionCount = static_cast<uint32_t>(swapChainExtensions.size());
+        createInfo.ppEnabledExtensionNames = swapChainExtensions.data();
 
         if (vkCreateInstance(&createInfo, nullptr, &m_RendererData->instance) != VK_SUCCESS)
         {
@@ -225,8 +246,8 @@ namespace LunaraEngine
     bool VulkanRendererAPI::IsDeviceSuitable(VkPhysicalDevice device)
     {
         QueueFamilyIndices indices = FindQueueFamilies(device);
-
-        return indices.isComplete();
+        bool extensionsSupported = CheckDeviceExtensionSupport(device);
+        return indices.isComplete() && extensionsSupported;
     }
 
     QueueFamilyIndices VulkanRendererAPI::FindQueueFamilies(VkPhysicalDevice device)
