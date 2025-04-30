@@ -11,6 +11,35 @@ option(SDLTTF_VENDORED "Use vendored SDL_ttf" ${ENG_VENDORED})
 set(CMAKE_CXX_STANDARD 20)
 message("Compiler Version: ${CMAKE_CXX_COMPILER_VERSION}")
 
+
+if (WIN32)
+    message(STATUS "${PROJECT_NAME}: Windows platform detected")
+    set(LUNARA_ENGINE_WIN32 ON CACHE BOOL "Build Windows backend" FORCE)
+    set(LUNARA_ENGINE_X11 OFF CACHE BOOL "Build X11 backend" FORCE)
+    set(LUNARA_ENGINE_WAYLAND OFF CACHE BOOL "Build Wayland backend" FORCE)
+else()
+    set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+    execute_process(
+        COMMAND bash -c "echo $XDG_SESSION_TYPE"
+        OUTPUT_VARIABLE SESSION_TYPE
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+    message(STATUS "${PROJECT_NAME}: Session type: ${SESSION_TYPE}")
+    if(SESSION_TYPE STREQUAL "x11")
+        message(STATUS "${PROJECT_NAME}: X11 detected")
+        set(LUNARA_ENGINE_X11 ON CACHE BOOL "Build X11 backend" FORCE)
+        set(LUNARA_ENGINE_WAYLAND OFF CACHE BOOL "Build X11 backend" FORCE)
+        set(LUNARA_ENGINE_WIN32 OFF CACHE BOOL "Build Windows backend" FORCE)
+    elseif(SESSION_TYPE STREQUAL "wayland")
+        message(STATUS "${PROJECT_NAME}: Wayland detected")
+        set(LUNARA_ENGINE_X11 OFF CACHE BOOL "Build X11 backend" FORCE)
+        set(LUNARA_ENGINE_WAYLAND ON CACHE BOOL "Build Wayland backend" FORCE)
+        set(LUNARA_ENGINE_WIN32 OFF CACHE BOOL "Build Windows backend" FORCE)
+    else()
+        message(STATUS "${PROJECT_NAME}: Unknown session type: ${SESSION_TYPE}")
+    endif()
+endif()
+
 if(ENG_VENDORED)
     add_subdirectory(Vendor/SDL EXCLUDE_FROM_ALL)
     add_subdirectory(Vendor/SDL_ttf EXCLUDE_FROM_ALL)
@@ -49,6 +78,12 @@ endif()
 if(ENABLE_MEMORY_DEBUG_LOG)
     add_compile_definitions(EngineLib PRIVATE ENGINE_ENABLE_MEMORY_DEBUG_LOG)
 endif()
+
+add_compile_definitions(EngineLib PRIVATE $<IF:$<CONFIG:Debug>,_DEBUG,_RELEASE>)
+
+add_compile_definitions(EngineLib PRIVATE $<IF:$<BOOL:${LUNARA_ENGINE_WIN32}>,_LUNARA_ENGINE_WIN32,_lol1>)
+add_compile_definitions(EngineLib PRIVATE $<IF:$<BOOL:${LUNARA_ENGINE_X11}>,_LUNARA_ENGINE_X11,_lol2>)
+add_compile_definitions(EngineLib PRIVATE $<IF:$<BOOL:${LUNARA_ENGINE_WAYLAND}>,_LUNARA_ENGINE_WAYLAND,_lol3>)
 
 if (WIN32)
     ## assume user will install this in C:/VulkanSDK/ 

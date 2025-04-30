@@ -46,6 +46,21 @@ Includes
 #include <set>
 #include <array>
 
+#if defined(_LUNARA_ENGINE_X11)
+#include <X11/Xlib.h>
+#include <vulkan/vulkan_xlib.h>
+#define LUNARA_ENGINE_SURFACE_EXTENSION VK_KHR_XLIB_SURFACE_EXTENSION_NAME
+#elif defined(_LUNARA_ENGINE_WAYLAND)
+#include <wayland-client.h>
+#include <vulkan/vulkan_wayland.h>
+#define LUNARA_ENGINE_SURFACE_EXTENSION VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME
+#elif defined(_LUNARA_ENGINE_WINDOWS)
+#include <vulkan/vulkan_win32.h>
+#include <Windows.h>
+#define LUNARA_ENGINE_SURFACE_EXTENSION VK_KHR_WIN32_SURFACE_EXTENSION_NAME
+#else
+#error "Unsupported platform"
+#endif
 namespace LunaraEngine
 {
     struct QueueFamilyIndices {
@@ -59,12 +74,14 @@ namespace LunaraEngine
             ;
         }
     };
+
     struct SwapChainSupportDetails {
         VkSurfaceCapabilitiesKHR capabilities;
         std::vector<VkSurfaceFormatKHR> formats;
         std::vector<VkPresentModeKHR> presentModes;
     };
-    const std::array<const char*, 1> swapChainExtensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
+
+    const std::array<const char*, 1> g_SwapChainExtensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
 
     void VulkanRendererAPI::CreateWindow()
     {
@@ -74,6 +91,7 @@ namespace LunaraEngine
                 static_cast<void*>(SDL_CreateWindow(m_RendererData->window->name, 1280, 720, SDL_WINDOW_VULKAN));
         if (m_RendererData->window->data == nullptr) { throw std::runtime_error("Couldn't create Window"); }
     }
+
     bool CheckDeviceExtensionSupport(VkPhysicalDevice device)
     {
         uint32_t extensionCount;
@@ -82,14 +100,13 @@ namespace LunaraEngine
         std::vector<VkExtensionProperties> availableExtensions(extensionCount);
         vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, availableExtensions.data());
 
-        std::set<std::string> requiredExtensions(swapChainExtensions.begin(), swapChainExtensions.end());
+        std::set<std::string> requiredExtensions(g_SwapChainExtensions.begin(), g_SwapChainExtensions.end());
 
-        for (const auto& extension : availableExtensions) {
-            requiredExtensions.erase(extension.extensionName);
-        }
+        for (const auto& extension: availableExtensions) { requiredExtensions.erase(extension.extensionName); }
 
         return requiredExtensions.empty();
     }
+
     void VulkanRendererAPI::Init()
     {
         m_RendererData = std::make_unique<RendererDataType>();
@@ -130,10 +147,13 @@ namespace LunaraEngine
         createInfo.enabledLayerCount = 0;
         createInfo.ppEnabledLayerNames = nullptr;
 #endif
-        createInfo.enabledExtensionCount = static_cast<uint32_t>(swapChainExtensions.size());
-        createInfo.ppEnabledExtensionNames = swapChainExtensions.data();
+        names.push_back(LUNARA_ENGINE_SURFACE_EXTENSION);
+        createInfo.enabledExtensionCount = static_cast<uint32_t>(names.size());
+        createInfo.ppEnabledExtensionNames = names.data();
 
-        if (vkCreateInstance(&createInfo, nullptr, &m_RendererData->instance) != VK_SUCCESS)
+        VkInstance* instance = &(m_RendererData->instance);
+
+        if (vkCreateInstance(&createInfo, nullptr, instance) != VK_SUCCESS)
         {
             throw std::runtime_error("Failed to create instance!");
         }
@@ -198,7 +218,9 @@ namespace LunaraEngine
         createInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
 
         createInfo.pEnabledFeatures = &deviceFeatures;
-        createInfo.enabledExtensionCount = 0;
+
+        createInfo.enabledExtensionCount = static_cast<uint32_t>(g_SwapChainExtensions.size());
+        createInfo.ppEnabledExtensionNames = g_SwapChainExtensions.data();
 
         if (vkCreateDevice(m_RendererData->physicalDevice, &createInfo, nullptr, &m_RendererData->device) != VK_SUCCESS)
         {
@@ -211,8 +233,10 @@ namespace LunaraEngine
 
     void VulkanRendererAPI::CreateSurface()
     {
-        if (!(SDL_Vulkan_CreateSurface(static_cast<SDL_Window*>(m_RendererData->window->data), m_RendererData->instance,
-                                       nullptr, &m_RendererData->vkSurface)))
+        auto windowPtr = static_cast<SDL_Window*>(m_RendererData->window->data);
+        auto instance = m_RendererData->instance;
+        auto* surface = &m_RendererData->vkSurface;
+        if (!(SDL_Vulkan_CreateSurface(windowPtr, instance, nullptr, surface)))
         {
             throw std::runtime_error("failed to create surface!");
         }
@@ -280,9 +304,10 @@ namespace LunaraEngine
 
     void VulkanRendererAPI::CleanUpVulkan()
     {
-        vkDestroyInstance(m_RendererData->instance, nullptr);
-        vkDestroyDevice(m_RendererData->device, nullptr);
         vkDestroySurfaceKHR(m_RendererData->instance, m_RendererData->vkSurface, nullptr);
+        vkDestroyDevice(m_RendererData->device, nullptr);
+        DestroyDebugUtilsMessengerEXT(m_RendererData->instance, m_RendererData->debug, nullptr);
+        vkDestroyInstance(m_RendererData->instance, nullptr);
         SDL_DestroyWindow(static_cast<SDL_Window*>(m_RendererData->window->data));
     }
 

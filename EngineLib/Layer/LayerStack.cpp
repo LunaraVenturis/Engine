@@ -92,14 +92,15 @@ namespace LunaraEngine
                     layer->OnKeyboardEvent(event->keyEvent.key, event->keyEvent.type);
                     break;
                 case EVENT_MOUSE_MOTION:
-                    layer->OnMouseMoveEvent((int) event->mouseMotionEvent.x, (int) event->mouseMotionEvent.y);
+                    layer->OnMouseMoveEvent((uint32_t) event->mouseMotionEvent.x, (uint32_t) event->mouseMotionEvent.y);
                     break;
                 case EVENT_MOUSE_BUTTON:
                     layer->OnMouseButtonEvent(event->mouseButtonEvent.x, event->mouseButtonEvent.y,
                                               event->mouseButtonEvent.type, event->mouseButtonEvent.button);
                     break;
                 case EVENT_RESIZE_WINDOW:
-                    layer->OnWindowResizeEvent((int)event->resizeWindowEvent.width, (int)event->resizeWindowEvent.height);
+                    layer->OnWindowResizeEvent((uint32_t) event->resizeWindowEvent.width,
+                                               (uint32_t) event->resizeWindowEvent.height);
                     break;
                 case EVENT_QUIT:
                     layer->OnWindowShouldCloseEvent();
