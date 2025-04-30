@@ -30,7 +30,7 @@ public:
         (void) button;
     }
 
-    virtual void OnMouseMoveEvent(int width, int height) override;
+    virtual void OnMouseMoveEvent(uint32_t width, uint32_t height) override;
 
     virtual void OnKeyboardEvent(uint32_t key, KeyEventType type) override
     {
@@ -38,7 +38,7 @@ public:
         (void) key;
     }
 
-    virtual void OnWindowResizeEvent(int width, int height) override
+    virtual void OnWindowResizeEvent(uint32_t width, uint32_t height) override
     {
         (void) width;
         (void) height;

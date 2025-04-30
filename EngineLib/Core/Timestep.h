@@ -75,4 +75,5 @@ extern void Timer_End(Timer* timer);
 #ifdef __cplusplus
 }
 #endif
-#endif// Timestep_HEADER
+#endif
+// Timestep_HEADER

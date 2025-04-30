@@ -58,13 +58,13 @@ namespace LunaraEngine
         (void) font;
         return FONT_RESULT_NOT_FOUND;
     }
-
+/*
     inline static void FontAtlasPushFont(FontAtlas* atlas, Font* font)
     {
         (void) atlas;
         (void) font;
     }
-
+*/
     FontResultType FontAtlasLoadFont(const char* name, uint32_t size, FontType type, FontAtlas* atlas)
     {
         (void) name;

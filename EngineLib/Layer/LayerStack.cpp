@@ -99,7 +99,7 @@ namespace LunaraEngine
                                               event->mouseButtonEvent.type, event->mouseButtonEvent.button);
                     break;
                 case EVENT_RESIZE_WINDOW:
-                    layer->OnWindowResizeEvent(event->resizeWindowEvent.width, event->resizeWindowEvent.height);
+                    layer->OnWindowResizeEvent((int)event->resizeWindowEvent.width, (int)event->resizeWindowEvent.height);
                     break;
                 case EVENT_QUIT:
                     layer->OnWindowShouldCloseEvent();

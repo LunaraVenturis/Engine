@@ -380,4 +380,5 @@ extern int PollEvents(Event* event);
 #ifdef __cplusplus
 }
 #endif
-#endif// Events_HEADER
+#endif
+// Events_HEADER

@@ -28,13 +28,13 @@ namespace LunaraEngine
 
         virtual void OnImGuiDraw() = 0;
 
-        virtual void OnMouseMoveEvent(int width, int height) = 0;
+        virtual void OnMouseMoveEvent(uint32_t width, uint32_t height) = 0;
 
         virtual void OnKeyboardEvent(uint32_t key, KeyEventType type) = 0;
 
         virtual void OnMouseButtonEvent(float x, float y, MouseButtonEventType type, MouseButton button) = 0;
 
-        virtual void OnWindowResizeEvent(int width, int height) = 0;
+        virtual void OnWindowResizeEvent(uint32_t width, uint32_t height) = 0;
 
         virtual void OnWindowShouldCloseEvent() = 0;
 

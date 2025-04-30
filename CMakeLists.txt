@@ -8,7 +8,7 @@ option(ENABLE_MEMORY_DEBUG_LOG "Enable memory debug log" ON)
 option(ENG_VENDORED "Use vendored libraries" ON)
 option(SDLTTF_VENDORED "Use vendored SDL_ttf" ${ENG_VENDORED})
 
-set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD 20)
 message("Compiler Version: ${CMAKE_CXX_COMPILER_VERSION}")
 
 if(ENG_VENDORED)
