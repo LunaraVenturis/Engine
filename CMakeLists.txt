@@ -81,10 +81,12 @@ endif()
 
 add_compile_definitions(EngineLib PRIVATE $<IF:$<CONFIG:Debug>,_DEBUG,_RELEASE>)
 
-add_compile_definitions(EngineLib PRIVATE $<IF:$<BOOL:${LUNARA_ENGINE_WIN32}>,_LUNARA_ENGINE_WIN32,_lol1>)
-add_compile_definitions(EngineLib PRIVATE $<IF:$<BOOL:${LUNARA_ENGINE_X11}>,_LUNARA_ENGINE_X11,_lol2>)
-add_compile_definitions(EngineLib PRIVATE $<IF:$<BOOL:${LUNARA_ENGINE_WAYLAND}>,_LUNARA_ENGINE_WAYLAND,_lol3>)
 
+target_compile_definitions(EngineLib PRIVATE
+    $<$<BOOL:${LUNARA_ENGINE_WIN32}>:_LUNARA_ENGINE_WIN32>
+    $<$<BOOL:${LUNARA_ENGINE_X11}>:_LUNARA_ENGINE_X11>
+    $<$<BOOL:${LUNARA_ENGINE_WAYLAND}>:_LUNARA_ENGINE_WAYLAND>
+)
 if (WIN32)
     ## assume user will install this in C:/VulkanSDK/ 
     #List All directories in the directory
