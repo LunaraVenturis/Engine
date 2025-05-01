@@ -39,7 +39,9 @@ Includes
 ***********************************************************************************************************************/
 #include "VulkanRendererAPI.hpp"
 #include "Renderer/Window.hpp"
+#include "Core/Log.h"
 #include "SDL3/SDL_vulkan.h"
+#include "SDL3/SDL.h"
 #include <cstdint>
 #include <optional>
 #include <stdexcept>
@@ -49,18 +51,27 @@ Includes
 #if defined(_LUNARA_ENGINE_X11)
 #include <X11/Xlib.h>
 #include <vulkan/vulkan_xlib.h>
-#define LUNARA_ENGINE_SURFACE_EXTENSION VK_KHR_XLIB_SURFACE_EXTENSION_NAME
+const char* LUNARA_INSTANCE_EXTENSIONS[] = {VK_KHR_XLIB_SURFACE_EXTENSION_NAME, VK_KHR_SURFACE_EXTENSION_NAME, nullptr};
 #elif defined(_LUNARA_ENGINE_WAYLAND)
 #include <wayland-client.h>
 #include <vulkan/vulkan_wayland.h>
-#define LUNARA_ENGINE_SURFACE_EXTENSION VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME
+const char* LUNARA_INSTANCE_EXTENSIONS[] = {VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME, VK_KHR_SURFACE_EXTENSION_NAME,
+                                            VK_KHR_SWAPCHAIN_EXTENSION_NAME, nullptr};
 #elif defined(_LUNARA_ENGINE_WINDOWS)
 #include <vulkan/vulkan_win32.h>
 #include <Windows.h>
-#define LUNARA_ENGINE_SURFACE_EXTENSION VK_KHR_WIN32_SURFACE_EXTENSION_NAME
+const char* LUNARA_INSTANCE_EXTENSIONS[] = {VK_KHR_WIN32_SURFACE_EXTENSION_NAME, VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+                                            VK_KHR_SURFACE_EXTENSION_NAME, nullptr};
 #else
 #error "Unsupported platform"
 #endif
+
+#ifdef _DEBUG
+const char* LUNARA_INSTANCE_LAYERS[] = {"VK_LAYER_KHRONOS_validation", nullptr};
+#else
+const char* LUNARA_INSTANCE_LAYERS[] = {nullptr};
+#endif
+
 namespace LunaraEngine
 {
     struct QueueFamilyIndices {
@@ -71,7 +82,6 @@ namespace LunaraEngine
         [[nodiscard]] bool isComplete() const
         {
             return graphicsFamily.has_value() && computeFamily.has_value() && presentFamily.has_value();
-            ;
         }
     };
 
@@ -85,6 +95,7 @@ namespace LunaraEngine
 
     void VulkanRendererAPI::CreateWindow()
     {
+        SDL_Init(SDL_INIT_VIDEO);
         m_RendererData->window = new Window;
         m_RendererData->window->name = "Test";
         m_RendererData->window->data =
@@ -133,23 +144,18 @@ namespace LunaraEngine
         createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
         createInfo.pApplicationInfo = &appInfo;
 
-        std::vector<const char*> names;
-        GetPlatformExtensions(names);
+        std::array<const char*, 10> extensions;
+        uint32_t extCount = 0;
+        while (const char* extension = LUNARA_INSTANCE_EXTENSIONS[extCount]) { extensions[extCount++] = extension; }
 
+        std::array<const char*, 10> layers;
+        uint32_t layerCount = 0;
+        while (const char* layer = LUNARA_INSTANCE_LAYERS[layerCount]) { layers[layerCount++] = layer; }
 
-#ifdef _DEBUG
-        createInfo.enabledLayerCount = 1;
-        const std::array<const char*, 1> layers = {"VK_LAYER_KHRONOS_validation"};
+        createInfo.enabledExtensionCount = extCount;
+        createInfo.ppEnabledExtensionNames = extensions.data();
+        createInfo.enabledLayerCount = layerCount;
         createInfo.ppEnabledLayerNames = layers.data();
-        names.push_back("VK_EXT_debug_utils");
-        names.push_back("VK_EXT_debug_report");
-#else
-        createInfo.enabledLayerCount = 0;
-        createInfo.ppEnabledLayerNames = nullptr;
-#endif
-        names.push_back(LUNARA_ENGINE_SURFACE_EXTENSION);
-        createInfo.enabledExtensionCount = static_cast<uint32_t>(names.size());
-        createInfo.ppEnabledExtensionNames = names.data();
 
         VkInstance* instance = &(m_RendererData->instance);
 
@@ -169,25 +175,6 @@ namespace LunaraEngine
         debugCreateInfo.pUserData = nullptr;// Optional
 
         CreateDebugUtilsMessengerEXT(m_RendererData->instance, &debugCreateInfo, nullptr, &m_RendererData->debug);
-    }
-
-    void VulkanRendererAPI::GetPlatformExtensions(std::vector<const char*>& extensions)
-    {
-        uint32_t extensionCount = 0;
-        const char* const* neededExtensions = SDL_Vulkan_GetInstanceExtensions(&extensionCount);
-        while (*neededExtensions != nullptr)
-        {
-            extensions.emplace_back(*neededExtensions);
-            neededExtensions++;
-        }
-        // this will get refactored once we agree upon how to get extensions.
-        /*
-#ifdef _WIN32
-        extensions.emplace_back("VK_KHR_win32_surface");
-#else 
-        extensions.emplace_back("VK_KHR_xlib_surface");
-#endif
-*/
     }
 
     void VulkanRendererAPI::CreateDevice() { throw std::runtime_error("Not implemented"); }

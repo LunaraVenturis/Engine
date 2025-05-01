@@ -86,6 +86,7 @@ Macro definitions
         VulkanRendererAPI& operator=(const VulkanRendererAPI&) = delete;
         VulkanRendererAPI(VulkanRendererAPI&& other) = delete;
         VulkanRendererAPI& operator=(VulkanRendererAPI&& other) = delete;
+
     public:
         virtual Window* GetWindow() override { return m_RendererData->window; };
 
@@ -101,6 +102,7 @@ Macro definitions
         void PickPhysicalDevice();
         void CreateLogicalDevice();
         void CreateSurface();
+
     private:
         VkInstance* GetVkInstance() { return &m_RendererData->instance; }
 
@@ -116,8 +118,8 @@ Macro definitions
 
         void SetDevice(VkDevice device) { m_RendererData->device = device; }
 
-        void GetPlatformExtensions(std::vector<const char*>& extensions);
         bool IsDeviceSuitable(VkPhysicalDevice device);
+
         QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice device);
 
     private:
