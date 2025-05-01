@@ -47,6 +47,7 @@ Includes
 #include <stdexcept>
 #include <set>
 #include <array>
+#include <iostream>
 
 #if defined(_LUNARA_ENGINE_X11)
 #include <X11/Xlib.h>
@@ -56,10 +57,11 @@ const char* LUNARA_INSTANCE_EXTENSIONS[] = {VK_KHR_XLIB_SURFACE_EXTENSION_NAME, 
 #include <wayland-client.h>
 #include <vulkan/vulkan_wayland.h>
 const char* LUNARA_INSTANCE_EXTENSIONS[] = {VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME, VK_KHR_SURFACE_EXTENSION_NAME,
-                                            VK_KHR_SWAPCHAIN_EXTENSION_NAME, nullptr};
+                                            nullptr};
 #elif defined(_LUNARA_ENGINE_WINDOWS)
 #include <vulkan/vulkan_win32.h>
 #include <Windows.h>
+
 const char* LUNARA_INSTANCE_EXTENSIONS[] = {VK_KHR_WIN32_SURFACE_EXTENSION_NAME, VK_KHR_SWAPCHAIN_EXTENSION_NAME,
                                             VK_KHR_SURFACE_EXTENSION_NAME, nullptr};
 #else
