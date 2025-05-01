@@ -83,8 +83,9 @@ Macro definitions
         VulkanRendererAPI() = default;
         ~VulkanRendererAPI() = default;
         VulkanRendererAPI(const VulkanRendererAPI& other) = delete;
-        void operator=(const VulkanRendererAPI&) = delete;
-
+        VulkanRendererAPI& operator=(const VulkanRendererAPI&) = delete;
+        VulkanRendererAPI(VulkanRendererAPI&& other) = delete;
+        VulkanRendererAPI& operator=(VulkanRendererAPI&& other) = delete;
     public:
         virtual Window* GetWindow() override { return m_RendererData->window; };
 

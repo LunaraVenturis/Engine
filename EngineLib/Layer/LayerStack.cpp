@@ -4,7 +4,7 @@ namespace LunaraEngine
 {
     void LayerStack::InitLayers()
     {
-        for (auto layer: m_Layers) { layer->Init(); }
+        for (const auto& layer: m_Layers) { layer->Init(); }
     }
 
     void LayerStack::_PushLayer(Layer* layer, std::string_view name)
