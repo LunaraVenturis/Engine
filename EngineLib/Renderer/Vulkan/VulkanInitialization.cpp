@@ -225,5 +225,6 @@ namespace LunaraEngine
             details.formats.resize(formatCount);
             vkGetPhysicalDeviceSurfaceFormatsKHR(device, m_RendererData->vkSurface, &formatCount, details.formats.data());
         }
+        return {};
     }
 }// namespace LunaraEngine
