@@ -91,8 +91,6 @@ namespace LunaraEngine
         std::vector<VkPresentModeKHR> presentModes;
     };
 
-    const std::array<const char*, 1> g_SwapChainExtensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
-
     void VulkanRendererAPI::CreateWindow()
     {
         SDL_Init(SDL_INIT_VIDEO);
