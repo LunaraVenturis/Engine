@@ -214,4 +214,16 @@ namespace LunaraEngine
 
         return requiredExtensions.empty();
     }
+
+    SwapChainSupportDetails VulkanInitializer::QuerySwapChainSupport(VkPhysicalDevice device)
+    {
+        SwapChainSupportDetails details;
+        vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, m_RendererData->vkSurface, &details.capabilities);
+        uint32_t formatCount;
+        vkGetPhysicalDeviceSurfaceFormatsKHR(device, m_RendererData->vkSurface, &formatCount, nullptr);
+        if (formatCount != 0) {
+            details.formats.resize(formatCount);
+            vkGetPhysicalDeviceSurfaceFormatsKHR(device, m_RendererData->vkSurface, &formatCount, details.formats.data());
+        }
+    }
 }// namespace LunaraEngine

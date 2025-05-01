@@ -30,7 +30,7 @@ namespace LunaraEngine
         bool IsDeviceSuitable(VkPhysicalDevice device);
 
         QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice device);
-
+        SwapChainSupportDetails QuerySwapChainSupport(VkPhysicalDevice device);
         bool CheckDeviceExtensionSupport(VkPhysicalDevice device);
 
     private:
