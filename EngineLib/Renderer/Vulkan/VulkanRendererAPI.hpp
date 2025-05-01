@@ -39,43 +39,11 @@
 /***********************************************************************************************************************
 Includes
 ***********************************************************************************************************************/
-#include <Core/STDTypes.h>
-#include <Renderer/RendererAPI.hpp>
-#include <Renderer/RendererCommands.hpp>
-#include <Renderer/Window.hpp>
-
-#include <vulkan/vulkan.h>
-#include <SDL3/SDL_render.h>
-
-#include <string_view>
-#include <vector>
+#include "VulkanDataTypes.hpp"
 #include <memory>
 
 namespace LunaraEngine
 {
-
-    /***********************************************************************************************************************
-Macro definitions
-***********************************************************************************************************************/
-
-    struct RendererDataType {
-        std::vector<RendererCommand*> command_stack;
-        LunaraEngine::Window* window;
-        SDL_Renderer* renderer;
-        SDL_Surface* surface;
-        VkInstance instance;
-        VkDebugUtilsMessengerEXT debug;
-        VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
-        VkDevice device;
-        VkQueue gfxQueue;
-        VkSurfaceKHR vkSurface;
-        VkQueue presentQueue;
-        VkQueue computeQueue;
-        float width;
-        float height;
-    };
-
-    struct QueueFamilyIndices;
 
     class VulkanRendererAPI: public RendererAPI
     {
@@ -88,20 +56,13 @@ Macro definitions
         VulkanRendererAPI& operator=(VulkanRendererAPI&& other) = delete;
 
     public:
-        virtual Window* GetWindow() override { return m_RendererData->window; };
-
-        virtual void Present() override { (void) nullptr; }
-
+        virtual Window* GetWindow() override;
+        virtual void Present() override;
         virtual void Init() override;
         virtual void Destroy() override;
 
     private:
         void CreateWindow();
-        void CreateInstance();
-        void CreateDevice();
-        void PickPhysicalDevice();
-        void CreateLogicalDevice();
-        void CreateSurface();
 
     private:
         VkInstance* GetVkInstance() { return &m_RendererData->instance; }
@@ -109,31 +70,6 @@ Macro definitions
         VkDevice* GetDevice() { return &m_RendererData->device; }
 
         VkPhysicalDevice* GetPhysicalDevice() { return &m_RendererData->physicalDevice; }
-
-        VkDebugUtilsMessengerEXT* GetDebugHandler() { return &m_RendererData->debug; }
-
-        void CleanUpVulkan();
-
-        void SetPhysicalDevice(VkPhysicalDevice device) { m_RendererData->physicalDevice = device; }
-
-        void SetDevice(VkDevice device) { m_RendererData->device = device; }
-
-        bool IsDeviceSuitable(VkPhysicalDevice device);
-
-        QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice device);
-
-    private:
-        static VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
-                                                            VkDebugUtilsMessageTypeFlagsEXT messageType,
-                                                            const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
-                                                            void* pUserData);
-        static void DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger,
-                                                  const VkAllocationCallbacks* pAllocator);
-
-        static VkResult CreateDebugUtilsMessengerEXT(VkInstance instance,
-                                                     const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo,
-                                                     const VkAllocationCallbacks* pAllocator,
-                                                     VkDebugUtilsMessengerEXT* pDebugMessenger);
 
     private:
         std::unique_ptr<RendererDataType> m_RendererData;
