@@ -12,6 +12,8 @@
 #include <cstdint>
 #include <array>
 #include <set>
+#include <limits>   // Necessary for std::numeric_limits
+#include <algorithm>// Necessary for std::clamp
 
 namespace LunaraEngine
 {
@@ -28,6 +30,11 @@ namespace LunaraEngine
         VkSurfaceKHR vkSurface;
         VkQueue presentQueue;
         VkQueue computeQueue;
+        VkSwapchainKHR swapChain;
+        VkFormat swapChainImageFormat;
+        VkExtent2D swapChainExtent;
+
+        std::vector<VkImage> swapChainImages;
         float width;
         float height;
     };
