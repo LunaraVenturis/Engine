@@ -27,6 +27,7 @@ namespace LunaraEngine
         void CreateLogicalDevice();
         void CreateSurface();
         void CreateSwapChain();
+        void CreateImageViews();
         bool IsDeviceSuitable(VkPhysicalDevice device);
         bool CheckDeviceExtensionSupport(VkPhysicalDevice device);
 

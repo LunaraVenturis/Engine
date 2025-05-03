@@ -33,8 +33,8 @@ namespace LunaraEngine
         VkSwapchainKHR swapChain;
         VkFormat swapChainImageFormat;
         VkExtent2D swapChainExtent;
-
         std::vector<VkImage> swapChainImages;
+        std::vector<VkImageView> swapChainImageViews;
         float width;
         float height;
     };

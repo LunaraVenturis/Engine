@@ -43,10 +43,14 @@ namespace LunaraEngine
         initializer.PickPhysicalDevice();
         initializer.CreateLogicalDevice();
         initializer.CreateSwapChain();
+        initializer.CreateImageViews();
     }
 
     void VulkanInitializer::Goodbye(RendererDataType* rendererData)
     {
+        for (const auto& imageView : rendererData->swapChainImageViews) {
+            vkDestroyImageView(rendererData->device, imageView, nullptr);
+        }
         vkDestroySwapchainKHR(rendererData->device, rendererData->swapChain, nullptr);
         vkDestroySurfaceKHR(rendererData->instance, rendererData->vkSurface, nullptr);
         vkDestroyDevice(rendererData->device, nullptr);
@@ -337,15 +341,45 @@ namespace LunaraEngine
         createInfo.clipped = VK_TRUE;
         createInfo.oldSwapchain = VK_NULL_HANDLE;
 
-        if (vkCreateSwapchainKHR(m_RendererData->device, &createInfo, nullptr, &(m_RendererData->swapChain)) != VK_SUCCESS) {
+        if (vkCreateSwapchainKHR(m_RendererData->device, &createInfo, nullptr, &(m_RendererData->swapChain)) !=
+            VK_SUCCESS)
+        {
             throw std::runtime_error("failed to create swap chain!");
         }
 
         vkGetSwapchainImagesKHR(m_RendererData->device, m_RendererData->swapChain, &imageCount, nullptr);
         m_RendererData->swapChainImages.resize(imageCount);
-        vkGetSwapchainImagesKHR(m_RendererData->device, m_RendererData->swapChain, &imageCount, m_RendererData->swapChainImages.data());
+        vkGetSwapchainImagesKHR(m_RendererData->device, m_RendererData->swapChain, &imageCount,
+                                m_RendererData->swapChainImages.data());
 
         m_RendererData->swapChainImageFormat = surfaceFormat.format;
         m_RendererData->swapChainExtent = extent;
+    }
+
+    void VulkanInitializer::CreateImageViews()
+    {
+        m_RendererData->swapChainImageViews.resize(m_RendererData->swapChainImages.size());
+        for (size_t i = 0; i < m_RendererData->swapChainImages.size(); ++i)
+        {
+            VkImageViewCreateInfo createInfo{};
+            createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+            createInfo.image = m_RendererData->swapChainImages[i];
+            createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+            createInfo.format = m_RendererData->swapChainImageFormat;
+            createInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
+            createInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
+            createInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
+            createInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
+            createInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+            createInfo.subresourceRange.baseMipLevel = 0;
+            createInfo.subresourceRange.levelCount = 1;
+            createInfo.subresourceRange.baseArrayLayer = 0;
+            createInfo.subresourceRange.layerCount = 1;
+            if (vkCreateImageView(m_RendererData->device, &createInfo, nullptr,
+                                  &(m_RendererData->swapChainImageViews[i])) != VK_SUCCESS)
+            {
+                throw std::runtime_error("failed to create image views!");
+            }
+        }
     }
 }// namespace LunaraEngine
