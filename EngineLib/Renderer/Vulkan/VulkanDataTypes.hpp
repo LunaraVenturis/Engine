@@ -6,7 +6,7 @@
 #include <Renderer/Vulkan/VulkanDebugMessanger.hpp>
 #include <vulkan/vulkan.h>
 #include <SDL3/SDL_render.h>
-
+#include <string>
 #include <vector>
 #include <optional>
 #include <cstdint>
@@ -14,6 +14,7 @@
 #include <set>
 #include <limits>   // Necessary for std::numeric_limits
 #include <algorithm>// Necessary for std::clamp
+#include <fstream>
 
 namespace LunaraEngine
 {
@@ -35,6 +36,7 @@ namespace LunaraEngine
         VkExtent2D swapChainExtent;
         std::vector<VkImage> swapChainImages;
         std::vector<VkImageView> swapChainImageViews;
+        VkPipelineLayout pipelineLayout;
         float width;
         float height;
     };
