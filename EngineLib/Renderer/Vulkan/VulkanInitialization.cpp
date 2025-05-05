@@ -430,23 +430,22 @@ namespace LunaraEngine
         auto vertShaderCode = ReadFile("../../Shaders/output/vert.spv");
         auto fragShaderCode = ReadFile("../../Shaders/output/frag.spv");
 
-        VkShaderModule vertShaderModule = CreateShaderModule(vertShaderCode);
-        VkShaderModule fragShaderModule = CreateShaderModule(fragShaderCode);
+        std::array<VkShaderModule, 2> shaderModules = {};
+        shaderModules[0] = CreateShaderModule(vertShaderCode);
+        shaderModules[1] = CreateShaderModule(fragShaderCode);
 
-        VkPipelineShaderStageCreateInfo vertShaderStageInfo{};
-        vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-        vertShaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
-        vertShaderStageInfo.module = vertShaderModule;
-        vertShaderStageInfo.pName = "main";
+        std::array<VkShaderStageFlagBits, 2> shaderStageFlags = {VK_SHADER_STAGE_VERTEX_BIT,
+                                                                 VK_SHADER_STAGE_FRAGMENT_BIT};
 
-        VkPipelineShaderStageCreateInfo fragShaderStageInfo{};
-        fragShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-        fragShaderStageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
-        fragShaderStageInfo.module = fragShaderModule;
-        fragShaderStageInfo.pName = "main";
+        std::array<VkPipelineShaderStageCreateInfo, 2> shaderStages = {};
 
-
-        VkPipelineShaderStageCreateInfo shaderStages[] = {vertShaderStageInfo, fragShaderStageInfo};
+        for (size_t i = 0; i < shaderStages.size(); ++i)
+        {
+            shaderStages[i].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+            shaderStages[i].stage = shaderStageFlags[i];
+            shaderStages[i].module = shaderModules[i];
+            shaderStages[i].pName = "main";
+        }
 
 
         VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
@@ -546,8 +545,8 @@ namespace LunaraEngine
 
         VkGraphicsPipelineCreateInfo pipelineInfo{};
         pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
-        pipelineInfo.stageCount = 2;
-        pipelineInfo.pStages = shaderStages;
+        pipelineInfo.stageCount = shaderStages.size();
+        pipelineInfo.pStages = shaderStages.data();
 
         pipelineInfo.pVertexInputState = &vertexInputInfo;
         pipelineInfo.pInputAssemblyState = &inputAssembly;
@@ -569,8 +568,7 @@ namespace LunaraEngine
             throw std::runtime_error("failed to create graphics pipeline!");
         }
 
-        vkDestroyShaderModule(m_RendererData->device, fragShaderModule, nullptr);
-        vkDestroyShaderModule(m_RendererData->device, vertShaderModule, nullptr);
+        for (auto shaderModule: shaderModules) { vkDestroyShaderModule(m_RendererData->device, shaderModule, nullptr); }
     }
 
     void VulkanInitializer::CreateRenderPass()
