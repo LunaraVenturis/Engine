@@ -59,6 +59,7 @@ namespace LunaraEngine
         initializer.CreateLogicalDevice();
         initializer.CreateSwapChain();
         initializer.CreateImageViews();
+        initializer.CreateRenderPass();
         initializer.CreateGraphicsPipeline();
     }
 
@@ -66,9 +67,7 @@ namespace LunaraEngine
     {
         vkDestroyPipeline(rendererData->device, rendererData->graphicsPipeline, nullptr);
         vkDestroyPipelineLayout(rendererData->device, rendererData->pipelineLayout, nullptr);
-        vkDestroyPipelineLayout(rendererData->device, rendererData->pipelineLayout, nullptr);
         vkDestroyRenderPass(rendererData->device, rendererData->renderPass, nullptr);
-        vkDestroyPipelineLayout(rendererData->device, rendererData->pipelineLayout, nullptr);
         for (const auto& imageView: rendererData->swapChainImageViews)
         {
             vkDestroyImageView(rendererData->device, imageView, nullptr);
@@ -139,9 +138,9 @@ namespace LunaraEngine
         VkPhysicalDeviceFeatures deviceFeatures{};
 
         VkPhysicalDeviceDynamicRenderingFeaturesKHR dynamicRenderingFeature = {
-            .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES_KHR,
-            .pNext = NULL,
-            .dynamicRendering = VK_TRUE,
+                .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES_KHR,
+                .pNext = NULL,
+                .dynamicRendering = VK_TRUE,
         };
 
         VkDeviceCreateInfo createInfo{};
