@@ -137,9 +137,16 @@ namespace LunaraEngine
             queueCreateInfos.push_back(queueCreateInfo);
         }
         VkPhysicalDeviceFeatures deviceFeatures{};
+
+        VkPhysicalDeviceDynamicRenderingFeaturesKHR dynamicRenderingFeature = {
+            .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES_KHR,
+            .pNext = NULL,
+            .dynamicRendering = VK_TRUE,
+        };
+
         VkDeviceCreateInfo createInfo{};
         createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-
+        createInfo.pNext = &dynamicRenderingFeature;
         createInfo.pQueueCreateInfos = queueCreateInfos.data();
         createInfo.queueCreateInfoCount = static_cast<uint32_t>(queueCreateInfos.size());
 
@@ -421,8 +428,8 @@ namespace LunaraEngine
 
     void VulkanInitializer::CreateGraphicsPipeline()
     {
-        auto vertShaderCode = ReadFile("../Shaders/output/vert.spv");
-        auto fragShaderCode = ReadFile("../Shaders/output/frag.spv");
+        auto vertShaderCode = ReadFile("../../Shaders/output/vert.spv");
+        auto fragShaderCode = ReadFile("../../Shaders/output/frag.spv");
 
         VkShaderModule vertShaderModule = CreateShaderModule(vertShaderCode);
         VkShaderModule fragShaderModule = CreateShaderModule(fragShaderCode);
@@ -517,6 +524,14 @@ namespace LunaraEngine
         colorBlending.blendConstants[1] = 0.0f;// Optional
         colorBlending.blendConstants[2] = 0.0f;// Optional
         colorBlending.blendConstants[3] = 0.0f;// Optional
+
+
+        std::array<VkDynamicState, 2> dynamicStates = {VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR};
+        VkPipelineDynamicStateCreateInfo dynamicState{};
+        dynamicState.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
+        dynamicState.dynamicStateCount = static_cast<uint32_t>(dynamicStates.size());
+        dynamicState.pDynamicStates = dynamicStates.data();
+
         VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
         pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
         pipelineLayoutInfo.setLayoutCount = 0;           // Optional
@@ -529,12 +544,6 @@ namespace LunaraEngine
         {
             throw std::runtime_error("failed to create pipeline layout!");
         }
-
-        std::array<VkDynamicState, 2> dynamicStates = {VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR};
-        VkPipelineDynamicStateCreateInfo dynamicState{};
-        dynamicState.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
-        dynamicState.dynamicStateCount = static_cast<uint32_t>(dynamicStates.size());
-        dynamicState.pDynamicStates = dynamicStates.data();
 
         VkGraphicsPipelineCreateInfo pipelineInfo{};
         pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
