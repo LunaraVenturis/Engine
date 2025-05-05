@@ -29,6 +29,7 @@ namespace LunaraEngine
         void CreateSwapChain();
         void CreateImageViews();
         void CreateGraphicsPipeline();
+        void CreateRenderPass();
         VkShaderModule CreateShaderModule(const std::vector<char>& code);
         bool IsDeviceSuitable(VkPhysicalDevice device);
         bool CheckDeviceExtensionSupport(VkPhysicalDevice device);

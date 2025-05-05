@@ -37,6 +37,8 @@ namespace LunaraEngine
         std::vector<VkImage> swapChainImages;
         std::vector<VkImageView> swapChainImageViews;
         VkPipelineLayout pipelineLayout;
+        VkRenderPass renderPass;
+        VkPipeline graphicsPipeline;
         float width;
         float height;
     };
