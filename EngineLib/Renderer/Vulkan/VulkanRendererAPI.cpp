@@ -45,11 +45,13 @@ Includes
 #include "SDL3/SDL.h"
 #include <stdexcept>
 #include "GraphicsPipeline.hpp"
+
 namespace LunaraEngine
 {
 
-    static std::vector<uint32_t> ReadFile(const std::string& name)
+    static std::vector<uint32_t> ReadFile(std::filesystem::path name)
     {
+
         std::ifstream file(name, std::ios::ate | std::ios::binary);
         if (!file.is_open()) { throw std::runtime_error("failed to open file!"); }
 
@@ -67,9 +69,10 @@ namespace LunaraEngine
     {
         SDL_Init(SDL_INIT_VIDEO);
         m_RendererData->window = new Window;
-        m_RendererData->window->name = "Test";
+        m_RendererData->window->name = m_Config.windowName.data();
         m_RendererData->window->data =
-                static_cast<void*>(SDL_CreateWindow(m_RendererData->window->name, 1280, 720, SDL_WINDOW_VULKAN));
+                static_cast<void*>(SDL_CreateWindow(m_RendererData->window->name, (int) m_Config.initialWidth,
+                                                    (int) m_Config.initialHeight, SDL_WINDOW_VULKAN));
         if (m_RendererData->window->data == nullptr) { throw std::runtime_error("Couldn't create Window"); }
     }
 
@@ -77,25 +80,25 @@ namespace LunaraEngine
 
     void VulkanRendererAPI::Present() { throw std::runtime_error("Not implemented"); }
 
-    void VulkanRendererAPI::Init()
+    void VulkanRendererAPI::Init(const RendererAPIConfig& config)
     {
+        m_Config = config;
         m_RendererData = std::make_unique<RendererDataType>();
 
         CreateWindow();
         VulkanInitializer::Initialize(m_RendererData.get());
-        /*
-                GraphicsPipeline(VkDevice device, const std::vector<uint32_t>& vertexSpriv,
-                         const std::vector<uint32_t>& fragmentSpriv, VkExtent2D viewportSize, const std::vector<VkDescriptorSetLayout>& layouts,
-                         VkRenderPass renderPass);
-        */
-       auto vertShaderCode = ReadFile("../../Shaders/output/vert.spv");
-       auto fragShaderCode = ReadFile("../../Shaders/output/frag.spv");
-       std::vector<VkDescriptorSetLayout> descriptorSets;
-        m_RendererData->pipeline = new GraphicsPipeline(m_RendererData->device, vertShaderCode, fragShaderCode, m_RendererData->swapChainExtent, descriptorSets, m_RendererData->renderPass);
+
+        auto vertShaderCode = ReadFile(config.shadersDirectory / "output/vert.spv");
+        auto fragShaderCode = ReadFile(config.shadersDirectory / "output/frag.spv");
+        std::vector<VkDescriptorSetLayout> descriptorSets;
+        m_RendererData->pipeline =
+                new GraphicsPipeline(m_RendererData->device, vertShaderCode, fragShaderCode,
+                                     m_RendererData->swapChainExtent, descriptorSets, m_RendererData->renderPass);
     }
 
     void VulkanRendererAPI::Destroy()
     {
+        delete m_RendererData->pipeline;
         VulkanInitializer::Goodbye(m_RendererData.get());
         SDL_DestroyWindow(static_cast<SDL_Window*>(m_RendererData->window->data));
     }

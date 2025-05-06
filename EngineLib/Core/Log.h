@@ -49,7 +49,7 @@ Macro Definitions
 // clang-format off
 #ifndef NO_STD_LOG
     #define LOG_WARNING( ... ) printf( __VA_ARGS__ )
-    #define LOG( ... ) printf( __VA_ARGS__ )
+    #define LOG( ... ) printf( __VA_ARGS__ );fflush(stdout)
     #define LOG_ERROR( ... )                                                                                               \
         LOG( "Error: " );                                                                                                  \
         printf( __VA_ARGS__ )

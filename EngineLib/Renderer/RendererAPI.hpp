@@ -41,6 +41,9 @@ Includes
 ***********************************************************************************************************************/
 #include "Core/STDTypes.h"
 #include "Window.hpp"
+#include <filesystem>
+#include <string_view>
+#include <cstdint>
 
 namespace LunaraEngine
 {
@@ -51,7 +54,17 @@ namespace LunaraEngine
         None
     };
 
+    struct RendererAPIConfig {
+        std::filesystem::path workingDirectory;
+        std::filesystem::path assetsDirectory;
+        std::filesystem::path shadersDirectory;
+        std::string_view windowName;
+        uint32_t initialWidth;
+        uint32_t initialHeight;
+    };
+
     class RendererAPI
+
     {
     public:
         inline static RendererAPI* GetInstance() { return s_Instance; }
@@ -62,14 +75,14 @@ namespace LunaraEngine
     public:
         virtual ~RendererAPI() = default;
 
-        virtual void Init() = 0;
+        virtual void Init(const RendererAPIConfig& config) = 0;
         virtual void Destroy() = 0;
         virtual Window* GetWindow() = 0;
         virtual void Present() = 0;
 
     public:
         inline static RendererAPI* s_Instance;
-        inline static RendererAPIType s_APIType = RendererAPIType::Vulkan;
+        inline static constexpr RendererAPIType s_APIType = RendererAPIType::Vulkan;
     };
 
 }// namespace LunaraEngine

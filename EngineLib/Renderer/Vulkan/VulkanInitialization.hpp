@@ -28,9 +28,7 @@ namespace LunaraEngine
         void CreateSurface();
         void CreateSwapChain();
         void CreateImageViews();
-        void CreateGraphicsPipeline();
         void CreateRenderPass();
-        VkShaderModule CreateShaderModule(const std::vector<char>& code);
         bool IsDeviceSuitable(VkPhysicalDevice device);
         bool CheckDeviceExtensionSupport(VkPhysicalDevice device);
 
@@ -39,7 +37,7 @@ namespace LunaraEngine
         VkSurfaceFormatKHR ChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
         VkPresentModeKHR ChooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
         VkExtent2D ChooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
-        
+
     private:
         RendererDataType* m_RendererData;
     };

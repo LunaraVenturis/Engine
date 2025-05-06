@@ -20,10 +20,10 @@ namespace LunaraEngine
         p_DescriptorLayouts = descriptorSets;
         VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
         pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-        pipelineLayoutInfo.setLayoutCount = static_cast<uint32_t>(p_DescriptorLayouts.size());// Optional
-        pipelineLayoutInfo.pSetLayouts = p_DescriptorLayouts.data();   // Optional
-        pipelineLayoutInfo.pushConstantRangeCount = 0;                 // Optional
-        pipelineLayoutInfo.pPushConstantRanges = nullptr;              // Optional
+        pipelineLayoutInfo.setLayoutCount = static_cast<uint32_t>(p_DescriptorLayouts.size());
+        pipelineLayoutInfo.pSetLayouts = p_DescriptorLayouts.data();
+        pipelineLayoutInfo.pushConstantRangeCount = 0;   // Optional
+        pipelineLayoutInfo.pPushConstantRanges = nullptr;// Optional
 
         if (vkCreatePipelineLayout(p_Device, &pipelineLayoutInfo, nullptr, &p_Layout) != VK_SUCCESS)
         {
@@ -31,7 +31,8 @@ namespace LunaraEngine
         }
     }
 
-    VkShaderModule Pipeline::CreateShaderModule(const std::vector<uint32_t>& spirvCode) {
+    VkShaderModule Pipeline::CreateShaderModule(const std::vector<uint32_t>& spirvCode)
+    {
         VkShaderModuleCreateInfo createInfo{};
         createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
         createInfo.codeSize = spirvCode.size();

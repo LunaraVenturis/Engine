@@ -1,6 +1,6 @@
+#pragma once
 #include "vulkan/vulkan.h"
 #include <vector>
-#pragma once
 
 namespace LunaraEngine
 {

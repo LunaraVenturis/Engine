@@ -58,7 +58,7 @@ namespace LunaraEngine
     public:
         virtual Window* GetWindow() override;
         virtual void Present() override;
-        virtual void Init() override;
+        virtual void Init(const RendererAPIConfig& config) override;
         virtual void Destroy() override;
 
     private:
@@ -73,6 +73,7 @@ namespace LunaraEngine
 
     private:
         std::unique_ptr<RendererDataType> m_RendererData;
+        RendererAPIConfig m_Config;
     };
 
 }// namespace LunaraEngine

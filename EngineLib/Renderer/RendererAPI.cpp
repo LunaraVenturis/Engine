@@ -40,7 +40,9 @@ Includes
 ***********************************************************************************************************************/
 #include "RendererAPI.hpp"
 #include "Vulkan/VulkanRendererAPI.hpp"
+#include <Core/Log.h>
 #include <stdexcept>
+
 namespace LunaraEngine
 {
 
@@ -49,6 +51,7 @@ namespace LunaraEngine
         switch (s_APIType)
         {
             case RendererAPIType::Vulkan:
+                LOG("Creating Vulkan renderer API...\n");
                 s_Instance = new VulkanRendererAPI();
                 break;
             default:
@@ -58,7 +61,6 @@ namespace LunaraEngine
     }
 
     void RendererAPI::DestroyRendererAPI() { delete s_Instance; }
-
 
 
 }// namespace LunaraEngine

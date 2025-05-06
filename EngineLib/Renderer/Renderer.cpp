@@ -42,6 +42,7 @@ Includes
 #include "RendererAPI.hpp"
 #include "Texture.hpp"
 #include "Fonts.hpp"
+#include <Core/Log.h>
 #include <string_view>
 
 namespace LunaraEngine
@@ -49,11 +50,24 @@ namespace LunaraEngine
 
     RendererResultType Renderer::Init(std::string_view window_name, uint32_t width, uint32_t height)
     {
-        (void) window_name;
-        (void) width;
-        (void) height;
+        RendererAPIConfig config;
+        config.workingDirectory = std::filesystem::current_path();
+        config.assetsDirectory = config.workingDirectory / "Assets";
+        config.shadersDirectory = config.assetsDirectory / "Shaders";
+        config.windowName = window_name;
+        config.initialWidth = width;
+        config.initialHeight = height;
+
+        LOG("Initializing renderer...\n");
+        LOG("Working directory: %s\n", config.workingDirectory.c_str());
+        LOG("Assets directory: %s\n", config.assetsDirectory.c_str());
+        LOG("Shaders directory: %s\n", config.shadersDirectory.c_str());
+        LOG("Window name: %s\n", config.windowName.data());
+        LOG("Initial width: %d\n", config.initialWidth);
+        LOG("Initial height: %d\n", config.initialHeight);
+
         RendererAPI::CreateRendererAPI();
-        RendererAPI::GetInstance()->Init();
+        RendererAPI::GetInstance()->Init(config);
         return RendererResultType::Renderer_Result_Error;
     }
 
