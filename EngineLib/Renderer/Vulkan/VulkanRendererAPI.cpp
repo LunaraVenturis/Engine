@@ -44,9 +44,24 @@ Includes
 #include "SDL3/SDL_vulkan.h"
 #include "SDL3/SDL.h"
 #include <stdexcept>
-
+#include "GraphicsPipeline.hpp"
 namespace LunaraEngine
 {
+
+    static std::vector<uint32_t> ReadFile(const std::string& name)
+    {
+        std::ifstream file(name, std::ios::ate | std::ios::binary);
+        if (!file.is_open()) { throw std::runtime_error("failed to open file!"); }
+
+        std::streamsize fileSize = file.tellg();
+        if (fileSize < 0) { throw std::runtime_error("failed to determine file size!"); }
+        std::vector<uint32_t> buffer(static_cast<size_t>(fileSize));
+        file.seekg(0);
+        file.read(reinterpret_cast<char*>(buffer.data()), fileSize);
+        file.close();
+
+        return buffer;
+    }
 
     void VulkanRendererAPI::CreateWindow()
     {
@@ -68,6 +83,15 @@ namespace LunaraEngine
 
         CreateWindow();
         VulkanInitializer::Initialize(m_RendererData.get());
+        /*
+                GraphicsPipeline(VkDevice device, const std::vector<uint32_t>& vertexSpriv,
+                         const std::vector<uint32_t>& fragmentSpriv, VkExtent2D viewportSize, const std::vector<VkDescriptorSetLayout>& layouts,
+                         VkRenderPass renderPass);
+        */
+       auto vertShaderCode = ReadFile("../../Shaders/output/vert.spv");
+       auto fragShaderCode = ReadFile("../../Shaders/output/frag.spv");
+       std::vector<VkDescriptorSetLayout> descriptorSets;
+        m_RendererData->pipeline = new GraphicsPipeline(m_RendererData->device, vertShaderCode, fragShaderCode, m_RendererData->swapChainExtent, descriptorSets, m_RendererData->renderPass);
     }
 
     void VulkanRendererAPI::Destroy()

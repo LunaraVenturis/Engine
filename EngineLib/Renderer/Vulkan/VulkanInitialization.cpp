@@ -60,7 +60,7 @@ namespace LunaraEngine
         initializer.CreateSwapChain();
         initializer.CreateImageViews();
         initializer.CreateRenderPass();
-        initializer.CreateGraphicsPipeline();
+        //initializer.CreateGraphicsPipeline();
     }
 
     void VulkanInitializer::Goodbye(RendererDataType* rendererData)

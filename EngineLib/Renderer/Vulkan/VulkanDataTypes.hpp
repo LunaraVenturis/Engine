@@ -4,6 +4,7 @@
 #include <Renderer/RendererCommands.hpp>
 #include <Renderer/Window.hpp>
 #include <Renderer/Vulkan/VulkanDebugMessanger.hpp>
+#include "Pipeline.hpp"
 #include <vulkan/vulkan.h>
 #include <SDL3/SDL_render.h>
 #include <string>
@@ -39,6 +40,7 @@ namespace LunaraEngine
         VkPipelineLayout pipelineLayout;
         VkRenderPass renderPass;
         VkPipeline graphicsPipeline;
+        Pipeline* pipeline;
         float width;
         float height;
     };
