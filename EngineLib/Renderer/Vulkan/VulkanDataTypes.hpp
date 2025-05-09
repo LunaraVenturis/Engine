@@ -19,6 +19,8 @@
 
 namespace LunaraEngine
 {
+    const std::array<const char*, 1> g_SwapChainExtensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
+
     struct RendererDataType {
         std::vector<RendererCommand*> command_stack;
         LunaraEngine::Window* window;
@@ -63,5 +65,31 @@ namespace LunaraEngine
         std::vector<VkSurfaceFormatKHR> formats;
         std::vector<VkPresentModeKHR> presentModes;
     };
+    QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice device, VkSurfaceKHR surface)
+    {
+        QueueFamilyIndices indices;
 
+        uint32_t queueFamilyCount = 0;
+        vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
+        std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
+        vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
+
+        uint32_t i = 0;
+
+        for (const auto& queueFamily: queueFamilies)
+        {
+            if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) { indices.graphicsFamily = i; }
+            if (queueFamily.queueFlags & VK_QUEUE_COMPUTE_BIT) { indices.computeFamily = i; }
+
+            VkBool32 presentSupport = false;
+            vkGetPhysicalDeviceSurfaceSupportKHR(device, i, surface, &presentSupport);
+
+            if (presentSupport) { indices.presentFamily = i; }
+            if (indices.isComplete()) { break; }
+
+            i++;
+        }
+
+        return indices;
+    }
 }// namespace LunaraEngine

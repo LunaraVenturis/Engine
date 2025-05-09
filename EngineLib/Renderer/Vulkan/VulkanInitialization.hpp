@@ -1,5 +1,6 @@
 #pragma once
 #include "VulkanDataTypes.hpp"
+#include "SwapChain.hpp"
 
 namespace LunaraEngine
 {
@@ -29,14 +30,6 @@ namespace LunaraEngine
         void CreateSwapChain();
         void CreateImageViews();
         void CreateRenderPass();
-        bool IsDeviceSuitable(VkPhysicalDevice device);
-        bool CheckDeviceExtensionSupport(VkPhysicalDevice device);
-
-        QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice device);
-        SwapChainSupportDetails QuerySwapChainSupport(VkPhysicalDevice device);
-        VkSurfaceFormatKHR ChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
-        VkPresentModeKHR ChooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
-        VkExtent2D ChooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
 
     private:
         RendererDataType* m_RendererData;

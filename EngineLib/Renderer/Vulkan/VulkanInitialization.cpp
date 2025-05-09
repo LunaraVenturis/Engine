@@ -33,7 +33,6 @@ const char* LUNARA_INSTANCE_LAYERS[] = {nullptr};
 namespace LunaraEngine
 {
 
-    const std::array<const char*, 1> g_SwapChainExtensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
 
     void VulkanInitializer::Initialize(RendererDataType* rendererData)
     {
@@ -103,7 +102,7 @@ namespace LunaraEngine
 
     void VulkanInitializer::CreateLogicalDevice()
     {
-        QueueFamilyIndices indices = FindQueueFamilies(m_RendererData->physicalDevice);
+        QueueFamilyIndices indices = FindQueueFamilies(m_RendererData->physicalDevice, m_RendererData->vkSurface);
 
         std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
         std::set<uint32_t> uniqueQueueFamilies = {indices.graphicsFamily.value(), indices.presentFamily.value(),
@@ -183,61 +182,6 @@ namespace LunaraEngine
         }
     }
 
-    bool VulkanInitializer::IsDeviceSuitable(VkPhysicalDevice device)
-    {
-        QueueFamilyIndices indices = FindQueueFamilies(device);
-        bool extensionsSupported = CheckDeviceExtensionSupport(device);
-        bool swapChainAdequate = false;
-        if (extensionsSupported)
-        {
-            SwapChainSupportDetails swapChainSupport = QuerySwapChainSupport(device);
-            swapChainAdequate = !swapChainSupport.formats.empty() && !swapChainSupport.presentModes.empty();
-        }
-        return indices.isComplete() && extensionsSupported && swapChainAdequate;
-    }
-
-    QueueFamilyIndices VulkanInitializer::FindQueueFamilies(VkPhysicalDevice device)
-    {
-        QueueFamilyIndices indices;
-
-        uint32_t queueFamilyCount = 0;
-        vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
-        std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
-        vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
-
-        uint32_t i = 0;
-
-        for (const auto& queueFamily: queueFamilies)
-        {
-            if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) { indices.graphicsFamily = i; }
-            if (queueFamily.queueFlags & VK_QUEUE_COMPUTE_BIT) { indices.computeFamily = i; }
-
-            VkBool32 presentSupport = false;
-            vkGetPhysicalDeviceSurfaceSupportKHR(device, i, m_RendererData->vkSurface, &presentSupport);
-
-            if (presentSupport) { indices.presentFamily = i; }
-            if (indices.isComplete()) { break; }
-
-            i++;
-        }
-
-        return indices;
-    }
-
-    bool VulkanInitializer::CheckDeviceExtensionSupport(VkPhysicalDevice device)
-    {
-        uint32_t extensionCount;
-        vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
-
-        std::vector<VkExtensionProperties> availableExtensions(extensionCount);
-        vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, availableExtensions.data());
-
-        std::set<std::string> requiredExtensions(g_SwapChainExtensions.begin(), g_SwapChainExtensions.end());
-
-        for (const auto& extension: availableExtensions) { requiredExtensions.erase(extension.extensionName); }
-
-        return requiredExtensions.empty();
-    }
 
     SwapChainSupportDetails VulkanInitializer::QuerySwapChainSupport(VkPhysicalDevice device)
     {
