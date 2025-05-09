@@ -27,7 +27,6 @@ namespace LunaraEngine
         void PickPhysicalDevice();
         void CreateLogicalDevice();
         void CreateSurface();
-        void CreateSwapChain();
         void CreateImageViews();
         void CreateRenderPass();
 

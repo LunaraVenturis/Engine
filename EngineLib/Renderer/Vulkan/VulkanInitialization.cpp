@@ -41,7 +41,6 @@ namespace LunaraEngine
         initializer.CreateSurface();
         initializer.PickPhysicalDevice();
         initializer.CreateLogicalDevice();
-        initializer.CreateSwapChain();
         initializer.CreateImageViews();
         initializer.CreateRenderPass();
     }

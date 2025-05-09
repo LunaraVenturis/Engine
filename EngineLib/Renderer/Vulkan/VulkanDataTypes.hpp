@@ -64,11 +64,11 @@ namespace LunaraEngine
         VkSurfaceCapabilitiesKHR capabilities;
         std::vector<VkSurfaceFormatKHR> formats;
         std::vector<VkPresentModeKHR> presentModes;
-        SwapChainSupportDetails QuerySwapChainSupport(VkPhysicalDevice physicaldevice, VkSurfaceKHR surface);
+        inline SwapChainSupportDetails QuerySwapChainSupport(VkPhysicalDevice physicaldevice, VkSurfaceKHR surface);
     };
 
-    SwapChainSupportDetails SwapChainSupportDetails::QuerySwapChainSupport(VkPhysicalDevice physicaldevice,
-                                                                           VkSurfaceKHR surface)
+    inline SwapChainSupportDetails SwapChainSupportDetails::QuerySwapChainSupport(VkPhysicalDevice physicaldevice,
+                                                                                  VkSurfaceKHR surface)
     {
         SwapChainSupportDetails details;
         vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicaldevice, surface, &details.capabilities);
@@ -92,7 +92,7 @@ namespace LunaraEngine
         return details;
     }
 
-    QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice device, VkSurfaceKHR surface)
+    inline QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice device, VkSurfaceKHR surface)
     {
         QueueFamilyIndices indices;
 
@@ -120,7 +120,7 @@ namespace LunaraEngine
         return indices;
     }
 
-    bool CheckDeviceExtensionSupport(VkPhysicalDevice device)
+    inline bool CheckDeviceExtensionSupport(VkPhysicalDevice device)
     {
         uint32_t extensionCount;
         vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
@@ -135,7 +135,7 @@ namespace LunaraEngine
         return requiredExtensions.empty();
     }
 
-    bool IsDeviceSuitable(VkPhysicalDevice device, VkSurfaceKHR surface)
+    inline bool IsDeviceSuitable(VkPhysicalDevice device, VkSurfaceKHR surface)
     {
         QueueFamilyIndices indices = FindQueueFamilies(device, surface);
         bool extensionsSupported = CheckDeviceExtensionSupport(device);
