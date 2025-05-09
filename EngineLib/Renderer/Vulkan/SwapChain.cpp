@@ -3,83 +3,59 @@
 namespace LunaraEngine
 {
 
-    bool CheckDeviceExtensionSupport(VkPhysicalDevice device)
-    {
-        uint32_t extensionCount;
-        vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, nullptr);
 
-        std::vector<VkExtensionProperties> availableExtensions(extensionCount);
-        vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionCount, availableExtensions.data());
-
-        std::set<std::string> requiredExtensions(g_SwapChainExtensions.begin(), g_SwapChainExtensions.end());
-
-        for (const auto& extension: availableExtensions) { requiredExtensions.erase(extension.extensionName); }
-
-        return requiredExtensions.empty();
-    }
-    QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice device, VkSurfaceKHR surface)
-    {
-        QueueFamilyIndices indices;
-
-        uint32_t queueFamilyCount = 0;
-        vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
-        std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
-        vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
-
-        uint32_t i = 0;
-
-        for (const auto& queueFamily: queueFamilies)
-        {
-            if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) { indices.graphicsFamily = i; }
-            if (queueFamily.queueFlags & VK_QUEUE_COMPUTE_BIT) { indices.computeFamily = i; }
-
-            VkBool32 presentSupport = false;
-            vkGetPhysicalDeviceSurfaceSupportKHR(device, i, surface, &presentSupport);
-
-            if (presentSupport) { indices.presentFamily = i; }
-            if (indices.isComplete()) { break; }
-
-            i++;
-        }
-
-        return indices;
-    }
-    SwapChainSupportDetails QuerySwapChainSupport(VkPhysicalDevice device)
-    {
-
-    }
     VkSurfaceFormatKHR ChooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats)
     {
-
+        for (const auto& availableFormat: availableFormats)
+        {
+            if (availableFormat.format == VK_FORMAT_B8G8R8A8_SRGB &&
+                availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
+            {
+                return availableFormat;
+            }
+        }
+        return availableFormats[0];
     }
+
     VkPresentModeKHR ChooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes)
     {
-
-    }
-    VkExtent2D ChooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities)
-    {
-
-    }
-
-    bool IsDeviceSuitable(VkPhysicalDevice device, VkSurfaceKHR surface)
-    {
-        QueueFamilyIndices indices = FindQueueFamilies(device, surface);
-        bool extensionsSupported = CheckDeviceExtensionSupport(device);
-        bool swapChainAdequate = false;
-        if (extensionsSupported)
+        for (const auto& availablePresentMode: availablePresentModes)
         {
-            SwapChainSupportDetails swapChainSupport = QuerySwapChainSupport(device);
-            swapChainAdequate = !swapChainSupport.formats.empty() && !swapChainSupport.presentModes.empty();
+            if (availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR) { return availablePresentMode; }
         }
-        return indices.isComplete() && extensionsSupported && swapChainAdequate;
+
+        return VK_PRESENT_MODE_FIFO_KHR;
     }
-    SwapChain::SwapChain()
+
+    VkExtent2D ChooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities, uint32_t width, uint32_t height)
     {
-        SwapChainSupportDetails swapChainSupport = QuerySwapChainSupport(m_RendererData->physicalDevice);
+        if (capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max())
+        {
+            return capabilities.currentExtent;
+        }
+        else
+        {
+            VkExtent2D actualExtent = {width, height};
+
+            actualExtent.width = std::clamp(actualExtent.width, capabilities.minImageExtent.width,
+                                            capabilities.maxImageExtent.width);
+            actualExtent.height = std::clamp(actualExtent.height, capabilities.minImageExtent.height,
+                                             capabilities.maxImageExtent.height);
+
+            return actualExtent;
+        }
+    }
+
+    SwapChain::SwapChain(VkDevice device, VkSwapchainKHR swapChain, VkPhysicalDevice physicalDevice,
+                         VkSurfaceKHR surface, uint32_t width, uint32_t height, std::vector<VkImage>& swapChainImages,
+                         VkFormat* swapChainImageFormat, VkExtent2D* swapChainExtent)
+    {
+        SwapChainSupportDetails swapChainSupport;
+        swapChainSupport.QuerySwapChainSupport(physicalDevice, surface);
 
         VkSurfaceFormatKHR surfaceFormat = ChooseSwapSurfaceFormat(swapChainSupport.formats);
         VkPresentModeKHR presentMode = ChooseSwapPresentMode(swapChainSupport.presentModes);
-        VkExtent2D extent = ChooseSwapExtent(swapChainSupport.capabilities);
+        VkExtent2D extent = ChooseSwapExtent(swapChainSupport.capabilities, width, height);
 
         uint32_t imageCount = swapChainSupport.capabilities.minImageCount + 1;
         if (swapChainSupport.capabilities.maxImageCount > 0 && imageCount > swapChainSupport.capabilities.maxImageCount)
@@ -88,7 +64,7 @@ namespace LunaraEngine
         }
         VkSwapchainCreateInfoKHR createInfo{};
         createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-        createInfo.surface = m_RendererData->vkSurface;
+        createInfo.surface = surface;
         createInfo.minImageCount = imageCount;
         createInfo.imageFormat = surfaceFormat.format;
         createInfo.imageColorSpace = surfaceFormat.colorSpace;
@@ -96,7 +72,7 @@ namespace LunaraEngine
         createInfo.imageArrayLayers = 1;
         createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
-        QueueFamilyIndices indices = FindQueueFamilies(m_RendererData->physicalDevice);
+        QueueFamilyIndices indices = FindQueueFamilies(physicalDevice, surface);
         uint32_t queueFamilyIndices[] = {indices.graphicsFamily.value(), indices.presentFamily.value()};
 
         if (indices.graphicsFamily != indices.presentFamily)
@@ -117,18 +93,16 @@ namespace LunaraEngine
         createInfo.clipped = VK_TRUE;
         createInfo.oldSwapchain = VK_NULL_HANDLE;
 
-        if (vkCreateSwapchainKHR(m_RendererData->device, &createInfo, nullptr, &(m_RendererData->swapChain)) !=
-            VK_SUCCESS)
+        if (vkCreateSwapchainKHR(device, &createInfo, nullptr, &(swapChain)) != VK_SUCCESS)
         {
             throw std::runtime_error("failed to create swap chain!");
         }
 
-        vkGetSwapchainImagesKHR(m_RendererData->device, m_RendererData->swapChain, &imageCount, nullptr);
-        m_RendererData->swapChainImages.resize(imageCount);
-        vkGetSwapchainImagesKHR(m_RendererData->device, m_RendererData->swapChain, &imageCount,
-                                m_RendererData->swapChainImages.data());
+        vkGetSwapchainImagesKHR(device, swapChain, &imageCount, nullptr);
+        swapChainImages.resize(imageCount);
+        vkGetSwapchainImagesKHR(device, swapChain, &imageCount, swapChainImages.data());
 
-        m_RendererData->swapChainImageFormat = surfaceFormat.format;
-        m_RendererData->swapChainExtent = extent;
+        *swapChainImageFormat = surfaceFormat.format;
+        *swapChainExtent = extent;
     }
 }// namespace LunaraEngine

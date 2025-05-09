@@ -3,10 +3,9 @@
 
 namespace LunaraEngine
 {
-    QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice device, VkSurfaceKHR surface);
     class SwapChain
     {
     public:
-        SwapChain();
+        SwapChain(VkDevice device, VkSwapchainKHR swapChain, VkPhysicalDevice physicalDevice, VkSurfaceKHR surface, uint32_t width, uint32_t height, std::vector<VkImage>& swapChainImages, VkFormat* swapChainImageFormat,  VkExtent2D* swapChainExtent);
     };
 }// namespace LunaraEngine
