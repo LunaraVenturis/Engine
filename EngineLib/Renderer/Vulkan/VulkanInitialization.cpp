@@ -54,7 +54,6 @@ namespace LunaraEngine
         {
             vkDestroyImageView(rendererData->device, imageView, nullptr);
         }
-        vkDestroySwapchainKHR(rendererData->device, rendererData->swapChain, nullptr);
         vkDestroySurfaceKHR(rendererData->instance, rendererData->vkSurface, nullptr);
         vkDestroyDevice(rendererData->device, nullptr);
         rendererData->debugMessanger.Destroy(rendererData->instance);

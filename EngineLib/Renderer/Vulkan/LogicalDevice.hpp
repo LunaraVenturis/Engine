@@ -1,10 +1,10 @@
 #include <vulkan/vulkan.h>
 #include <set>
 #include <vector>
-#include "VulkanDataTypes.hpp"
 
 namespace LunaraEngine
 {
+  
     class LogicalDevice
     {
     public:

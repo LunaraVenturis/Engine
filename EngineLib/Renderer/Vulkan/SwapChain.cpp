@@ -48,14 +48,16 @@ namespace LunaraEngine
 
     SwapChain::SwapChain(VkDevice device, VkSwapchainKHR swapChain, VkPhysicalDevice physicalDevice,
                          VkSurfaceKHR surface, uint32_t width, uint32_t height, std::vector<VkImage>& swapChainImages,
-                         VkFormat* swapChainImageFormat, VkExtent2D* swapChainExtent)
+                         VkFormat& swapChainImageFormat, VkExtent2D& swapChainExtent)
+        : m_device(device), m_swapChain(swapChain), m_physicalDevice(physicalDevice), m_surface(surface),
+          m_swapChainWidth(width), m_swapChainHeight(height)
     {
         SwapChainSupportDetails swapChainSupport;
-        swapChainSupport.QuerySwapChainSupport(physicalDevice, surface);
+        swapChainSupport.QuerySwapChainSupport(m_physicalDevice, m_surface);
 
         VkSurfaceFormatKHR surfaceFormat = ChooseSwapSurfaceFormat(swapChainSupport.formats);
         VkPresentModeKHR presentMode = ChooseSwapPresentMode(swapChainSupport.presentModes);
-        VkExtent2D extent = ChooseSwapExtent(swapChainSupport.capabilities, width, height);
+        VkExtent2D extent = ChooseSwapExtent(swapChainSupport.capabilities, m_swapChainWidth, m_swapChainHeight);
 
         uint32_t imageCount = swapChainSupport.capabilities.minImageCount + 1;
         if (swapChainSupport.capabilities.maxImageCount > 0 && imageCount > swapChainSupport.capabilities.maxImageCount)
@@ -64,7 +66,7 @@ namespace LunaraEngine
         }
         VkSwapchainCreateInfoKHR createInfo{};
         createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-        createInfo.surface = surface;
+        createInfo.surface = m_surface;
         createInfo.minImageCount = imageCount;
         createInfo.imageFormat = surfaceFormat.format;
         createInfo.imageColorSpace = surfaceFormat.colorSpace;
@@ -93,7 +95,7 @@ namespace LunaraEngine
         createInfo.clipped = VK_TRUE;
         createInfo.oldSwapchain = VK_NULL_HANDLE;
 
-        if (vkCreateSwapchainKHR(device, &createInfo, nullptr, &(swapChain)) != VK_SUCCESS)
+        if (vkCreateSwapchainKHR(m_device, &createInfo, nullptr, &m_swapChain) != VK_SUCCESS)
         {
             throw std::runtime_error("failed to create swap chain!");
         }
@@ -102,7 +104,12 @@ namespace LunaraEngine
         swapChainImages.resize(imageCount);
         vkGetSwapchainImagesKHR(device, swapChain, &imageCount, swapChainImages.data());
 
-        *swapChainImageFormat = surfaceFormat.format;
-        *swapChainExtent = extent;
+        swapChainImageFormat = surfaceFormat.format;
+        swapChainExtent = extent;
+    }
+
+    SwapChain::~SwapChain()
+    {
+        if (m_swapChain != VK_NULL_HANDLE) { vkDestroySwapchainKHR(m_device, m_swapChain, nullptr); }
     }
 }// namespace LunaraEngine

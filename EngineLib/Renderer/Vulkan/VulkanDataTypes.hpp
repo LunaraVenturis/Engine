@@ -5,6 +5,7 @@
 #include <Renderer/Window.hpp>
 #include <Renderer/Vulkan/VulkanDebugMessanger.hpp>
 #include "Pipeline.hpp"
+#include "SwapChain.hpp"
 #include <vulkan/vulkan.h>
 #include <SDL3/SDL_render.h>
 #include <string>
@@ -34,7 +35,7 @@ namespace LunaraEngine
         VkSurfaceKHR vkSurface;
         VkQueue presentQueue;
         VkQueue computeQueue;
-        VkSwapchainKHR swapChain;
+        VkSwapchainKHR vkSwapChain;
         VkFormat swapChainImageFormat;
         VkExtent2D swapChainExtent;
         std::vector<VkImage> swapChainImages;
@@ -43,6 +44,7 @@ namespace LunaraEngine
         VkRenderPass renderPass;
         VkPipeline graphicsPipeline;
         Pipeline* pipeline;
+        SwapChain* swapChain;
         float width;
         float height;
     };

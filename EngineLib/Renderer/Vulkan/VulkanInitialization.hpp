@@ -1,6 +1,5 @@
 #pragma once
 #include "VulkanDataTypes.hpp"
-#include "SwapChain.hpp"
 
 namespace LunaraEngine
 {

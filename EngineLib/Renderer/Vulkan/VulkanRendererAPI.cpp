@@ -94,6 +94,7 @@ namespace LunaraEngine
         m_RendererData->pipeline =
                 new GraphicsPipeline(m_RendererData->device, vertShaderCode, fragShaderCode,
                                      m_RendererData->swapChainExtent, descriptorSets, m_RendererData->renderPass);
+      m_RendererData->swapChain = new SwapChain(m_RendererData->device, VK_NULL_HANDLE, m_RendererData->physicalDevice, m_RendererData->vkSurface, m_RendererData->width, static_cast<uint32_t>(m_RendererData->height), static_cast<uint32_t>(m_RendererData->swapChainImages), m_RendererData->swapChainImageFormat, m_RendererData->swapChainExtent);
     }
 
     void VulkanRendererAPI::Destroy()

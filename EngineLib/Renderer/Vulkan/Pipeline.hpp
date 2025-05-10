@@ -8,7 +8,6 @@ namespace LunaraEngine
     class Pipeline
     {
     public:
-        Pipeline() = default;
         Pipeline(VkDevice device);
         virtual ~Pipeline();
 
