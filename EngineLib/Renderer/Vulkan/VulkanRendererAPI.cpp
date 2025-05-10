@@ -103,8 +103,8 @@ namespace LunaraEngine
 
     void VulkanRendererAPI::Destroy()
     {
-        delete m_RendererData->swapChain;
         delete m_RendererData->pipeline;
+        delete m_RendererData->swapChain;
         VulkanInitializer::Goodbye(m_RendererData.get());
         SDL_DestroyWindow(static_cast<SDL_Window*>(m_RendererData->window->data));
     }

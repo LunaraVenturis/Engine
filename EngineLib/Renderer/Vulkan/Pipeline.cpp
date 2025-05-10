@@ -5,12 +5,6 @@ namespace LunaraEngine
 {
     Pipeline::Pipeline(VkDevice device) : p_Device(device) {}
 
-    Pipeline::~Pipeline()
-    {
-        if (p_Pipeline != VK_NULL_HANDLE) { vkDestroyPipeline(p_Device, p_Pipeline, nullptr); }
-        if (p_Layout != VK_NULL_HANDLE) { vkDestroyPipelineLayout(p_Device, p_Layout, nullptr); }
-    }
-
     VkPipeline Pipeline::GetPipeline() const { return p_Pipeline; }
 
     VkPipelineLayout Pipeline::GetLayout() const { return p_Layout; }

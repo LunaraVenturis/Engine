@@ -9,7 +9,7 @@ namespace LunaraEngine
     {
     public:
         Pipeline(VkDevice device);
-        virtual ~Pipeline();
+        virtual ~Pipeline() = default;
 
     public:
         VkPipeline GetPipeline() const;
