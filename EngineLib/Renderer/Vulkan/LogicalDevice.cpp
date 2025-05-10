@@ -1,4 +1,5 @@
 #include "LogicalDevice.hpp"
+#include "Common.hpp"
 
 namespace LunaraEngine
 {

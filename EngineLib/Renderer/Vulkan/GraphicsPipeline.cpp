@@ -1,12 +1,13 @@
 #include "GraphicsPipeline.hpp"
+#include "SwapChain.hpp"
 #include <array>
 #include <stdexcept>
 
 namespace LunaraEngine
 {
-    GraphicsPipeline::GraphicsPipeline(VkDevice device, const std::vector<uint32_t>& vertexSpriv,
-                                       const std::vector<uint32_t>& fragmentSpriv, VkExtent2D viewportSize,
-                                       const std::vector<VkDescriptorSetLayout>& layouts, VkRenderPass renderPass)
+    GraphicsPipeline::GraphicsPipeline(VkDevice device, SwapChain* swapchain, const std::vector<uint32_t>& vertexSpriv,
+                                       const std::vector<uint32_t>& fragmentSpriv,
+                                       const std::vector<VkDescriptorSetLayout>& layouts)
         : Pipeline(device)
     {
         std::array<VkShaderModule, 2> shaderModules = {};
@@ -39,14 +40,14 @@ namespace LunaraEngine
         VkViewport viewport{};
         viewport.x = 0.0f;
         viewport.y = 0.0f;
-        viewport.width = (float) viewportSize.width;
-        viewport.height = (float) viewportSize.height;
+        viewport.width = (float) swapchain->GetExtent().width;
+        viewport.height = (float) swapchain->GetExtent().height;
         viewport.minDepth = 0.0f;
         viewport.maxDepth = 1.0f;
 
         VkRect2D scissor{};
         scissor.offset = {0, 0};
-        scissor.extent = viewportSize;
+        scissor.extent = swapchain->GetExtent();
 
         VkPipelineViewportStateCreateInfo viewportState{};
         viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
@@ -119,7 +120,7 @@ namespace LunaraEngine
         pipelineInfo.pColorBlendState = &colorBlending;
         pipelineInfo.pDynamicState = &dynamicState;
         pipelineInfo.layout = p_Layout;
-        pipelineInfo.renderPass = renderPass;
+        pipelineInfo.renderPass = swapchain->GetRenderPass();
         pipelineInfo.subpass = 0;
         pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;// Optional
         pipelineInfo.basePipelineIndex = -1;             // Optional
@@ -130,5 +131,12 @@ namespace LunaraEngine
         }
 
         for (const auto shaderModule: shaderModules) { vkDestroyShaderModule(p_Device, shaderModule, nullptr); }
+    }
+
+    GraphicsPipeline::~GraphicsPipeline()
+    {
+
+        if (p_Layout != VK_NULL_HANDLE) { vkDestroyPipelineLayout(p_Device, p_Layout, nullptr); }
+        if (p_Pipeline != VK_NULL_HANDLE) { vkDestroyPipeline(p_Device, p_Pipeline, nullptr); }
     }
 }// namespace LunaraEngine

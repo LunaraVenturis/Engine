@@ -1,5 +1,6 @@
 #include "VulkanInitialization.hpp"
 #include "Renderer/Window.hpp"
+#include "Common.hpp"
 #include "Core/Log.h"
 #include <stdexcept>
 #include <SDL3/SDL_vulkan.h>
@@ -41,19 +42,10 @@ namespace LunaraEngine
         initializer.CreateSurface();
         initializer.PickPhysicalDevice();
         initializer.CreateLogicalDevice();
-        initializer.CreateImageViews();
-        initializer.CreateRenderPass();
     }
 
     void VulkanInitializer::Goodbye(RendererDataType* rendererData)
     {
-        vkDestroyPipeline(rendererData->device, rendererData->graphicsPipeline, nullptr);
-        vkDestroyPipelineLayout(rendererData->device, rendererData->pipelineLayout, nullptr);
-        vkDestroyRenderPass(rendererData->device, rendererData->renderPass, nullptr);
-        for (const auto& imageView: rendererData->swapChainImageViews)
-        {
-            vkDestroyImageView(rendererData->device, imageView, nullptr);
-        }
         vkDestroySurfaceKHR(rendererData->instance, rendererData->vkSurface, nullptr);
         vkDestroyDevice(rendererData->device, nullptr);
         rendererData->debugMessanger.Destroy(rendererData->instance);
@@ -167,7 +159,8 @@ namespace LunaraEngine
 
         for (const auto& device: devices)
         {
-            if (IsDeviceSuitable(device, m_RendererData->vkSurface))
+            bool status = IsDeviceSuitable(device, m_RendererData->vkSurface);
+            if (status)
             {
                 m_RendererData->physicalDevice = device;
                 break;
@@ -179,70 +172,6 @@ namespace LunaraEngine
             throw std::runtime_error("failed to find a suitable GPU!");
         }
     }
-    void VulkanInitializer::CreateImageViews()
-    {
-        m_RendererData->swapChainImageViews.resize(m_RendererData->swapChainImages.size());
-        for (size_t i = 0; i < m_RendererData->swapChainImages.size(); ++i)
-        {
-            VkImageViewCreateInfo createInfo{};
-            createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-            createInfo.image = m_RendererData->swapChainImages[i];
-            createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-            createInfo.format = m_RendererData->swapChainImageFormat;
-            createInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
-            createInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
-            createInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
-            createInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
-            createInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-            createInfo.subresourceRange.baseMipLevel = 0;
-            createInfo.subresourceRange.levelCount = 1;
-            createInfo.subresourceRange.baseArrayLayer = 0;
-            createInfo.subresourceRange.layerCount = 1;
-            if (vkCreateImageView(m_RendererData->device, &createInfo, nullptr,
-                                  &(m_RendererData->swapChainImageViews[i])) != VK_SUCCESS)
-            {
-                throw std::runtime_error("failed to create image views!");
-            }
-        }
-    }
 
-    void VulkanInitializer::CreateRenderPass()
-    {
-        VkAttachmentDescription colorAttachment{};
-        colorAttachment.format = m_RendererData->swapChainImageFormat;
-        colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
-        colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-        colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
 
-        colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-        colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-
-        colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-        colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-
-        colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-        colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-
-        VkAttachmentReference colorAttachmentRef{};
-        colorAttachmentRef.attachment = 0;
-        colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-
-        VkSubpassDescription subpass{};
-        subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
-
-        subpass.colorAttachmentCount = 1;
-        subpass.pColorAttachments = &colorAttachmentRef;
-        VkRenderPassCreateInfo renderPassInfo{};
-        renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-        renderPassInfo.attachmentCount = 1;
-        renderPassInfo.pAttachments = &colorAttachment;
-        renderPassInfo.subpassCount = 1;
-        renderPassInfo.pSubpasses = &subpass;
-
-        if (vkCreateRenderPass(m_RendererData->device, &renderPassInfo, nullptr, &(m_RendererData->renderPass)) !=
-            VK_SUCCESS)
-        {
-            throw std::runtime_error("failed to create render pass!");
-        }
-    }
 }// namespace LunaraEngine

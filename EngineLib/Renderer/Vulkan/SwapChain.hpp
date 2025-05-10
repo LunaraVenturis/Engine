@@ -1,54 +1,47 @@
+#pragma once
 #include "vulkan/vulkan.h"
+#include "VulkanDataTypes.hpp"
 #include <vector>
 #include <limits>
+
 namespace LunaraEngine
 {
-      struct SwapChainSupportDetails {
-        VkSurfaceCapabilitiesKHR capabilities;
-        std::vector<VkSurfaceFormatKHR> formats;
-        std::vector<VkPresentModeKHR> presentModes;
-        inline SwapChainSupportDetails QuerySwapChainSupport(VkPhysicalDevice physicaldevice, VkSurfaceKHR surface);
-    };
 
-    inline SwapChainSupportDetails SwapChainSupportDetails::QuerySwapChainSupport(VkPhysicalDevice physicaldevice,
-                                                                                  VkSurfaceKHR surface)
-    {
-        SwapChainSupportDetails details;
-        vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicaldevice, surface, &details.capabilities);
-        uint32_t formatCount;
-        vkGetPhysicalDeviceSurfaceFormatsKHR(physicaldevice, surface, &formatCount, nullptr);
-        if (formatCount != 0)
-        {
-            details.formats.resize(formatCount);
-            vkGetPhysicalDeviceSurfaceFormatsKHR(physicaldevice, surface, &formatCount, details.formats.data());
-        }
-        uint32_t presentModeCount;
-        vkGetPhysicalDeviceSurfacePresentModesKHR(physicaldevice, surface, &presentModeCount, nullptr);
-
-        if (presentModeCount != 0)
-        {
-            details.presentModes.resize(presentModeCount);
-            vkGetPhysicalDeviceSurfacePresentModesKHR(physicaldevice, surface, &presentModeCount,
-                                                      details.presentModes.data());
-        }
-
-        return details;
-    }
 
     class SwapChain
     {
     public:
-        SwapChain(VkDevice device, VkSwapchainKHR swapChain, VkPhysicalDevice physicalDevice, VkSurfaceKHR surface,
-                  uint32_t width, uint32_t height, std::vector<VkImage>& swapChainImages,
-                  VkFormat& swapChainImageFormat, VkExtent2D& swapChainExtent);
+        SwapChain(VkDevice device, VkPhysicalDevice physicalDevice, VkSurfaceKHR surface);
         ~SwapChain();
 
+    public:
+        // clang-format off
+        void Create(VkExtent2D size);
+        auto GetImageFormat() const { return m_SurfaceFormat.format; }
+        auto GetSurfaceFormat() const { return m_SurfaceFormat; }
+        auto GetExtent() const { return m_extent; }
+        auto GetSwapChain() const { return m_swapChain; }
+        auto GetImages() const { return m_Images; }
+        auto GetImage(uint32_t index) const { return m_Images[index]; }
+        auto GetImageViews() const { return m_ImageViews; }
+        auto GetImageView(uint32_t index) const { return m_ImageViews[index]; }
+        auto GetRenderPass() const { return m_renderPass; }
+
+        // clang-format on
+
     private:
-        VkDevice m_device;
-        VkSwapchainKHR m_swapChain;
-        VkPhysicalDevice m_physicalDevice;
-        VkSurfaceKHR m_surface;
-        uint32_t m_swapChainWidth;
-        uint32_t m_swapChainHeight;
+        void CreateImageViews();
+        void CreateRenderPass();
+
+    private:
+        VkDevice m_device{};
+        VkSwapchainKHR m_swapChain{};
+        VkPhysicalDevice m_physicalDevice{};
+        VkSurfaceKHR m_surface{};
+        VkExtent2D m_extent{};
+        VkRenderPass m_renderPass{};
+        VkSurfaceFormatKHR m_SurfaceFormat{};
+        std::vector<VkImage> m_Images;
+        std::vector<VkImageView> m_ImageViews;
     };
 }// namespace LunaraEngine

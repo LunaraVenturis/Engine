@@ -84,6 +84,7 @@ namespace LunaraEngine
     {
         m_Config = config;
         m_RendererData = std::make_unique<RendererDataType>();
+        m_RendererData->surfaceExtent = {m_Config.initialWidth, m_Config.initialHeight};
 
         CreateWindow();
         VulkanInitializer::Initialize(m_RendererData.get());
@@ -91,14 +92,18 @@ namespace LunaraEngine
         auto vertShaderCode = ReadFile(config.shadersDirectory / "output/vert.spv");
         auto fragShaderCode = ReadFile(config.shadersDirectory / "output/frag.spv");
         std::vector<VkDescriptorSetLayout> descriptorSets;
-        m_RendererData->pipeline =
-                new GraphicsPipeline(m_RendererData->device, vertShaderCode, fragShaderCode,
-                                     m_RendererData->swapChainExtent, descriptorSets, m_RendererData->renderPass);
-      m_RendererData->swapChain = new SwapChain(m_RendererData->device, VK_NULL_HANDLE, m_RendererData->physicalDevice, m_RendererData->vkSurface, m_RendererData->width, static_cast<uint32_t>(m_RendererData->height), static_cast<uint32_t>(m_RendererData->swapChainImages), m_RendererData->swapChainImageFormat, m_RendererData->swapChainExtent);
+
+        m_RendererData->swapChain =
+                new SwapChain(m_RendererData->device, m_RendererData->physicalDevice, m_RendererData->vkSurface);
+        m_RendererData->swapChain->Create(m_RendererData->surfaceExtent);
+
+        m_RendererData->pipeline = new GraphicsPipeline(m_RendererData->device, m_RendererData->swapChain,
+                                                        vertShaderCode, fragShaderCode, descriptorSets);
     }
 
     void VulkanRendererAPI::Destroy()
     {
+        delete m_RendererData->swapChain;
         delete m_RendererData->pipeline;
         VulkanInitializer::Goodbye(m_RendererData.get());
         SDL_DestroyWindow(static_cast<SDL_Window*>(m_RendererData->window->data));
