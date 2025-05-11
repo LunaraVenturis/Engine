@@ -15,24 +15,21 @@ namespace LunaraEngine
         ~SwapChain();
 
     public:
-        // clang-format off
-        void Create(VkExtent2D size);
-        auto GetImageFormat() const { return m_SurfaceFormat.format; }
-        auto GetSurfaceFormat() const { return m_SurfaceFormat; }
-        auto GetExtent() const { return m_extent; }
-        auto GetSwapChain() const { return m_swapChain; }
-        auto GetImages() const { return m_Images; }
-        auto GetImage(uint32_t index) const { return m_Images[index]; }
-        auto GetImageViews() const { return m_ImageViews; }
-        auto GetImageView(uint32_t index) const { return m_ImageViews[index]; }
-        auto GetRenderPass() const { return m_renderPass; }
-
-        // clang-format on
-
+                   void Create(VkExtent2D size);
+     [[nodiscard]] auto GetImageFormat() const { return m_SurfaceFormat.format; }
+     [[nodiscard]] auto GetSurfaceFormat() const { return m_SurfaceFormat; }
+     [[nodiscard]] auto GetExtent() const { return m_extent; }
+     [[nodiscard]] auto GetSwapChain() const { return m_swapChain; }
+     [[nodiscard]] auto GetImages() const { return m_Images; }
+     [[nodiscard]] auto GetImage(uint32_t index) const { return m_Images[index]; }
+     [[nodiscard]] auto GetImageViews() const { return m_ImageViews; }
+     [[nodiscard]] auto GetImageView(uint32_t index) const { return m_ImageViews[index]; }
+     [[nodiscard]] auto GetRenderPass() const { return m_renderPass; }
+     [[nodiscard]] auto GetFrameBuffer(uint32_t index) const {return m_swapChainFrameBuffer[index];}
     private:
         void CreateImageViews();
         void CreateRenderPass();
-
+        void CreateFrameBuffers();
     private:
         VkDevice m_device{};
         VkSwapchainKHR m_swapChain{};
@@ -43,5 +40,6 @@ namespace LunaraEngine
         VkSurfaceFormatKHR m_SurfaceFormat{};
         std::vector<VkImage> m_Images;
         std::vector<VkImageView> m_ImageViews;
+        std::vector<VkFramebuffer> m_swapChainFrameBuffer;
     };
 }// namespace LunaraEngine
