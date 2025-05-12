@@ -60,5 +60,4 @@ namespace LunaraEngine
         static SwapChainSupportDetails QuerySwapChainSupport(VkPhysicalDevice physicaldevice, VkSurfaceKHR surface);
     };
 
-
 }// namespace LunaraEngine

@@ -1,7 +1,7 @@
 #include "VulkanInitialization.hpp"
 #include "Renderer/Window.hpp"
 #include "Common.hpp"
-#include "Core/Log.h"
+#include <Core/Log.h>
 #include <stdexcept>
 #include <SDL3/SDL_vulkan.h>
 #include <vulkan/vulkan.h>

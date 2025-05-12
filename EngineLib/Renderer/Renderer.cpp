@@ -58,17 +58,17 @@ namespace LunaraEngine
         config.initialWidth = width;
         config.initialHeight = height;
 
-        LOG("Initializing renderer...\n");
-        LOG("Working directory: %s\n", config.workingDirectory.c_str());
-        LOG("Assets directory: %s\n", config.assetsDirectory.c_str());
-        LOG("Shaders directory: %s\n", config.shadersDirectory.c_str());
-        LOG("Window name: %s\n", config.windowName.data());
-        LOG("Initial width: %d\n", config.initialWidth);
-        LOG("Initial height: %d\n", config.initialHeight);
+        LOG_DEBUG("Initializing renderer...\n");
+        LOG_DEBUG("Working directory: %s\n", config.workingDirectory.c_str());
+        LOG_DEBUG("Assets directory: %s\n", config.assetsDirectory.c_str());
+        LOG_DEBUG("Shaders directory: %s\n", config.shadersDirectory.c_str());
+        LOG_DEBUG("Window name: %s\n", config.windowName.data());
+        LOG_DEBUG("Initial width: %d\n", config.initialWidth);
+        LOG_DEBUG("Initial height: %d\n", config.initialHeight);
 
         RendererAPI::CreateRendererAPI();
         RendererAPI::GetInstance()->Init(config);
-        return RendererResultType::Renderer_Result_Error;
+        return RendererResultType::Renderer_Result_Not_Done;
     }
 
     void Renderer::Destroy() { RendererAPI::GetInstance()->Destroy(); }

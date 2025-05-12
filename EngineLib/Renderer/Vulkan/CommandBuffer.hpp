@@ -1,8 +1,8 @@
-#include "vulkan/vulkan.h"
+#pragma once
+#include <vulkan/vulkan.h>
 #include "CommandPool.hpp"
 #include "SwapChain.hpp"
 #include "GraphicsPipeline.hpp"
-#pragma once
 
 namespace LunaraEngine
 {
@@ -15,6 +15,7 @@ namespace LunaraEngine
     public:
         void RecordCmdBuffer(const SwapChain& swapChain, uint32_t imgIdx);
         void BindPipeline(const GraphicsPipeline& gfxPipeline, const SwapChain& swapChain);
+
     private:
         VkDevice m_device{};
         VkCommandBuffer m_cmdBuffer{};

@@ -9,7 +9,8 @@ namespace LunaraEngine
     {
         Renderer_Result_None = 0,
         Renderer_Result_Success,
-        Renderer_Result_Error
+        Renderer_Result_Error,
+        Renderer_Result_Not_Done,
     };
 
     enum class RendererCommandType : int

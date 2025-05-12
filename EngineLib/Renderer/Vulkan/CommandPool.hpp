@@ -1,8 +1,6 @@
-
-#include "vulkan/vulkan.h"
-#include "Common.hpp"
-
 #pragma once
+#include <vulkan/vulkan.h>
+#include "Common.hpp"
 
 namespace LunaraEngine
 {
@@ -14,10 +12,7 @@ namespace LunaraEngine
         ~CommandPool();
 
     public:
-        [[nodiscard]] auto GetCommandPool() const
-        {
-            return m_commandPool;
-        }
+        [[nodiscard]] auto GetCommandPool() const { return m_commandPool; }
 
     private:
         VkDevice m_device{};

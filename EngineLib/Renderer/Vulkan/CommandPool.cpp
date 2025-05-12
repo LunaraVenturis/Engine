@@ -16,9 +16,7 @@ namespace LunaraEngine
             throw std::runtime_error("failed to create command pool!");
         }
     }
-    CommandPool::~CommandPool()
-    {
-          vkDestroyCommandPool(m_device, m_commandPool, nullptr);
-    }
-  
+
+    CommandPool::~CommandPool() { vkDestroyCommandPool(m_device, m_commandPool, nullptr); }
+
 }// namespace LunaraEngine
