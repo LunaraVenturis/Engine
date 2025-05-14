@@ -28,7 +28,7 @@ namespace LunaraEngine
         void CreateSurface();
 
     private:
-        RendererDataType* m_RendererData;
+        RendererDataType* m_RendererData{};
     };
 
 }// namespace LunaraEngine

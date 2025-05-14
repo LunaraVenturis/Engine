@@ -80,7 +80,7 @@ namespace LunaraEngine
         virtual void Destroy() = 0;
         virtual Window* GetWindow() = 0;
         virtual void Present() = 0;
-        virtual void HandleCommand(const RendererCommand& command) = 0;
+        virtual void HandleCommand(const RendererCommandType type, const RendererCommand* command) = 0;
 
     public:
         inline static RendererAPI* s_Instance;

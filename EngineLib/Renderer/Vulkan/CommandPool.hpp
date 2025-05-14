@@ -1,8 +1,8 @@
 #pragma once
 #include <vulkan/vulkan.h>
-#include "Common.hpp"
 #include "CommandBuffer.hpp"
 #include <vector>
+#include <memory>
 
 namespace LunaraEngine
 {

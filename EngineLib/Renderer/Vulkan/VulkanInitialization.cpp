@@ -131,9 +131,15 @@ namespace LunaraEngine
         {
             throw std::runtime_error("failed to create logical device!");
         }
-        vkGetDeviceQueue(m_RendererData->device, indices.graphicsFamily.value(), 0, &m_RendererData->gfxQueue);
-        vkGetDeviceQueue(m_RendererData->device, indices.presentFamily.value(), 0, &m_RendererData->presentQueue);
-        vkGetDeviceQueue(m_RendererData->device, indices.computeFamily.value(), 0, &m_RendererData->computeQueue);
+
+        VkQueue queues[3];
+        vkGetDeviceQueue(m_RendererData->device, indices.graphicsFamily.value(), 0, &queues[0]);
+        vkGetDeviceQueue(m_RendererData->device, indices.presentFamily.value(), 0, &queues[1]);
+        vkGetDeviceQueue(m_RendererData->device, indices.computeFamily.value(), 0, &queues[2]);
+
+        m_RendererData->gfxQueue = Queue(queues[0], indices.graphicsFamily.value());
+        m_RendererData->presentQueue = Queue(queues[1], indices.presentFamily.value());
+        m_RendererData->computeQueue = Queue(queues[2], indices.computeFamily.value());
     }
 
     void VulkanInitializer::CreateSurface()

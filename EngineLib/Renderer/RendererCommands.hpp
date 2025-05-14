@@ -22,7 +22,10 @@ namespace LunaraEngine
         RendererCommandType_DrawQuad,
         RendererCommandType_DrawTexture,
         RendererCommandType_DrawCircle,
-        RendererCommandType_DrawText
+        RendererCommandType_DrawText,
+        RendererCommandType_BeginRenderPass,
+        RendererCommandType_EndRenderPass,
+        RendererCommandType_Submit,
     };
 
     struct RendererCommandDrawQuad {
@@ -91,6 +94,15 @@ namespace LunaraEngine
         void* data;
         void* next;
         RendererCommandType type;
+    };
+
+    struct RendererCommandBeginRenderPass {
+    };
+
+    struct RendererCommandEndRenderPass {
+    };
+
+    struct RendererCommandFlush {
     };
 
     using RendererCommand = void;

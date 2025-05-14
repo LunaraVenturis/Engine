@@ -51,6 +51,7 @@ Includes
 
 #include <string_view>
 #include <vector>
+#include <tuple>
 
 namespace LunaraEngine
 {
@@ -72,14 +73,14 @@ namespace LunaraEngine
         static void EndRenderPass();
         static void Flush();
 
+    public:
         static Window* GetWindow();
-
-        static Renderer* GetInstance() { return s_Instance; }
+        static Renderer* GetInstance();
 
     private:
         static Renderer* s_Instance;
 
     private:
-        std::vector<RendererCommand*> m_CommandStack;
+        std::vector<std::tuple<RendererCommandType, RendererCommand*>> m_CommandStack;
     };
 }// namespace LunaraEngine

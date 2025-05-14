@@ -6,6 +6,8 @@
 #include <Renderer/Vulkan/VulkanDebugMessanger.hpp>
 #include "Pipeline.hpp"
 #include "SwapChain.hpp"
+#include "CommandPool.hpp"
+#include "Queue.hpp"
 #include <vulkan/vulkan.h>
 #include <SDL3/SDL_render.h>
 #include <string>
@@ -23,7 +25,6 @@ namespace LunaraEngine
     const std::array<const char*, 1> g_SwapChainExtensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
 
     struct RendererDataType {
-        std::vector<RendererCommand*> command_stack;
         LunaraEngine::Window* window;
         SDL_Renderer* renderer;
         SDL_Surface* surface;
@@ -32,12 +33,16 @@ namespace LunaraEngine
         VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
         VkDevice device;
         VkExtent2D surfaceExtent;
-        VkQueue gfxQueue;
+        Queue gfxQueue;
         VkSurfaceKHR vkSurface;
-        VkQueue presentQueue;
-        VkQueue computeQueue;
+        Queue presentQueue;
+        Queue computeQueue;
         Pipeline* pipeline;
         SwapChain* swapChain;
+        CommandPool* commandPool;
+        uint32_t currentFrame;
+        uint32_t maxFramesInFlight;
+        VkClearValue clearValue;
     };
 
     struct QueueFamilyIndices;

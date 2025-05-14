@@ -1,4 +1,6 @@
 #include "CommandPool.hpp"
+#include <stdexcept>
+#include <memory>
 
 namespace LunaraEngine
 {
@@ -14,16 +16,21 @@ namespace LunaraEngine
         {
             throw std::runtime_error("failed to create command pool!");
         }
+
+        AllocateCommandBuffers(preallocateBufferCount);
     }
 
-    CommandPool::~CommandPool() { vkDestroyCommandPool(m_device, m_commandPool, nullptr); }
+    CommandPool::~CommandPool()
+    {
+        DestroyCommandBuffers();
+        vkDestroyCommandPool(m_device, m_commandPool, nullptr);
+    }
 
     void CommandPool::AllocateCommandBuffers(uint32_t count)
     {
         if (count == 0) { return; }
         if (m_commandBuffers.size() > 0) { DestroyCommandBuffers(); }
-        m_commandBuffers.resize(count);
-        for (size_t i = 0; i < count; i++) { m_commandBuffers[i] = CommandBuffer(m_device, m_commandPool); }
+        for (size_t i = 0; i < count; i++) { m_commandBuffers.push_back(CommandBuffer(m_device, m_commandPool)); }
     }
 
     void CommandPool::DestroyCommandBuffers()

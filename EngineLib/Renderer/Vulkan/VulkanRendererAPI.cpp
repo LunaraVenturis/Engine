@@ -78,9 +78,34 @@ namespace LunaraEngine
 
     Window* VulkanRendererAPI::GetWindow() { return m_RendererData->window; }
 
-    void VulkanRendererAPI::HandleCommand(const RendererCommand& command)
+    void VulkanRendererAPI::HandleCommand(const RendererCommandType type, const RendererCommand* command)
     {
-        throw std::runtime_error("Not implemented");
+        switch (type)
+        {
+            case RendererCommandType::RendererCommandType_BeginRenderPass: {
+                VkRenderPassBeginInfo renderPassInfo = {};
+                renderPassInfo.framebuffer = m_RendererData->swapChain->GetFrameBuffer(m_RendererData->currentFrame);
+                renderPassInfo.renderArea.offset = {0, 0};
+                renderPassInfo.renderArea.extent = m_RendererData->surfaceExtent;
+                renderPassInfo.clearValueCount = 1;
+                renderPassInfo.pClearValues = &m_RendererData->clearValue;
+                renderPassInfo.renderPass = m_RendererData->swapChain->GetRenderPass();
+                vkCmdBeginRenderPass(m_RendererData->commandPool->GetBuffer(m_RendererData->currentFrame),
+                                     &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+            }
+            break;
+            case RendererCommandType::RendererCommandType_EndRenderPass:
+                vkCmdEndRenderPass(m_RendererData->commandPool->GetBuffer(m_RendererData->currentFrame));
+                break;
+            case RendererCommandType::RendererCommandType_Clear:
+                m_RendererData->clearValue.color.float32[0] = static_cast<const RendererCommandClear*>(command)->r;
+                m_RendererData->clearValue.color.float32[1] = static_cast<const RendererCommandClear*>(command)->g;
+                m_RendererData->clearValue.color.float32[2] = static_cast<const RendererCommandClear*>(command)->b;
+                m_RendererData->clearValue.color.float32[3] = static_cast<const RendererCommandClear*>(command)->a;
+                break;
+            default:
+                break;
+        }
     }
 
     void VulkanRendererAPI::Present() { throw std::runtime_error("Not implemented"); }
@@ -105,10 +130,15 @@ namespace LunaraEngine
         m_RendererData->pipeline = new GraphicsPipeline(m_RendererData->device, m_RendererData->swapChain,
                                                         vertShaderCode, fragShaderCode, descriptorSets);
 
+        m_RendererData->maxFramesInFlight = static_cast<uint32_t>(m_RendererData->swapChain->GetImages().size());
+
+        m_RendererData->commandPool = new CommandPool(m_RendererData->device, m_RendererData->gfxQueue.GetIndex(),
+                                                      m_RendererData->maxFramesInFlight);
     }
 
     void VulkanRendererAPI::Destroy()
     {
+        delete m_RendererData->commandPool;
         delete m_RendererData->pipeline;
         delete m_RendererData->swapChain;
         VulkanInitializer::Goodbye(m_RendererData.get());
