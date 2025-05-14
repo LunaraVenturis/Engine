@@ -2,22 +2,22 @@
 
 namespace LunaraEngine
 {
-    CommandBuffer::CommandBuffer(VkDevice device, VkCommandBuffer cmdBuffer, const CommandPool& cmdPool)
-        : m_device(device), m_cmdBuffer(cmdBuffer)
+    CommandBuffer::CommandBuffer(VkDevice device, VkQueue queue, VkCommandBuffer cmdBuffer, const CommandPool& cmdPool)
+        : m_device(device), m_queue(queue), m_cmdBuffer(cmdBuffer), m_cmdPool(cmdPool.GetCommandPool())
     {
         VkCommandBufferAllocateInfo allocInfo{};
         allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-        allocInfo.commandPool = cmdPool.GetCommandPool();
+        allocInfo.commandPool = m_cmdPool;
         allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
         allocInfo.commandBufferCount = 1;
 
-        if (vkAllocateCommandBuffers(device, &allocInfo, &m_cmdBuffer) != VK_SUCCESS)
+        if (vkAllocateCommandBuffers(m_device, &allocInfo, &m_cmdBuffer) != VK_SUCCESS)
         {
             throw std::runtime_error("failed to allocate command buffers!");
         }
     }
 
-    void CommandBuffer::RecordCmdBuffer(const SwapChain& swapChain, uint32_t imgIdx)
+    void CommandBuffer::BeginRecording()
     {
         VkCommandBufferBeginInfo beginInfo{};
         beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -28,46 +28,25 @@ namespace LunaraEngine
         {
             throw std::runtime_error("failed to begin recording command buffer!");
         }
-        VkRenderPassBeginInfo renderPassInfo{};
-        renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-        renderPassInfo.renderPass = swapChain.GetRenderPass();
-        renderPassInfo.framebuffer = swapChain.GetFrameBuffer(imgIdx);
-        renderPassInfo.renderArea.offset = {0, 0};
-        renderPassInfo.renderArea.extent = swapChain.GetExtent();
-
-        VkClearValue clearColor = {{{0.0f, 0.0f, 0.0f, 1.0f}}};
-        renderPassInfo.clearValueCount = 1;
-        renderPassInfo.pClearValues = &clearColor;
-
-        vkCmdBeginRenderPass(m_cmdBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
     }
 
-    void CommandBuffer::BindPipeline(const GraphicsPipeline& gfxPipeline, const SwapChain& swapChain)
+    void CommandBuffer::Draw() { vkCmdDraw(m_cmdBuffer, 3, 1, 0, 0); }
+
+    void CommandBuffer::EndRecording()
     {
-        vkCmdBindPipeline(m_cmdBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, gfxPipeline.GetPipeline());
 
-        VkViewport viewport{};
-        viewport.x = 0.0f;
-        viewport.y = 0.0f;
-        viewport.width = static_cast<float>(swapChain.GetExtent().width);
-        viewport.height = static_cast<float>(swapChain.GetExtent().height);
-        viewport.minDepth = 0.0f;
-        viewport.maxDepth = 1.0f;
-        vkCmdSetViewport(m_cmdBuffer, 0, 1, &viewport);
-
-        VkRect2D scissor{};
-        scissor.offset = {0, 0};
-        scissor.extent = swapChain.GetExtent();
-        vkCmdSetScissor(m_cmdBuffer, 0, 1, &scissor);
-
-        vkCmdDraw(m_cmdBuffer, 3, 1, 0, 0);
-        vkCmdEndRenderPass(m_cmdBuffer);
         if (vkEndCommandBuffer(m_cmdBuffer) != VK_SUCCESS)
         {
             throw std::runtime_error("failed to record command buffer!");
         }
     }
 
-    CommandBuffer::~CommandBuffer();
-
+    void CommandBuffer::Submit()
+    {
+        VkSubmitInfo submitInfo = {};
+        submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+        submitInfo.commandBufferCount = 1;
+        submitInfo.pCommandBuffers = &m_cmdBuffer;
+        vkQueueSubmit(m_queue, 1, &submitInfo, VK_NULL_HANDLE);
+    }
 }// namespace LunaraEngine

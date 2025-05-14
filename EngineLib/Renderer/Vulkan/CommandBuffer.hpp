@@ -9,15 +9,19 @@ namespace LunaraEngine
     class CommandBuffer
     {
     public:
-        CommandBuffer(VkDevice device, VkCommandBuffer cmdBuffer, const CommandPool& cmdPool);
+        CommandBuffer(VkDevice device, VkQueue queue, VkCommandBuffer cmdBuffer, const CommandPool& cmdPool);
         ~CommandBuffer() = default;
 
     public:
-        void RecordCmdBuffer(const SwapChain& swapChain, uint32_t imgIdx);
-        void BindPipeline(const GraphicsPipeline& gfxPipeline, const SwapChain& swapChain);
+        void BeginRecording();
+        void Draw();
+        void EndRecording();
+        void Submit();
 
     private:
         VkDevice m_device{};
+        VkQueue m_queue{};
         VkCommandBuffer m_cmdBuffer{};
+        VkCommandPool m_cmdPool{};
     };
 }// namespace LunaraEngine
