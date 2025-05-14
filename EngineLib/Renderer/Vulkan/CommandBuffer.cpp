@@ -1,9 +1,9 @@
 #include "CommandBuffer.hpp"
+#include <stdexcept>
 
 namespace LunaraEngine
 {
-    CommandBuffer::CommandBuffer(VkDevice device, VkQueue queue, VkCommandBuffer cmdBuffer, const CommandPool& cmdPool)
-        : m_device(device), m_queue(queue), m_cmdBuffer(cmdBuffer), m_cmdPool(cmdPool.GetCommandPool())
+    CommandBuffer::CommandBuffer(VkDevice device, VkCommandPool cmdPool) : m_device(device), m_cmdPool(cmdPool)
     {
         VkCommandBufferAllocateInfo allocInfo{};
         allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -16,6 +16,10 @@ namespace LunaraEngine
             throw std::runtime_error("failed to allocate command buffers!");
         }
     }
+
+    CommandBuffer::~CommandBuffer() { Destroy(); }
+
+    void CommandBuffer::Destroy() { vkFreeCommandBuffers(m_device, m_cmdPool, 1, &m_cmdBuffer); }
 
     void CommandBuffer::BeginRecording()
     {
@@ -41,12 +45,16 @@ namespace LunaraEngine
         }
     }
 
-    void CommandBuffer::Submit()
+    void CommandBuffer::Flush(VkQueue queue)
     {
         VkSubmitInfo submitInfo = {};
         submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
         submitInfo.commandBufferCount = 1;
         submitInfo.pCommandBuffers = &m_cmdBuffer;
-        vkQueueSubmit(m_queue, 1, &submitInfo, VK_NULL_HANDLE);
+        vkQueueSubmit(queue, 1, &submitInfo, VK_NULL_HANDLE);
     }
+
+    bool CommandBuffer::IsValid() const { return m_cmdBuffer != VK_NULL_HANDLE; }
+
+    CommandBuffer::operator VkCommandBuffer() const { return m_cmdBuffer; }
 }// namespace LunaraEngine

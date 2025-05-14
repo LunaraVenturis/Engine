@@ -47,6 +47,7 @@ Includes
 
 namespace LunaraEngine
 {
+    Renderer* Renderer::s_Instance = nullptr;
 
     RendererResultType Renderer::Init(std::string_view window_name, uint32_t width, uint32_t height)
     {
@@ -68,10 +69,20 @@ namespace LunaraEngine
 
         RendererAPI::CreateRendererAPI();
         RendererAPI::GetInstance()->Init(config);
+
+        s_Instance = new Renderer();
         return RendererResultType::Renderer_Result_Not_Done;
     }
 
-    void Renderer::Destroy() { RendererAPI::GetInstance()->Destroy(); }
+    void Renderer::Destroy()
+    {
+        RendererAPI::GetInstance()->Destroy();
+
+        delete s_Instance;
+        s_Instance = nullptr;
+    }
+
+    Renderer* Renderer::GetInstance() { return s_Instance; }
 
     void Renderer::Present() {}
 
@@ -86,8 +97,8 @@ namespace LunaraEngine
         quad.g = (uint8_t) color.g;
         quad.b = (uint8_t) color.b;
         quad.a = (uint8_t) color.a;
-        (void) quad;
-        //RendererCmdDrawQuad(&quad);
+
+        Renderer::GetInstance()->m_CommandStack.push_back(new RendererCommandDrawQuad(quad));
     }
 
     void Renderer::DrawTexture(float x, float y, Texture* texture)
@@ -96,8 +107,8 @@ namespace LunaraEngine
         tex.x = x;
         tex.y = y;
         tex.texture = texture;
-        (void) tex;
-        // RendererCmdDrawTexture(&tex);
+
+        Renderer::GetInstance()->m_CommandStack.push_back(new RendererCommandDrawTexture(tex));
     }
 
     void Renderer::DrawCircle(float x, float y, float radius, const Color4& color)
@@ -110,8 +121,8 @@ namespace LunaraEngine
         circle.g = (uint8_t) color.g;
         circle.b = (uint8_t) color.b;
         circle.a = (uint8_t) color.a;
-        (void) circle;
-        //  RendererCmdDrawCircle(&circle);
+
+        Renderer::GetInstance()->m_CommandStack.push_back(new RendererCommandDrawCircle(circle));
     }
 
     void Renderer::DrawText(std::string_view text, Font* font, float x, float y, const Color4& color,
@@ -127,8 +138,8 @@ namespace LunaraEngine
         text_cmd.b = (uint8_t) color.b;
         text_cmd.a = (uint8_t) color.a;
         text_cmd.align = align;
-        (void) text_cmd;
-        // RendererCmdDrawText(&text_cmd);
+
+        Renderer::GetInstance()->m_CommandStack.push_back(new RendererCommandDrawText(text_cmd));
     }
 
     void Renderer::Clear(const Color4& color)
@@ -138,15 +149,23 @@ namespace LunaraEngine
         clear.g = (uint8_t) color.g;
         clear.b = (uint8_t) color.b;
         clear.a = (uint8_t) color.a;
-        (void) clear;
-        //RendererCmdClear(&clear);
+
+        Renderer::GetInstance()->m_CommandStack.push_back(new RendererCommandClear(clear));
     }
 
     void Renderer::BeginRenderPass() {}
 
     void Renderer::EndRenderPass() {}
 
-    void Renderer::Flush() {}
+    void Renderer::Flush()
+    {
+        for (const auto& cmd: Renderer::GetInstance()->m_CommandStack)
+        {
+            RendererAPI::GetInstance()->HandleCommand(cmd);
+        }
+        for (const auto& cmd: Renderer::GetInstance()->m_CommandStack) { delete cmd; }
+        Renderer::GetInstance()->m_CommandStack.clear();
+    }
 
     Window* Renderer::GetWindow() { return RendererAPI::GetInstance()->GetWindow(); }
 

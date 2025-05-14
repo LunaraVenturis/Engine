@@ -50,6 +50,7 @@ Includes
 #include <SDL3/SDL_render.h>
 
 #include <string_view>
+#include <vector>
 
 namespace LunaraEngine
 {
@@ -72,5 +73,13 @@ namespace LunaraEngine
         static void Flush();
 
         static Window* GetWindow();
+
+        static Renderer* GetInstance() { return s_Instance; }
+
+    private:
+        static Renderer* s_Instance;
+
+    private:
+        std::vector<RendererCommand*> m_CommandStack;
     };
 }// namespace LunaraEngine

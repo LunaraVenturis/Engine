@@ -41,6 +41,7 @@ Includes
 ***********************************************************************************************************************/
 #include "Core/STDTypes.h"
 #include "Window.hpp"
+#include "RendererCommands.hpp"
 #include <filesystem>
 #include <string_view>
 #include <cstdint>
@@ -79,6 +80,7 @@ namespace LunaraEngine
         virtual void Destroy() = 0;
         virtual Window* GetWindow() = 0;
         virtual void Present() = 0;
+        virtual void HandleCommand(const RendererCommand& command) = 0;
 
     public:
         inline static RendererAPI* s_Instance;

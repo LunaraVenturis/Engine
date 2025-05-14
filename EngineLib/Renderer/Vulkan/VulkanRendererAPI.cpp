@@ -78,6 +78,11 @@ namespace LunaraEngine
 
     Window* VulkanRendererAPI::GetWindow() { return m_RendererData->window; }
 
+    void VulkanRendererAPI::HandleCommand(const RendererCommand& command)
+    {
+        throw std::runtime_error("Not implemented");
+    }
+
     void VulkanRendererAPI::Present() { throw std::runtime_error("Not implemented"); }
 
     void VulkanRendererAPI::Init(const RendererAPIConfig& config)
@@ -99,6 +104,7 @@ namespace LunaraEngine
 
         m_RendererData->pipeline = new GraphicsPipeline(m_RendererData->device, m_RendererData->swapChain,
                                                         vertShaderCode, fragShaderCode, descriptorSets);
+
     }
 
     void VulkanRendererAPI::Destroy()
