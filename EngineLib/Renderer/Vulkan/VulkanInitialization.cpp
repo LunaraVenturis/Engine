@@ -42,6 +42,7 @@ namespace LunaraEngine
         initializer.CreateSurface();
         initializer.PickPhysicalDevice();
         initializer.CreateLogicalDevice();
+        initializer.CreateSyncObjects();
     }
 
     void VulkanInitializer::Goodbye(RendererDataType* rendererData)
@@ -198,6 +199,5 @@ namespace LunaraEngine
         {
             throw std::runtime_error("failed to create semaphores!");
         }
-
     }
 }// namespace LunaraEngine

@@ -10,15 +10,16 @@ namespace LunaraEngine
         ~CommandBuffer();
         CommandBuffer(const CommandBuffer& other) = delete;
         CommandBuffer(CommandBuffer&& other);
-        
+
     public:
         void Destroy();
-        void BeginRecording();
-        void EndRecording();
+        void BeginRecording() const;
+        void EndRecording() const;
         bool IsValid() const;
-        
+
         void Draw();
         void Flush(VkQueue queue);
+
     public:
         operator VkCommandBuffer() const;
 

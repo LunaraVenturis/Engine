@@ -83,6 +83,7 @@ namespace LunaraEngine
         switch (type)
         {
             case RendererCommandType::RendererCommandType_BeginRenderPass: {
+                m_RendererData->commandPool->GetBuffer(m_RendererData->currentFrame).BeginRecording();
                 VkRenderPassBeginInfo renderPassInfo = {};
                 renderPassInfo.framebuffer = m_RendererData->swapChain->GetFrameBuffer(m_RendererData->currentFrame);
                 renderPassInfo.renderArea.offset = {0, 0};
@@ -96,6 +97,7 @@ namespace LunaraEngine
             break;
             case RendererCommandType::RendererCommandType_EndRenderPass:
                 vkCmdEndRenderPass(m_RendererData->commandPool->GetBuffer(m_RendererData->currentFrame));
+                m_RendererData->commandPool->GetBuffer(m_RendererData->currentFrame).EndRecording();
                 break;
             case RendererCommandType::RendererCommandType_Clear:
                 m_RendererData->clearValue.color.float32[0] = static_cast<const RendererCommandClear*>(command)->r;
@@ -103,6 +105,28 @@ namespace LunaraEngine
                 m_RendererData->clearValue.color.float32[2] = static_cast<const RendererCommandClear*>(command)->b;
                 m_RendererData->clearValue.color.float32[3] = static_cast<const RendererCommandClear*>(command)->a;
                 break;
+
+            case RendererCommandType::RendererCommandType_DrawTriangle: {
+                vkCmdBindPipeline(m_RendererData->commandPool->GetBuffer(m_RendererData->currentFrame),
+                                  VK_PIPELINE_BIND_POINT_GRAPHICS, m_RendererData->pipeline->GetPipeline());
+                VkViewport viewport{};
+                viewport.x = 0.0f;
+                viewport.y = 0.0f;
+                viewport.width = static_cast<float>(m_RendererData->surfaceExtent.width);
+                viewport.height = static_cast<float>(m_RendererData->surfaceExtent.height);
+                viewport.minDepth = 0.0f;
+                viewport.maxDepth = 1.0f;
+                vkCmdSetViewport(m_RendererData->commandPool->GetBuffer(m_RendererData->currentFrame), 0, 1, &viewport);
+
+                VkRect2D scissor{};
+                scissor.offset = {0, 0};
+                scissor.extent = m_RendererData->surfaceExtent;
+                vkCmdSetScissor(m_RendererData->commandPool->GetBuffer(m_RendererData->currentFrame), 0, 1, &scissor);
+                vkCmdDraw(m_RendererData->commandPool->GetBuffer(m_RendererData->currentFrame), 3, 1, 0, 0);
+                break;
+            }
+
+
             case RendererCommandType::RendererCommandType_Present: {
                 std::array<VkSemaphore, 1> waitSemaphores = {m_RendererData->imageAvailableSemaphore};
                 std::array<VkPipelineStageFlags, 1> waitStages = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
@@ -143,6 +167,8 @@ namespace LunaraEngine
                 vkAcquireNextImageKHR(m_RendererData->device, m_RendererData->swapChain->GetSwapChain(), UINT64_MAX,
                                       m_RendererData->imageAvailableSemaphore, VK_NULL_HANDLE,
                                       &(m_RendererData->currentFrame));
+                vkResetCommandBuffer(m_RendererData->commandPool->GetBuffer(m_RendererData->currentFrame),
+                                     /*VkCommandBufferResetFlagBits*/ 0);
             }
             default:
                 break;
