@@ -79,10 +79,13 @@ namespace LunaraEngine
 
     SwapChain::~SwapChain()
     {
-        if (!m_swapChainFrameBuffer.empty()) {
-            for (const auto framebuffer : m_swapChainFrameBuffer) {
-            vkDestroyFramebuffer(m_device, framebuffer, nullptr);
-        } }
+        if (!m_swapChainFrameBuffer.empty())
+        {
+            for (const auto framebuffer: m_swapChainFrameBuffer)
+            {
+                vkDestroyFramebuffer(m_device, framebuffer, nullptr);
+            }
+        }
         if (m_renderPass != VK_NULL_HANDLE) { vkDestroyRenderPass(m_device, m_renderPass, nullptr); }
         for (auto imageView: m_ImageViews) { vkDestroyImageView(m_device, imageView, nullptr); }
         if (m_swapChain != VK_NULL_HANDLE) { vkDestroySwapchainKHR(m_device, m_swapChain, nullptr); }
@@ -151,6 +154,7 @@ namespace LunaraEngine
 
         CreateImageViews();
         CreateRenderPass();
+        CreateFrameBuffers();
     }
 
     void SwapChain::CreateImageViews()
@@ -246,4 +250,6 @@ namespace LunaraEngine
             }
         }
     }
+
+
 }// namespace LunaraEngine

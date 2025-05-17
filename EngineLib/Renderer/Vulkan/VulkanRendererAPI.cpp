@@ -41,6 +41,7 @@ Includes
 #include "Renderer/Window.hpp"
 #include "Core/Log.h"
 #include "VulkanInitialization.hpp"
+#include <vulkan/vulkan.h>
 #include "SDL3/SDL_vulkan.h"
 #include "SDL3/SDL.h"
 #include "GraphicsPipeline.hpp"
@@ -83,22 +84,25 @@ namespace LunaraEngine
         switch (type)
         {
             case RendererCommandType::RendererCommandType_BeginRenderPass: {
-                m_RendererData->commandPool->GetBuffer(m_RendererData->currentFrame).BeginRecording();
+                const auto& buffer = m_RendererData->commandPool->GetBuffer(m_RendererData->currentFrame);
+                buffer.BeginRecording();
                 VkRenderPassBeginInfo renderPassInfo = {};
-                renderPassInfo.framebuffer = m_RendererData->swapChain->GetFrameBuffer(m_RendererData->currentFrame);
+                renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+                renderPassInfo.framebuffer = m_RendererData->swapChain->GetFrameBuffer(m_RendererData->imageIndex);
                 renderPassInfo.renderArea.offset = {0, 0};
                 renderPassInfo.renderArea.extent = m_RendererData->surfaceExtent;
                 renderPassInfo.clearValueCount = 1;
                 renderPassInfo.pClearValues = &m_RendererData->clearValue;
                 renderPassInfo.renderPass = m_RendererData->swapChain->GetRenderPass();
-                vkCmdBeginRenderPass(m_RendererData->commandPool->GetBuffer(m_RendererData->currentFrame),
-                                     &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-            }
-            break;
-            case RendererCommandType::RendererCommandType_EndRenderPass:
-                vkCmdEndRenderPass(m_RendererData->commandPool->GetBuffer(m_RendererData->currentFrame));
-                m_RendererData->commandPool->GetBuffer(m_RendererData->currentFrame).EndRecording();
+                vkCmdBeginRenderPass(buffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
                 break;
+            }
+            case RendererCommandType::RendererCommandType_EndRenderPass: {
+                const auto& buffer = m_RendererData->commandPool->GetBuffer(m_RendererData->currentFrame);
+                vkCmdEndRenderPass(buffer);
+                buffer.EndRecording();
+                break;
+            }
             case RendererCommandType::RendererCommandType_Clear:
                 m_RendererData->clearValue.color.float32[0] = static_cast<const RendererCommandClear*>(command)->r;
                 m_RendererData->clearValue.color.float32[1] = static_cast<const RendererCommandClear*>(command)->g;
@@ -107,8 +111,8 @@ namespace LunaraEngine
                 break;
 
             case RendererCommandType::RendererCommandType_DrawTriangle: {
-                vkCmdBindPipeline(m_RendererData->commandPool->GetBuffer(m_RendererData->currentFrame),
-                                  VK_PIPELINE_BIND_POINT_GRAPHICS, m_RendererData->pipeline->GetPipeline());
+                const auto& buffer = m_RendererData->commandPool->GetBuffer(m_RendererData->currentFrame);
+                vkCmdBindPipeline(buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_RendererData->pipeline->GetPipeline());
                 VkViewport viewport{};
                 viewport.x = 0.0f;
                 viewport.y = 0.0f;
@@ -116,23 +120,40 @@ namespace LunaraEngine
                 viewport.height = static_cast<float>(m_RendererData->surfaceExtent.height);
                 viewport.minDepth = 0.0f;
                 viewport.maxDepth = 1.0f;
-                vkCmdSetViewport(m_RendererData->commandPool->GetBuffer(m_RendererData->currentFrame), 0, 1, &viewport);
+                vkCmdSetViewport(buffer, 0, 1, &viewport);
 
                 VkRect2D scissor{};
                 scissor.offset = {0, 0};
                 scissor.extent = m_RendererData->surfaceExtent;
-                vkCmdSetScissor(m_RendererData->commandPool->GetBuffer(m_RendererData->currentFrame), 0, 1, &scissor);
-                vkCmdDraw(m_RendererData->commandPool->GetBuffer(m_RendererData->currentFrame), 3, 1, 0, 0);
+                vkCmdSetScissor(buffer, 0, 1, &scissor);
+                vkCmdDraw(buffer, 3, 1, 0, 0);
                 break;
             }
 
+            case RendererCommandType::RendererCommandType_BeginFrame: {
 
+                vkWaitForFences(m_RendererData->device, 1, &m_RendererData->inFlightFence[m_RendererData->currentFrame],
+                                VK_TRUE, UINT64_MAX);
+                vkAcquireNextImageKHR(m_RendererData->device, m_RendererData->swapChain->GetSwapChain(), UINT64_MAX,
+                                      m_RendererData->imageAvailableSemaphore[m_RendererData->currentFrame],
+                                      VK_NULL_HANDLE, &(m_RendererData->imageIndex));
+
+                vkResetFences(m_RendererData->device, 1,
+                              &(m_RendererData->inFlightFence[m_RendererData->currentFrame]));
+
+                vkResetCommandBuffer(m_RendererData->commandPool->GetBuffer(m_RendererData->currentFrame),
+                                     /*VkCommandBufferResetFlagBits*/ 0);
+                break;
+            }
             case RendererCommandType::RendererCommandType_Present: {
-                std::array<VkSemaphore, 1> waitSemaphores = {m_RendererData->imageAvailableSemaphore};
+
+                std::array<VkSemaphore, 1> waitSemaphores = {
+                        m_RendererData->imageAvailableSemaphore[m_RendererData->currentFrame]};
                 std::array<VkPipelineStageFlags, 1> waitStages = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
                 std::array<VkCommandBuffer, 1> buffer = {
                         m_RendererData->commandPool->GetBuffer(m_RendererData->currentFrame)};
-                std::array<VkSemaphore, 1> signalSemaphores = {m_RendererData->renderFinishedSemaphore};
+                std::array<VkSemaphore, 1> signalSemaphores = {
+                        m_RendererData->renderFinishedSemaphore[m_RendererData->currentFrame]};
                 std::array<VkSwapchainKHR, 1> swapChains = {m_RendererData->swapChain->GetSwapChain()};
 
                 VkSubmitInfo submitInfo{};
@@ -147,8 +168,8 @@ namespace LunaraEngine
                 submitInfo.signalSemaphoreCount = 1;
                 submitInfo.pSignalSemaphores = signalSemaphores.data();
 
-                if (vkQueueSubmit(m_RendererData->gfxQueue, 1, &submitInfo, m_RendererData->inFlightFence) !=
-                    VK_SUCCESS)
+                if (vkQueueSubmit(m_RendererData->gfxQueue, 1, &submitInfo,
+                                  m_RendererData->inFlightFence[m_RendererData->currentFrame]) != VK_SUCCESS)
                 {
                     throw std::runtime_error("failed to submit draw command buffer!");
                 }
@@ -160,15 +181,12 @@ namespace LunaraEngine
                 presentInfo.pWaitSemaphores = signalSemaphores.data();
                 presentInfo.swapchainCount = 1;
                 presentInfo.pSwapchains = swapChains.data();
-                presentInfo.pImageIndices = &(m_RendererData->currentFrame);
+                presentInfo.pImageIndices = &(m_RendererData->imageIndex);
                 vkQueuePresentKHR(m_RendererData->presentQueue, &presentInfo);
-                vkWaitForFences(m_RendererData->device, 1, &m_RendererData->inFlightFence, VK_TRUE, UINT64_MAX);
-                vkResetFences(m_RendererData->device, 1, &(m_RendererData->inFlightFence));
-                vkAcquireNextImageKHR(m_RendererData->device, m_RendererData->swapChain->GetSwapChain(), UINT64_MAX,
-                                      m_RendererData->imageAvailableSemaphore, VK_NULL_HANDLE,
-                                      &(m_RendererData->currentFrame));
-                vkResetCommandBuffer(m_RendererData->commandPool->GetBuffer(m_RendererData->currentFrame),
-                                     /*VkCommandBufferResetFlagBits*/ 0);
+
+                m_RendererData->currentFrame =
+                        (m_RendererData->currentFrame + 1) % m_RendererData->inFlightFence.size();
+                break;
             }
             default:
                 break;
@@ -201,6 +219,8 @@ namespace LunaraEngine
 
         m_RendererData->commandPool = new CommandPool(m_RendererData->device, m_RendererData->gfxQueue.GetIndex(),
                                                       m_RendererData->maxFramesInFlight);
+
+        VulkanInitializer::CreateSyncObjects(m_RendererData.get());
     }
 
     void VulkanRendererAPI::Destroy()

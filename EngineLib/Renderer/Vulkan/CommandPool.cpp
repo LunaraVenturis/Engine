@@ -31,12 +31,7 @@ namespace LunaraEngine
     {
         if (count == 0) { return; }
         if (m_commandBuffers.size() > 0) { DestroyCommandBuffers(); }
-        for (uint32_t i = 0; i < count; i++)
-        {
-            //
-            LOG_ERROR("HEREE");
-            m_commandBuffers.emplace_back(m_device, m_commandPool);
-        }
+        for (uint32_t i = 0; i < count; i++) { m_commandBuffers.emplace_back(m_device, m_commandPool); }
     }
 
     void CommandPool::DestroyCommandBuffers()

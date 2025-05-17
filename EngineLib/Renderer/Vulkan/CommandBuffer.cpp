@@ -11,7 +11,6 @@ namespace LunaraEngine
         allocInfo.commandPool = m_cmdPool;
         allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
         allocInfo.commandBufferCount = 1;
-        LOG_ERROR("HEREE2");
 
         if (vkAllocateCommandBuffers(m_device, &allocInfo, &m_cmdBuffer) != VK_SUCCESS)
         {
@@ -22,7 +21,6 @@ namespace LunaraEngine
     CommandBuffer::CommandBuffer(CommandBuffer&& other)
         : m_device(other.m_device), m_cmdBuffer(other.m_cmdBuffer), m_cmdPool(other.m_cmdPool)
     {
-        LOG_ERROR("HEREE3");
         VkCommandBufferAllocateInfo allocInfo{};
         allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
         allocInfo.commandPool = m_cmdPool;
@@ -37,12 +35,7 @@ namespace LunaraEngine
 
     CommandBuffer::~CommandBuffer() { Destroy(); }
 
-    void CommandBuffer::Destroy()
-    {
-        LOG_ERROR("HEREE5");
-
-        vkFreeCommandBuffers(m_device, m_cmdPool, 1, &m_cmdBuffer);
-    }
+    void CommandBuffer::Destroy() { vkFreeCommandBuffers(m_device, m_cmdPool, 1, &m_cmdBuffer); }
 
     void CommandBuffer::BeginRecording() const
     {

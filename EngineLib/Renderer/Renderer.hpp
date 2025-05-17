@@ -61,6 +61,7 @@ namespace LunaraEngine
     public:
         static RendererResultType Init(std::string_view window_name, uint32_t width, uint32_t height);
         static void Destroy();
+        static void BeginFrame();
         static void Present();
         static void DrawQuad(const FRect& rect, const Color4& color);
         static void DrawTexture(float x, float y, Texture* texture);

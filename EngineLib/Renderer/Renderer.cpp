@@ -84,13 +84,20 @@ namespace LunaraEngine
 
     Renderer* Renderer::GetInstance() { return s_Instance; }
 
+    void Renderer::BeginFrame()
+    {
+        RendererAPI::GetInstance()->HandleCommand(RendererCommandType::RendererCommandType_BeginFrame, nullptr);
+    }
+
     void Renderer::Present()
     {
         RendererAPI::GetInstance()->HandleCommand(RendererCommandType::RendererCommandType_Present, nullptr);
     }
 
-    void Renderer::DrawTriangle() {
-        
+    void Renderer::DrawTriangle()
+    {
+        Renderer::GetInstance()->m_CommandStack.push_back(
+                {RendererCommandType::RendererCommandType_DrawTriangle, nullptr});
     }
 
     void Renderer::DrawQuad(const FRect& rect, const Color4& color)

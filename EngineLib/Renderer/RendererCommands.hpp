@@ -27,6 +27,7 @@ namespace LunaraEngine
         RendererCommandType_BeginRenderPass,
         RendererCommandType_EndRenderPass,
         RendererCommandType_Submit,
+        RendererCommandType_BeginFrame,
         RendererCommandType_Present
     };
 
