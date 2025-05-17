@@ -13,7 +13,7 @@ void SandboxLayer::OnUpdate(float dt)
 {
     (void) dt;
     using namespace LunaraEngine;
-
+    
     Renderer::BeginRenderPass();
 
     Renderer::Clear(Color4{0.0f, 0.0f, 0.0f, 1.0f});

@@ -12,6 +12,7 @@ namespace LunaraEngine
     public:
         CommandPool(VkDevice device, uint32_t queueFamilyIndex, uint32_t preallocateBufferCount = 2);
         ~CommandPool();
+        CommandPool(const CommandPool& other) = delete;
 
     public:
         void AllocateCommandBuffers(uint32_t count = 1);
@@ -24,7 +25,7 @@ namespace LunaraEngine
 
         [[nodiscard]] auto& GetBuffers() const { return m_commandBuffers; }
 
-        [[nodiscard]] auto GetBuffer(uint32_t index) const { return m_commandBuffers[index]; }
+        [[nodiscard]] auto& GetBuffer(uint32_t index) const { return m_commandBuffers[index]; }
 
     private:
         VkDevice m_device{};

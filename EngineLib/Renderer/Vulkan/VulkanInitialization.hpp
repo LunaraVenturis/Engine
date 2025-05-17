@@ -26,6 +26,7 @@ namespace LunaraEngine
         void PickPhysicalDevice();
         void CreateLogicalDevice();
         void CreateSurface();
+        void CreateSyncObjects();
 
     private:
         RendererDataType* m_RendererData{};

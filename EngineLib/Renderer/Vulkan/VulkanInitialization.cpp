@@ -46,6 +46,9 @@ namespace LunaraEngine
 
     void VulkanInitializer::Goodbye(RendererDataType* rendererData)
     {
+        vkDestroySemaphore(rendererData->device, rendererData->imageAvailableSemaphore, nullptr);
+        vkDestroySemaphore(rendererData->device, rendererData->renderFinishedSemaphore, nullptr);
+        vkDestroyFence(rendererData->device, rendererData->inFlightFence, nullptr);
         vkDestroySurfaceKHR(rendererData->instance, rendererData->vkSurface, nullptr);
         vkDestroyDevice(rendererData->device, nullptr);
         rendererData->debugMessanger.Destroy(rendererData->instance);
@@ -179,5 +182,22 @@ namespace LunaraEngine
         }
     }
 
+    void VulkanInitializer::CreateSyncObjects()
+    {
+        VkSemaphoreCreateInfo semaphoreInfo{};
+        VkFenceCreateInfo fenceInfo{};
 
+        semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+        fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+
+        if (vkCreateSemaphore(m_RendererData->device, &semaphoreInfo, nullptr,
+                              &(m_RendererData->imageAvailableSemaphore)) != VK_SUCCESS ||
+            vkCreateSemaphore(m_RendererData->device, &semaphoreInfo, nullptr,
+                              &(m_RendererData->renderFinishedSemaphore)) != VK_SUCCESS ||
+            vkCreateFence(m_RendererData->device, &fenceInfo, nullptr, &(m_RendererData->inFlightFence)) != VK_SUCCESS)
+        {
+            throw std::runtime_error("failed to create semaphores!");
+        }
+
+    }
 }// namespace LunaraEngine

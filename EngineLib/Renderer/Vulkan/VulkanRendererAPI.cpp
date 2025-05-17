@@ -103,6 +103,47 @@ namespace LunaraEngine
                 m_RendererData->clearValue.color.float32[2] = static_cast<const RendererCommandClear*>(command)->b;
                 m_RendererData->clearValue.color.float32[3] = static_cast<const RendererCommandClear*>(command)->a;
                 break;
+            case RendererCommandType::RendererCommandType_Present: {
+                std::array<VkSemaphore, 1> waitSemaphores = {m_RendererData->imageAvailableSemaphore};
+                std::array<VkPipelineStageFlags, 1> waitStages = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
+                std::array<VkCommandBuffer, 1> buffer = {
+                        m_RendererData->commandPool->GetBuffer(m_RendererData->currentFrame)};
+                std::array<VkSemaphore, 1> signalSemaphores = {m_RendererData->renderFinishedSemaphore};
+                std::array<VkSwapchainKHR, 1> swapChains = {m_RendererData->swapChain->GetSwapChain()};
+
+                VkSubmitInfo submitInfo{};
+                submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+                submitInfo.waitSemaphoreCount = 1;
+                submitInfo.pWaitSemaphores = waitSemaphores.data();
+                submitInfo.pWaitDstStageMask = waitStages.data();
+
+                submitInfo.commandBufferCount = 1;
+                submitInfo.pCommandBuffers = buffer.data();
+
+                submitInfo.signalSemaphoreCount = 1;
+                submitInfo.pSignalSemaphores = signalSemaphores.data();
+
+                if (vkQueueSubmit(m_RendererData->gfxQueue, 1, &submitInfo, m_RendererData->inFlightFence) !=
+                    VK_SUCCESS)
+                {
+                    throw std::runtime_error("failed to submit draw command buffer!");
+                }
+
+                VkPresentInfoKHR presentInfo{};
+                presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+
+                presentInfo.waitSemaphoreCount = 1;
+                presentInfo.pWaitSemaphores = signalSemaphores.data();
+                presentInfo.swapchainCount = 1;
+                presentInfo.pSwapchains = swapChains.data();
+                presentInfo.pImageIndices = &(m_RendererData->currentFrame);
+                vkQueuePresentKHR(m_RendererData->presentQueue, &presentInfo);
+                vkWaitForFences(m_RendererData->device, 1, &m_RendererData->inFlightFence, VK_TRUE, UINT64_MAX);
+                vkResetFences(m_RendererData->device, 1, &(m_RendererData->inFlightFence));
+                vkAcquireNextImageKHR(m_RendererData->device, m_RendererData->swapChain->GetSwapChain(), UINT64_MAX,
+                                      m_RendererData->imageAvailableSemaphore, VK_NULL_HANDLE,
+                                      &(m_RendererData->currentFrame));
+            }
             default:
                 break;
         }

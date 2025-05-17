@@ -28,7 +28,7 @@ namespace LunaraEngine
 
                 LayerStack::OnEvent(&event);
             }
-
+            
             LayerStack::Begin();
             LayerStack::OnUpdate(1.0f);
             LayerStack::OnImGuiDraw();

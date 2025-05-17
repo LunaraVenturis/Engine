@@ -30,7 +30,7 @@ namespace LunaraEngine
     {
         if (count == 0) { return; }
         if (m_commandBuffers.size() > 0) { DestroyCommandBuffers(); }
-        for (size_t i = 0; i < count; i++) { m_commandBuffers.push_back(CommandBuffer(m_device, m_commandPool)); }
+        for (size_t i = 0; i < count; i++) { m_commandBuffers.emplace_back(m_device, m_commandPool); }
     }
 
     void CommandPool::DestroyCommandBuffers()

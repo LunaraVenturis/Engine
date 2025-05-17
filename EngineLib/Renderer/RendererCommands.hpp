@@ -20,12 +20,14 @@ namespace LunaraEngine
         RendererCommandType_BindTexture,
         RendererCommandType_Clear,
         RendererCommandType_DrawQuad,
+        RendererCommandType_DrawTriangle,
         RendererCommandType_DrawTexture,
         RendererCommandType_DrawCircle,
         RendererCommandType_DrawText,
         RendererCommandType_BeginRenderPass,
         RendererCommandType_EndRenderPass,
         RendererCommandType_Submit,
+        RendererCommandType_Present
     };
 
     struct RendererCommandDrawQuad {

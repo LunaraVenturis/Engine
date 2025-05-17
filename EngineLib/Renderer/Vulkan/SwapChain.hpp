@@ -13,7 +13,6 @@ namespace LunaraEngine
     public:
         SwapChain(VkDevice device, VkPhysicalDevice physicalDevice, VkSurfaceKHR surface);
         ~SwapChain();
-
     public:
         void Create(VkExtent2D size);
 

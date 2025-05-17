@@ -8,7 +8,9 @@ namespace LunaraEngine
     public:
         CommandBuffer(VkDevice device, VkCommandPool cmdPool);
         ~CommandBuffer();
-
+        CommandBuffer(const CommandBuffer& other) = delete;
+        CommandBuffer(CommandBuffer&& other);
+        
     public:
         void Destroy();
         void BeginRecording();

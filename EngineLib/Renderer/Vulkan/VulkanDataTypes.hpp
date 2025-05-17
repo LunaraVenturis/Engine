@@ -43,6 +43,9 @@ namespace LunaraEngine
         uint32_t currentFrame;
         uint32_t maxFramesInFlight;
         VkClearValue clearValue;
+        VkSemaphore imageAvailableSemaphore;
+        VkSemaphore renderFinishedSemaphore;
+        VkFence inFlightFence;
     };
 
     struct QueueFamilyIndices;

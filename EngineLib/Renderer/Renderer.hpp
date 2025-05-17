@@ -64,6 +64,7 @@ namespace LunaraEngine
         static void Present();
         static void DrawQuad(const FRect& rect, const Color4& color);
         static void DrawTexture(float x, float y, Texture* texture);
+        static void DrawTriangle();
         static void DrawCircle(float x, float y, float radius, const Color4& color);
         static void DrawText(std::string_view text, Font* font, float x, float y, const Color4& color,
                              RendererTextAlignAttribute align = RendererTextAlignAttribute::TextAlign_TopLeft);

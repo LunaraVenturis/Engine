@@ -16,7 +16,21 @@ namespace LunaraEngine
             throw std::runtime_error("failed to allocate command buffers!");
         }
     }
+    CommandBuffer::CommandBuffer(CommandBuffer&& other)
+        : m_device(other.m_device), m_cmdBuffer(other.m_cmdBuffer), m_cmdPool(other.m_cmdPool) 
+    {
+        VkCommandBufferAllocateInfo allocInfo{};
+        allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+        allocInfo.commandPool = m_cmdPool;
+        allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+        allocInfo.commandBufferCount = 1;
 
+        if (vkAllocateCommandBuffers(m_device, &allocInfo, &m_cmdBuffer) != VK_SUCCESS)
+        {
+            throw std::runtime_error("failed to allocate command buffers!");
+        }
+        other.Destroy();
+    }
     CommandBuffer::~CommandBuffer() { Destroy(); }
 
     void CommandBuffer::Destroy() { vkFreeCommandBuffers(m_device, m_cmdPool, 1, &m_cmdBuffer); }
