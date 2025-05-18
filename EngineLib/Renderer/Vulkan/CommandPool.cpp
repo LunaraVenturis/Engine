@@ -36,7 +36,6 @@ namespace LunaraEngine
 
     void CommandPool::DestroyCommandBuffers()
     {
-        for (auto& commandBuffer: m_commandBuffers) { commandBuffer.Destroy(); }
         m_commandBuffers.clear();
     }
 

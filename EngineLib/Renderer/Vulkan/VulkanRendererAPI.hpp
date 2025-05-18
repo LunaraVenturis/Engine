@@ -60,7 +60,9 @@ namespace LunaraEngine
         virtual void Present() override;
         virtual void Init(const RendererAPIConfig& config) override;
         virtual void Destroy() override;
-        virtual void HandleCommand(const RendererCommandType type, const RendererCommand* command) override;
+        virtual void HandleCommand(const RendererCommand* command,
+                                   const RendererCommandType type = RendererCommandType::None) override;
+        virtual void HandleCommand(const RendererCommandType type) override;
 
     private:
         void CreateWindow();

@@ -79,11 +79,13 @@ namespace LunaraEngine
 
     Window* VulkanRendererAPI::GetWindow() { return m_RendererData->window; }
 
-    void VulkanRendererAPI::HandleCommand(const RendererCommandType type, const RendererCommand* command)
+    void VulkanRendererAPI::HandleCommand(const RendererCommandType type) { HandleCommand(nullptr, type); }
+
+    void VulkanRendererAPI::HandleCommand(const RendererCommand* command, const RendererCommandType type)
     {
         switch (type)
         {
-            case RendererCommandType::RendererCommandType_BeginRenderPass: {
+            case RendererCommandType::BeginRenderPass: {
                 const auto& buffer = m_RendererData->commandPool->GetBuffer(m_RendererData->currentFrame);
                 buffer.BeginRecording();
                 VkRenderPassBeginInfo renderPassInfo = {};
@@ -97,20 +99,20 @@ namespace LunaraEngine
                 vkCmdBeginRenderPass(buffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
                 break;
             }
-            case RendererCommandType::RendererCommandType_EndRenderPass: {
+            case RendererCommandType::EndRenderPass: {
                 const auto& buffer = m_RendererData->commandPool->GetBuffer(m_RendererData->currentFrame);
                 vkCmdEndRenderPass(buffer);
                 buffer.EndRecording();
                 break;
             }
-            case RendererCommandType::RendererCommandType_Clear: {
+            case RendererCommandType::Clear: {
                 m_RendererData->clearValue.color.float32[0] = static_cast<const RendererCommandClear*>(command)->r;
                 m_RendererData->clearValue.color.float32[1] = static_cast<const RendererCommandClear*>(command)->g;
                 m_RendererData->clearValue.color.float32[2] = static_cast<const RendererCommandClear*>(command)->b;
                 m_RendererData->clearValue.color.float32[3] = static_cast<const RendererCommandClear*>(command)->a;
                 break;
             }
-            case RendererCommandType::RendererCommandType_DrawTriangle: {
+            case RendererCommandType::DrawTriangle: {
                 const auto& buffer = m_RendererData->commandPool->GetBuffer(m_RendererData->currentFrame);
                 vkCmdBindPipeline(buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_RendererData->pipeline->GetPipeline());
                 VkViewport viewport{};
@@ -130,7 +132,7 @@ namespace LunaraEngine
                 break;
             }
 
-            case RendererCommandType::RendererCommandType_BeginFrame: {
+            case RendererCommandType::BeginFrame: {
 
                 vkWaitForFences(m_RendererData->device, 1, &m_RendererData->inFlightFence[m_RendererData->currentFrame],
                                 VK_TRUE, UINT64_MAX);
@@ -145,7 +147,7 @@ namespace LunaraEngine
                                      /*VkCommandBufferResetFlagBits*/ 0);
                 break;
             }
-            case RendererCommandType::RendererCommandType_Present: {
+            case RendererCommandType::Present: {
 
                 std::array<VkSemaphore, 1> waitSemaphores = {
                         m_RendererData->imageAvailableSemaphore[m_RendererData->currentFrame]};
@@ -225,6 +227,8 @@ namespace LunaraEngine
 
     void VulkanRendererAPI::Destroy()
     {
+        vkDeviceWaitIdle(m_RendererData->device);
+
         delete m_RendererData->commandPool;
         delete m_RendererData->pipeline;
         delete m_RendererData->swapChain;

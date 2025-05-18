@@ -46,6 +46,15 @@ namespace LunaraEngine
 
     void VulkanInitializer::Goodbye(RendererDataType* rendererData)
     {
+        for (auto& fence: rendererData->inFlightFence) { vkDestroyFence(rendererData->device, fence, nullptr); }
+        for (auto& semaphore: rendererData->imageAvailableSemaphore)
+        {
+            vkDestroySemaphore(rendererData->device, semaphore, nullptr);
+        }
+        for (auto& semaphore: rendererData->renderFinishedSemaphore)
+        {
+            vkDestroySemaphore(rendererData->device, semaphore, nullptr);
+        }
         vkDestroySurfaceKHR(rendererData->instance, rendererData->vkSurface, nullptr);
         vkDestroyDevice(rendererData->device, nullptr);
         rendererData->debugMessanger.Destroy(rendererData->instance);

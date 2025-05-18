@@ -51,13 +51,20 @@ Includes
 
 #include <string_view>
 #include <vector>
-#include <tuple>
+#include <map>
+#include <functional>
+#include <variant>
+#include <Core/Log.h>
 
 namespace LunaraEngine
 {
 
     class Renderer
     {
+    public:
+        Renderer() = default;
+        ~Renderer() = default;
+
     public:
         static RendererResultType Init(std::string_view window_name, uint32_t width, uint32_t height);
         static void Destroy();
@@ -77,12 +84,24 @@ namespace LunaraEngine
 
     public:
         static Window* GetWindow();
-        static Renderer* GetInstance();
+
+        inline static Renderer* GetInstance() { return s_Instance; }
 
     private:
-        static Renderer* s_Instance;
+        inline static void PushCommand(RendererCommand* command)
+        {
+            GetInstance()->m_CommandStack.push_back(std::variant<RendererCommandType, RendererCommand*>(command));
+        }
+
+        inline static void PushCommand(RendererCommandType type)
+        {
+            GetInstance()->m_CommandStack.push_back(std::variant<RendererCommandType, RendererCommand*>(type));
+        }
 
     private:
-        std::vector<std::tuple<RendererCommandType, RendererCommand*>> m_CommandStack;
+        inline static Renderer* s_Instance{};
+
+    private:
+        std::vector<std::variant<RendererCommandType, RendererCommand*>> m_CommandStack;
     };
 }// namespace LunaraEngine

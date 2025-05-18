@@ -47,7 +47,6 @@ Includes
 
 namespace LunaraEngine
 {
-    Renderer* Renderer::s_Instance = nullptr;
 
     RendererResultType Renderer::Init(std::string_view window_name, uint32_t width, uint32_t height)
     {
@@ -67,142 +66,75 @@ namespace LunaraEngine
         LOG_DEBUG("Initial width: %d\n", config.initialWidth);
         LOG_DEBUG("Initial height: %d\n", config.initialHeight);
 
+        s_Instance = new Renderer();
+
         RendererAPI::CreateRendererAPI();
         RendererAPI::GetInstance()->Init(config);
 
-        s_Instance = new Renderer();
+        RendererCommand::RegisterCommands();
+
+        LOG_DEBUG("Renderer initialized\n");
+
         return RendererResultType::Renderer_Result_Not_Done;
     }
 
-    void Renderer::Destroy()
-    {
-        RendererAPI::GetInstance()->Destroy();
+    void Renderer::Destroy() { RendererAPI::GetInstance()->Destroy(); }
 
-        delete s_Instance;
-        s_Instance = nullptr;
-    }
+    void Renderer::BeginFrame() { PushCommand(RendererCommandType::BeginFrame); }
 
-    Renderer* Renderer::GetInstance() { return s_Instance; }
+    void Renderer::Present() { PushCommand(RendererCommandType::Present); }
 
-    void Renderer::BeginFrame()
-    {
-        RendererAPI::GetInstance()->HandleCommand(RendererCommandType::RendererCommandType_BeginFrame, nullptr);
-    }
-
-    void Renderer::Present()
-    {
-        RendererAPI::GetInstance()->HandleCommand(RendererCommandType::RendererCommandType_Present, nullptr);
-    }
-
-    void Renderer::DrawTriangle()
-    {
-        Renderer::GetInstance()->m_CommandStack.push_back(
-                {RendererCommandType::RendererCommandType_DrawTriangle, nullptr});
-    }
+    void Renderer::DrawTriangle() { PushCommand(RendererCommandType::DrawTriangle); }
 
     void Renderer::DrawQuad(const FRect& rect, const Color4& color)
     {
-        RendererCommandDrawQuad quad;
-        quad.x = rect.x;
-        quad.y = rect.y;
-        quad.width = rect.w;
-        quad.height = rect.h;
-        quad.r = (uint8_t) color.r;
-        quad.g = (uint8_t) color.g;
-        quad.b = (uint8_t) color.b;
-        quad.a = (uint8_t) color.a;
-
-        Renderer::GetInstance()->m_CommandStack.push_back(
-                {RendererCommandType::RendererCommandType_DrawQuad, new RendererCommandDrawQuad(quad)});
+        PushCommand(new RendererCommandDrawQuad(rect.x, rect.y, rect.w, rect.h, color.r, color.g, color.b, color.a));
     }
 
     void Renderer::DrawTexture(float x, float y, Texture* texture)
     {
-        RendererCommandDrawTexture tex;
-        tex.x = x;
-        tex.y = y;
-        tex.texture = texture;
-
-        Renderer::GetInstance()->m_CommandStack.push_back(
-                {RendererCommandType::RendererCommandType_DrawTexture, new RendererCommandDrawTexture(tex)});
+        PushCommand(new RendererCommandDrawTexture(x, y, texture));
     }
 
     void Renderer::DrawCircle(float x, float y, float radius, const Color4& color)
     {
-        RendererCommandDrawCircle circle;
-        circle.x = x;
-        circle.y = y;
-        circle.radius = radius;
-        circle.r = (uint8_t) color.r;
-        circle.g = (uint8_t) color.g;
-        circle.b = (uint8_t) color.b;
-        circle.a = (uint8_t) color.a;
-
-        Renderer::GetInstance()->m_CommandStack.push_back(
-                {RendererCommandType::RendererCommandType_DrawCircle, new RendererCommandDrawCircle(circle)});
+        PushCommand(new RendererCommandDrawCircle(x, y, radius, color.r, color.g, color.b, color.a));
     }
 
     void Renderer::DrawText(std::string_view text, Font* font, float x, float y, const Color4& color,
                             RendererTextAlignAttribute align)
     {
-        RendererCommandDrawText text_cmd;
-        text_cmd.text = (char*) text.data();
-        text_cmd.font = (void*) font;
-        text_cmd.x = x;
-        text_cmd.y = y;
-        text_cmd.r = (uint8_t) color.r;
-        text_cmd.g = (uint8_t) color.g;
-        text_cmd.b = (uint8_t) color.b;
-        text_cmd.a = (uint8_t) color.a;
-        text_cmd.align = align;
-
-        Renderer::GetInstance()->m_CommandStack.push_back(
-                {RendererCommandType::RendererCommandType_DrawText, new RendererCommandDrawText(text_cmd)});
+        PushCommand(new RendererCommandDrawText(text.data(), font, x, y, color.r, color.g, color.b, color.a, align));
     }
 
     void Renderer::Clear(const Color4& color)
     {
-        RendererCommandClear clear;
-        clear.r = (uint8_t) color.r;
-        clear.g = (uint8_t) color.g;
-        clear.b = (uint8_t) color.b;
-        clear.a = (uint8_t) color.a;
-
-        Renderer::GetInstance()->m_CommandStack.push_back(
-                {RendererCommandType::RendererCommandType_Clear, new RendererCommandClear(clear)});
+        PushCommand(new RendererCommandClear(color.r, color.g, color.b, color.a));
     }
 
-    void Renderer::BeginRenderPass()
-    {
+    void Renderer::BeginRenderPass() { PushCommand(RendererCommandType::BeginRenderPass); }
 
-        Renderer::GetInstance()->m_CommandStack.push_back(
-                {RendererCommandType::RendererCommandType_BeginRenderPass, nullptr});
-    }
-
-    void Renderer::EndRenderPass()
-    {
-        Renderer::GetInstance()->m_CommandStack.push_back(
-                {RendererCommandType::RendererCommandType_EndRenderPass, nullptr});
-    }
+    void Renderer::EndRenderPass() { PushCommand(RendererCommandType::EndRenderPass); }
 
     void Renderer::Flush()
     {
-        for (const auto& [type, cmd]: Renderer::GetInstance()->m_CommandStack)
+        for (const auto& cmd: Renderer::GetInstance()->m_CommandStack)
         {
-            RendererAPI::GetInstance()->HandleCommand(type, cmd);
+            std::visit(
+                    [](auto&& arg) {
+                        if constexpr (std::is_enum_v<std::decay_t<decltype(arg)>>)
+                        {
+                            RendererAPI::GetInstance()->HandleCommand(nullptr, arg);
+                        }
+                        else
+                        {
+                            RendererAPI::GetInstance()->HandleCommand(arg, arg->GetType());
+                            RendererCommand::FreeCommand(arg);
+                        }
+                    },
+                    cmd);
         }
-        for (auto element: Renderer::GetInstance()->m_CommandStack)
-        {
-            auto cmd = std::get<1>(element);
-            auto type = std::get<0>(element);
-            switch (type)
-            {
-                case RendererCommandType::RendererCommandType_Clear:
-                    delete (RendererCommandClear*) cmd;
-                default:
-                    break;
-            }
-        }
+
         Renderer::GetInstance()->m_CommandStack.clear();
     }
 
