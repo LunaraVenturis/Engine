@@ -19,6 +19,7 @@ void SandboxLayer::OnUpdate(float dt)
     Renderer::Clear(Color4{0.0f, 0.0f, 0.0f, 1.0f});
 
     Renderer::DrawTriangle();
+    
     Renderer::DrawQuad(FRect{300.0f, 300.0f, 100.0f, 100.0f}, Color4{1.0f, 0.0f, 0.0f, 1.0f});
 
     size_t length = (size_t) snprintf(NULL, 0, "%u, %u", x, y);

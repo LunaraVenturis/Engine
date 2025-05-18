@@ -103,13 +103,13 @@ namespace LunaraEngine
                 buffer.EndRecording();
                 break;
             }
-            case RendererCommandType::RendererCommandType_Clear:
+            case RendererCommandType::RendererCommandType_Clear: {
                 m_RendererData->clearValue.color.float32[0] = static_cast<const RendererCommandClear*>(command)->r;
                 m_RendererData->clearValue.color.float32[1] = static_cast<const RendererCommandClear*>(command)->g;
                 m_RendererData->clearValue.color.float32[2] = static_cast<const RendererCommandClear*>(command)->b;
                 m_RendererData->clearValue.color.float32[3] = static_cast<const RendererCommandClear*>(command)->a;
                 break;
-
+            }
             case RendererCommandType::RendererCommandType_DrawTriangle: {
                 const auto& buffer = m_RendererData->commandPool->GetBuffer(m_RendererData->currentFrame);
                 vkCmdBindPipeline(buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_RendererData->pipeline->GetPipeline());

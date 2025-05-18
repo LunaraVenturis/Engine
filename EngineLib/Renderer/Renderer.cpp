@@ -176,13 +176,13 @@ namespace LunaraEngine
     {
 
         Renderer::GetInstance()->m_CommandStack.push_back(
-                {RendererCommandType::RendererCommandType_BeginRenderPass, new RendererCommandBeginRenderPass});
+                {RendererCommandType::RendererCommandType_BeginRenderPass, nullptr});
     }
 
     void Renderer::EndRenderPass()
     {
         Renderer::GetInstance()->m_CommandStack.push_back(
-                {RendererCommandType::RendererCommandType_EndRenderPass, new RendererCommandEndRenderPass});
+                {RendererCommandType::RendererCommandType_EndRenderPass, nullptr});
     }
 
     void Renderer::Flush()
@@ -197,12 +197,6 @@ namespace LunaraEngine
             auto type = std::get<0>(element);
             switch (type)
             {
-                case RendererCommandType::RendererCommandType_BeginRenderPass:
-                    delete (RendererCommandBeginRenderPass*) cmd;
-                    break;
-                case RendererCommandType::RendererCommandType_EndRenderPass:
-                    delete (RendererCommandEndRenderPass*) cmd;
-                    break;
                 case RendererCommandType::RendererCommandType_Clear:
                     delete (RendererCommandClear*) cmd;
                 default:
