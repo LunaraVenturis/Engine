@@ -19,7 +19,6 @@
 #include <limits>   // Necessary for std::numeric_limits
 #include <algorithm>// Necessary for std::clamp
 #include <fstream>
-
 namespace LunaraEngine
 {
     const std::array<const char*, 1> g_SwapChainExtensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
