@@ -1,15 +1,22 @@
 #include "vulkan/vulkan.h"
 #pragma once
+
 namespace LunaraEngine
 {
     class Buffer
     {
     public:
         Buffer(VkDevice Device);
+
+    public:
+        [[nodiscard]] auto GetBuffer() const { return m_Buffer; }
+
     protected:
-        void CreateBuffer(VkBuffer& buffer, VkDeviceSize size, VkBufferUsageFlags usage);
-        void BindBufferToDevMemory(VkBuffer& buffer, VkDeviceMemory& bufferMemory, VkMemoryPropertyFlags properties);
+        void CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage);
+        void BindBufferToDevMemory(VkDeviceMemory& bufferMemory, VkMemoryPropertyFlags properties);
+
     private:
         VkDevice m_Device{};
+        VkBuffer m_Buffer{};
     };
 }// namespace LunaraEngine

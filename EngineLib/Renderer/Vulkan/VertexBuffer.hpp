@@ -17,14 +17,13 @@ namespace LunaraEngine
     {
     public:
         VertexBuffer();
-
+        VertexBuffer(VkDeviceSize size);
+        ~VertexBuffer(); 
     public:
-        [[nodiscard]] auto GetVertexBuffer() const { return m_VertexBuffer; }
-
+        void Upload(const VertexBuffer* buffer);
     private:
         VkDevice m_Device{};
         VkDeviceSize m_Size{};
-        VkBuffer m_VertexBuffer{};
         VkDeviceMemory m_VertexBufferMemory{};
     };
 }// namespace LunaraEngine
