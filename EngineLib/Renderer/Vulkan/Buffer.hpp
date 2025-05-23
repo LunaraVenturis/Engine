@@ -7,7 +7,7 @@ namespace LunaraEngine
     {
     public:
         Buffer(VkDevice Device);
-
+       virtual ~Buffer();
     public:
         [[nodiscard]] auto GetBuffer() const { return m_Buffer; }
 

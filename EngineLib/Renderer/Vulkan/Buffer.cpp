@@ -37,4 +37,8 @@ namespace LunaraEngine
 
         vkBindBufferMemory(m_Device, m_Buffer, bufferMemory, 0);
     }
+    Buffer::~Buffer()
+    {
+        vkDestroyBuffer(m_Device, m_Buffer, nullptr);
+    }
 }// namespace LunaraEngine

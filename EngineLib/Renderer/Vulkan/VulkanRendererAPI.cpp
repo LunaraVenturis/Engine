@@ -128,7 +128,7 @@ namespace LunaraEngine
                 scissor.offset = {0, 0};
                 scissor.extent = m_RendererData->surfaceExtent;
                 vkCmdSetScissor(buffer, 0, 1, &scissor);
-                vkCmdDraw(buffer, 3, 1, 0, 0);
+                vkCmdDraw(buffer, static_cast<uint32_t>(m_RendererData->vertices.size()), 1, 0, 0);
                 break;
             }
 

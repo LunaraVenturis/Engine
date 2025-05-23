@@ -1,12 +1,10 @@
 #pragma once
 #include <cstdint>
 #include "VulkanDataTypes.hpp"
-#include <glm/glm.hpp>
 
 
 namespace LunaraEngine
 {
-
     QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice device, VkSurfaceKHR surface);
 
     bool CheckDeviceExtensionSupport(VkPhysicalDevice device);
@@ -45,5 +43,8 @@ namespace LunaraEngine
             return attributeDescriptions;
         }
     };
-    
+            const std::vector<Vertex> vertices = {{{0.0f, -0.5f}, {1.0f, 0.0f, 0.0f}},
+                                              {{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
+                                              {{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}};
+
 }// namespace LunaraEngine

@@ -16,8 +16,6 @@ namespace LunaraEngine
         void BeginRecording() const;
         void EndRecording() const;
         bool IsValid() const;
-
-        void Draw();
         void Flush(VkQueue queue);
 
     public:

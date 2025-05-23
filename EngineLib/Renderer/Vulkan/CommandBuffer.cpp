@@ -1,7 +1,6 @@
 #include "CommandBuffer.hpp"
 #include <stdexcept>
 #include <Core/Log.h>
-
 namespace LunaraEngine
 {
     CommandBuffer::CommandBuffer(VkDevice device, VkCommandPool cmdPool) : m_device(device), m_cmdPool(cmdPool)
@@ -36,9 +35,9 @@ namespace LunaraEngine
     CommandBuffer::~CommandBuffer() { Destroy(); }
 
     void CommandBuffer::Destroy() { vkFreeCommandBuffers(m_device, m_cmdPool, 1, &m_cmdBuffer); }
-
     void CommandBuffer::BeginRecording() const
     {
+
         VkCommandBufferBeginInfo beginInfo{};
         beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
         beginInfo.flags = 0;                 // Optional
@@ -49,8 +48,6 @@ namespace LunaraEngine
             throw std::runtime_error("failed to begin recording command buffer!");
         }
     }
-
-    void CommandBuffer::Draw() { vkCmdDraw(m_cmdBuffer, 3, 1, 0, 0); }
 
     void CommandBuffer::EndRecording() const
     {
