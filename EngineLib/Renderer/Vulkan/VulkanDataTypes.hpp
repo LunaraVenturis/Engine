@@ -8,6 +8,7 @@
 #include "SwapChain.hpp"
 #include "CommandPool.hpp"
 #include "Queue.hpp"
+#include "VertexBuffer.hpp"
 #include <vulkan/vulkan.h>
 #include <SDL3/SDL_render.h>
 #include <string>
@@ -19,7 +20,6 @@
 #include <limits>   // Necessary for std::numeric_limits
 #include <algorithm>// Necessary for std::clamp
 #include <fstream>
-#include <glm/glm.hpp>
 namespace LunaraEngine
 {
     const std::array<const char*, 1> g_SwapChainExtensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
@@ -40,6 +40,7 @@ namespace LunaraEngine
         Pipeline* pipeline;
         SwapChain* swapChain;
         CommandPool* commandPool;
+        VertexBuffer* vertexBuffer;
         uint32_t currentFrame;
         uint32_t imageIndex;
         uint32_t maxFramesInFlight;
@@ -48,9 +49,6 @@ namespace LunaraEngine
         std::vector<VkSemaphore> renderFinishedSemaphore;
         std::vector<VkFence> inFlightFence;
     };
-
-    struct QueueFamilyIndices;
-
     struct QueueFamilyIndices {
         std::optional<uint32_t> graphicsFamily;
         std::optional<uint32_t> computeFamily;

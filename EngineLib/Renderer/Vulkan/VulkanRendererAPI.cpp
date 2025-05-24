@@ -115,6 +115,9 @@ namespace LunaraEngine
             case RendererCommandType::DrawTriangle: {
                 const auto& buffer = m_RendererData->commandPool->GetBuffer(m_RendererData->currentFrame);
                 vkCmdBindPipeline(buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_RendererData->pipeline->GetPipeline());
+                std::array<VkBuffer, 1> vertexBuffers = {m_RendererData->vertexBuffer->GetBuffer()};
+                std::array<VkDeviceSize, 1> offsets = {0};
+                vkCmdBindVertexBuffers(buffer, 0, 1, vertexBuffers.data(), offsets.data());
                 VkViewport viewport{};
                 viewport.x = 0.0f;
                 viewport.y = 0.0f;
@@ -128,7 +131,7 @@ namespace LunaraEngine
                 scissor.offset = {0, 0};
                 scissor.extent = m_RendererData->surfaceExtent;
                 vkCmdSetScissor(buffer, 0, 1, &scissor);
-                vkCmdDraw(buffer, static_cast<uint32_t>(m_RendererData->vertices.size()), 1, 0, 0);
+                vkCmdDraw(buffer, static_cast<uint32_t>(m_RendererData->vertexBuffer->GetVertices().size()), 1, 0, 0);
                 break;
             }
 
@@ -221,6 +224,8 @@ namespace LunaraEngine
 
         m_RendererData->commandPool = new CommandPool(m_RendererData->device, m_RendererData->gfxQueue.GetIndex(),
                                                       m_RendererData->maxFramesInFlight);
+        m_RendererData->vertexBuffer = new VertexBuffer(m_RendererData->device);
+        m_RendererData->vertexBuffer->Upload(m_RendererData->physicalDevice);
 
         VulkanInitializer::CreateSyncObjects(m_RendererData.get());
     }
@@ -228,7 +233,7 @@ namespace LunaraEngine
     void VulkanRendererAPI::Destroy()
     {
         vkDeviceWaitIdle(m_RendererData->device);
-
+        delete m_RendererData->vertexBuffer;
         delete m_RendererData->commandPool;
         delete m_RendererData->pipeline;
         delete m_RendererData->swapChain;

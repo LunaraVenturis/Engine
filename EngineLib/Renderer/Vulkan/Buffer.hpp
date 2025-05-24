@@ -1,5 +1,5 @@
-#include "vulkan/vulkan.h"
 #pragma once
+#include "vulkan/vulkan.h"
 
 namespace LunaraEngine
 {
@@ -13,7 +13,7 @@ namespace LunaraEngine
 
     protected:
         void CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage);
-        void BindBufferToDevMemory(VkDeviceMemory& bufferMemory, VkMemoryPropertyFlags properties);
+        void BindBufferToDevMemory(VkDeviceMemory& bufferMemory, VkMemoryPropertyFlags properties, VkPhysicalDevice physicalDevice);
 
     private:
         VkDevice m_Device{};

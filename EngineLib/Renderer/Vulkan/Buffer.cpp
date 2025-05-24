@@ -20,7 +20,7 @@ namespace LunaraEngine
         }
     }
 
-    void Buffer::BindBufferToDevMemory(VkDeviceMemory& bufferMemory, VkMemoryPropertyFlags properties)
+    void Buffer::BindBufferToDevMemory(VkDeviceMemory& bufferMemory, VkMemoryPropertyFlags properties, VkPhysicalDevice physicalDevice)
     {
         VkMemoryRequirements memRequirements;
         vkGetBufferMemoryRequirements(m_Device, m_Buffer, &memRequirements);
@@ -28,7 +28,7 @@ namespace LunaraEngine
         VkMemoryAllocateInfo allocInfo{};
         allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
         allocInfo.allocationSize = memRequirements.size;
-        allocInfo.memoryTypeIndex = FindMemoryType(memRequirements.memoryTypeBits, properties);
+        allocInfo.memoryTypeIndex = FindMemoryType(memRequirements.memoryTypeBits, properties, physicalDevice);
 
         if (vkAllocateMemory(m_Device, &allocInfo, nullptr, &bufferMemory) != VK_SUCCESS)
         {
