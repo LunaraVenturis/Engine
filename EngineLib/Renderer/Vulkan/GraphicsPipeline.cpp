@@ -1,7 +1,6 @@
 #include "GraphicsPipeline.hpp"
 #include "SwapChain.hpp"
 #include <array>
-#include "Common.hpp"
 #include <stdexcept>
 
 namespace LunaraEngine
