@@ -49,7 +49,7 @@ namespace LunaraEngine
     public:
         void Upload(VkPhysicalDevice physicalDevice);
 
-        [[nodiscard]] auto& GetVertices() const { return m_Vertices; }
+        [[nodiscard]] static const auto& GetVertices() { return m_Vertices; }
 
     private:
         VkDevice m_Device{};

@@ -14,7 +14,7 @@ namespace LunaraEngine
                               VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, physicalDevice);
         void* data;
         vkMapMemory(m_Device, m_VertexBufferMemory, 0, m_Size, 0, &data);
-        memcpy(data, m_Vertices.data(), (size_t) m_Size);
+        std::memcpy(data, m_Vertices.data(), (size_t) m_Size);
         vkUnmapMemory(m_Device, m_VertexBufferMemory);
     }
 
@@ -25,7 +25,7 @@ namespace LunaraEngine
                               VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, physicalDevice);
         void* data;
         vkMapMemory(m_Device, m_VertexBufferMemory, 0, m_Size, 0, &data);
-        memcpy(data, m_Vertices.data(), (size_t) m_Size);
+        std::memcpy(data, m_Vertices.data(), (size_t) m_Size);
         vkUnmapMemory(m_Device, m_VertexBufferMemory);
     }
 
