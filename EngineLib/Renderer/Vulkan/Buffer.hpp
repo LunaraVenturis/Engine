@@ -3,20 +3,31 @@
 
 namespace LunaraEngine
 {
+    class CommandPool;
+
     class Buffer
     {
     public:
-        Buffer(VkDevice Device);
-       virtual ~Buffer();
+        Buffer() = default;
+        virtual ~Buffer();
+
     public:
         [[nodiscard]] auto GetBuffer() const { return m_Buffer; }
 
-    protected:
-        void CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage);
-        void BindBufferToDevMemory(VkDeviceMemory& bufferMemory, VkMemoryPropertyFlags properties, VkPhysicalDevice physicalDevice);
+        void Upload(uint8_t* data, size_t size);
+        void CopyTo(CommandPool* commandPool, VkQueue executeQueue, Buffer* buffer);
+        void Destroy();
 
-    private:
+    protected:
+        void CreateBuffer(VkBufferUsageFlags usage);
+        void BindBufferToDevMemory(VkMemoryPropertyFlags properties, VkPhysicalDevice physicalDevice);
+
+        const auto& GetDevice() const { return m_Device; }
+
+    protected:
         VkDevice m_Device{};
         VkBuffer m_Buffer{};
+        VkDeviceMemory m_BufferMemory{};
+        size_t m_Size{};
     };
 }// namespace LunaraEngine

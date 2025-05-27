@@ -3,31 +3,21 @@
 
 namespace LunaraEngine
 {
-    StagingBuffer::StagingBuffer(VkDevice device) : Buffer(device), m_Device(device) {}
-
-    StagingBuffer::StagingBuffer(VkDevice device, VkPhysicalDevice physicalDevice)
-        : Buffer(device), m_Device(device),
-          m_Size((sizeof(VertexBuffer::GetVertices()[0]) * VertexBuffer::GetVertices().size()))
+    StagingBuffer::StagingBuffer(VkDevice device, VkPhysicalDevice physicalDevice, uint8_t* data, size_t size)
     {
-        CreateBuffer(m_Size, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
-        BindBufferToDevMemory(m_StagingBufferMemory,
-                              VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-                              physicalDevice);
-        void* data;
-        vkMapMemory(m_Device, m_StagingBufferMemory, 0, m_Size, 0, &data);
-        std::memcpy(data, VertexBuffer::GetVertices().data(), (size_t) m_Size);
-        vkUnmapMemory(m_Device, m_StagingBufferMemory);
+        Create(device, physicalDevice, data, size);
     }
 
-    void StagingBuffer::Upload(VkPhysicalDevice physicalDevice)
+    void StagingBuffer::Create(VkDevice device, VkPhysicalDevice physicalDevice, uint8_t* data, size_t size)
     {
-        CreateBuffer(m_Size, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
-        BindBufferToDevMemory(m_StagingBufferMemory,
-                              VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+        m_Size = size;
+        m_Device = device;
+
+        CreateBuffer(VK_BUFFER_USAGE_TRANSFER_SRC_BIT);
+        BindBufferToDevMemory(VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
                               physicalDevice);
-        void* data;
-        vkMapMemory(m_Device, m_StagingBufferMemory, 0, m_Size, 0, &data);
-        std::memcpy(data, VertexBuffer::GetVertices().data(), (size_t) m_Size);
-        vkUnmapMemory(m_Device, m_StagingBufferMemory);
+
+        Upload(data, size);
     }
+
 }// namespace LunaraEngine

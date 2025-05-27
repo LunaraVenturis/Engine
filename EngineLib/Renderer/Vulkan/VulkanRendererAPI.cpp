@@ -224,9 +224,11 @@ namespace LunaraEngine
 
         m_RendererData->commandPool = new CommandPool(m_RendererData->device, m_RendererData->gfxQueue.GetIndex(),
                                                       m_RendererData->maxFramesInFlight);
-        //m_RendererData->stagingBuffer = new StagingBuffer(m_RendererData->device, m_RendererData->physicalDevice);
-        m_RendererData->vertexBuffer = new VertexBuffer(m_RendererData->device);
-        m_RendererData->vertexBuffer->Upload(m_RendererData->physicalDevice);
+        m_RendererData->vertexBuffer = new VertexBuffer();
+        m_RendererData->vertexBuffer->Create(m_RendererData->device, m_RendererData->physicalDevice,
+                                             m_RendererData->commandPool, m_RendererData->gfxQueue,
+                                             (uint8_t*) VertexBuffer::GetVertices().data(),
+                                             (size_t) (VertexBuffer::GetVertices().size() * sizeof(Vertex)));
 
         VulkanInitializer::CreateSyncObjects(m_RendererData.get());
     }

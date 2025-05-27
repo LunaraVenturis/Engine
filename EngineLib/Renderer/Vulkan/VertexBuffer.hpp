@@ -1,5 +1,6 @@
 #pragma once
 #include "Buffer.hpp"
+#include "StagingBuffer.hpp"
 #include <glm/glm.hpp>
 #include <array>
 #include <vector>
@@ -39,22 +40,24 @@ namespace LunaraEngine
         }
     };
 
+    class CommandPool;
+
     class VertexBuffer: public Buffer
     {
     public:
-        VertexBuffer(VkDevice device);
-        VertexBuffer(VkDevice device, VkDeviceSize size, VkPhysicalDevice physicalDevice);
-        ~VertexBuffer();
+        VertexBuffer() = default;
+        VertexBuffer(VkDevice device, VkPhysicalDevice physicalDevice, CommandPool* commandPool, VkQueue executeQueue,
+                     uint8_t* data, size_t size);
+        ~VertexBuffer() = default;
 
     public:
-        void Upload(VkPhysicalDevice physicalDevice);
-
         [[nodiscard]] static const auto& GetVertices() { return m_Vertices; }
 
+        void Create(VkDevice device, VkPhysicalDevice physicalDevice, CommandPool* commandPool, VkQueue executeQueue,
+                    uint8_t* data, size_t size);
+
     private:
-        VkDevice m_Device{};
-        VkDeviceSize m_Size{};
-        VkDeviceMemory m_VertexBufferMemory{};
+        StagingBuffer m_StagingBuffer;
         inline static const std::vector<Vertex> m_Vertices = {{{0.0f, -0.5f}, {1.0f, 1.0f, 1.0f}},
                                                               {{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
                                                               {{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}};

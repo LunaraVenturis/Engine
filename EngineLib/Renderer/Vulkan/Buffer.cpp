@@ -1,16 +1,15 @@
 #include "Buffer.hpp"
 #include <stdexcept>
 #include "Common.hpp"
+#include "CommandPool.hpp"
 
 namespace LunaraEngine
 {
-    Buffer::Buffer(VkDevice device) : m_Device(device) {}
-
-    void Buffer::CreateBuffer(VkDeviceSize size, VkBufferUsageFlags usage)
+    void Buffer::CreateBuffer(VkBufferUsageFlags usage)
     {
         VkBufferCreateInfo bufferInfo{};
         bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-        bufferInfo.size = size;
+        bufferInfo.size = m_Size;
         bufferInfo.usage = usage;
         bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
@@ -20,7 +19,7 @@ namespace LunaraEngine
         }
     }
 
-    void Buffer::BindBufferToDevMemory(VkDeviceMemory& bufferMemory, VkMemoryPropertyFlags properties, VkPhysicalDevice physicalDevice)
+    void Buffer::BindBufferToDevMemory(VkMemoryPropertyFlags properties, VkPhysicalDevice physicalDevice)
     {
         VkMemoryRequirements memRequirements;
         vkGetBufferMemoryRequirements(m_Device, m_Buffer, &memRequirements);
@@ -30,15 +29,56 @@ namespace LunaraEngine
         allocInfo.allocationSize = memRequirements.size;
         allocInfo.memoryTypeIndex = FindMemoryType(memRequirements.memoryTypeBits, properties, physicalDevice);
 
-        if (vkAllocateMemory(m_Device, &allocInfo, nullptr, &bufferMemory) != VK_SUCCESS)
+        if (vkAllocateMemory(m_Device, &allocInfo, nullptr, &m_BufferMemory) != VK_SUCCESS)
         {
             throw std::runtime_error("failed to allocate buffer memory!");
         }
 
-        vkBindBufferMemory(m_Device, m_Buffer, bufferMemory, 0);
+        vkBindBufferMemory(m_Device, m_Buffer, m_BufferMemory, 0);
     }
-    Buffer::~Buffer()
+
+    void Buffer::Destroy()
     {
-        vkDestroyBuffer(m_Device, m_Buffer, nullptr);
+        if (m_BufferMemory != VK_NULL_HANDLE)
+        {
+            vkFreeMemory(m_Device, m_BufferMemory, nullptr);
+            if (m_Buffer != VK_NULL_HANDLE) { vkDestroyBuffer(m_Device, m_Buffer, nullptr); }
+            m_Device = VK_NULL_HANDLE;
+            m_Buffer = VK_NULL_HANDLE;
+            m_BufferMemory = VK_NULL_HANDLE;
+            m_Size = 0;
+        }
+    }
+
+    Buffer::~Buffer() { Destroy(); }
+
+    void Buffer::Upload(uint8_t* data, size_t size)
+    {
+        void* mappedMemory;
+        vkMapMemory(m_Device, m_BufferMemory, 0, size, 0, &mappedMemory);
+        memcpy(mappedMemory, data, size);
+        vkUnmapMemory(m_Device, m_BufferMemory);
+    }
+
+    void Buffer::CopyTo(CommandPool* commandPool, VkQueue executeQueue, Buffer* buffer)
+    {
+        auto cmdBuffer = commandPool->CreateImmediateCommandBuffer();
+        cmdBuffer->BeginRecording();
+
+        VkBufferCopy copyRegion{};
+        copyRegion.srcOffset = 0;
+        copyRegion.dstOffset = 0;
+        copyRegion.size = m_Size;
+        vkCmdCopyBuffer(*cmdBuffer, m_Buffer, buffer->GetBuffer(), 1, &copyRegion);
+
+        cmdBuffer->EndRecording();
+
+        VkSubmitInfo submitInfo{};
+        submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+        submitInfo.commandBufferCount = 1;
+        VkCommandBuffer buffers[] = {*cmdBuffer};
+        submitInfo.pCommandBuffers = buffers;
+        vkQueueSubmit(executeQueue, 1, &submitInfo, VK_NULL_HANDLE);
+        vkQueueWaitIdle(executeQueue);
     }
 }// namespace LunaraEngine
