@@ -22,8 +22,6 @@ namespace LunaraEngine
         void CreateBuffer(VkBufferUsageFlags usage);
         void BindBufferToDevMemory(VkMemoryPropertyFlags properties, VkPhysicalDevice physicalDevice);
 
-        const auto& GetDevice() const { return m_Device; }
-
     protected:
         VkDevice m_Device{};
         VkBuffer m_Buffer{};

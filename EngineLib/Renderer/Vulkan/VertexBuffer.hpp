@@ -58,8 +58,9 @@ namespace LunaraEngine
 
     private:
         StagingBuffer m_StagingBuffer;
-        inline static const std::vector<Vertex> m_Vertices = {{{0.0f, -0.5f}, {1.0f, 1.0f, 1.0f}},
-                                                              {{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
-                                                              {{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}};
+        inline static const std::vector<Vertex> m_Vertices = {{{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
+                                                              {{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
+                                                              {{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}},
+                                                              {{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}}};
     };
 }// namespace LunaraEngine

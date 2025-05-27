@@ -10,6 +10,7 @@
 #include "Queue.hpp"
 #include "StagingBuffer.hpp"
 #include "VertexBuffer.hpp"
+#include "IndexBuffer.hpp"
 #include <vulkan/vulkan.h>
 #include <SDL3/SDL_render.h>
 #include <string>
@@ -42,6 +43,7 @@ namespace LunaraEngine
         SwapChain* swapChain;
         CommandPool* commandPool;
         StagingBuffer* stagingBuffer;
+        IndexBuffer* indexBuffer;
         VertexBuffer* vertexBuffer;
         uint32_t currentFrame;
         uint32_t imageIndex;

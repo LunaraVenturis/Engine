@@ -118,6 +118,7 @@ namespace LunaraEngine
                 std::array<VkBuffer, 1> vertexBuffers = {m_RendererData->vertexBuffer->GetBuffer()};
                 std::array<VkDeviceSize, 1> offsets = {0};
                 vkCmdBindVertexBuffers(buffer, 0, 1, vertexBuffers.data(), offsets.data());
+                vkCmdBindIndexBuffer(buffer, m_RendererData->indexBuffer->GetBuffer(), 0, VK_INDEX_TYPE_UINT16);
                 VkViewport viewport{};
                 viewport.x = 0.0f;
                 viewport.y = 0.0f;
@@ -131,7 +132,7 @@ namespace LunaraEngine
                 scissor.offset = {0, 0};
                 scissor.extent = m_RendererData->surfaceExtent;
                 vkCmdSetScissor(buffer, 0, 1, &scissor);
-                vkCmdDraw(buffer, static_cast<uint32_t>(m_RendererData->vertexBuffer->GetVertices().size()), 1, 0, 0);
+                vkCmdDrawIndexed(buffer, static_cast<uint32_t>(IndexBuffer::GetIndices().size()), 1, 0, 0, 0);
                 break;
             }
 
@@ -229,6 +230,12 @@ namespace LunaraEngine
                                              m_RendererData->commandPool, m_RendererData->gfxQueue,
                                              (uint8_t*) VertexBuffer::GetVertices().data(),
                                              (size_t) (VertexBuffer::GetVertices().size() * sizeof(Vertex)));
+        m_RendererData->indexBuffer = new IndexBuffer();
+        m_RendererData->indexBuffer->Create(
+                m_RendererData->device, m_RendererData->physicalDevice, m_RendererData->commandPool,
+                m_RendererData->gfxQueue,
+                const_cast<uint8_t*>(reinterpret_cast<const uint8_t*>(IndexBuffer::GetIndices().data())),
+                static_cast<size_t>(IndexBuffer::GetIndices().size() * sizeof(m_RendererData->indexBuffer->GetIndices()[0])));
 
         VulkanInitializer::CreateSyncObjects(m_RendererData.get());
     }
@@ -236,6 +243,7 @@ namespace LunaraEngine
     void VulkanRendererAPI::Destroy()
     {
         vkDeviceWaitIdle(m_RendererData->device);
+        delete m_RendererData->indexBuffer;
         delete m_RendererData->vertexBuffer;
         delete m_RendererData->stagingBuffer;
         delete m_RendererData->commandPool;
