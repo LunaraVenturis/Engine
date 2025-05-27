@@ -142,6 +142,7 @@ target_link_libraries(EngineLib PUBLIC SDL3::SDL3 SDL3_ttf::SDL3_ttf)
 
 add_executable(Sandbox ${SANDBOX_HEADER_FILES} ${SANDBOX_SOURCE_FILES})
 target_include_directories(Sandbox PRIVATE "${CMAKE_SOURCE_DIR}/EngineLib")
+target_include_directories(Sandbox PRIVATE "${CMAKE_SOURCE_DIR}/Vendor/glm")
 target_include_directories(Sandbox PRIVATE "${CMAKE_SOURCE_DIR}/Vendor/include")
 target_include_directories(Sandbox PRIVATE "${CMAKE_SOURCE_DIR}/Sandbox")
 target_link_libraries(Sandbox PRIVATE EngineInterfaceLibrary EngineLib)
