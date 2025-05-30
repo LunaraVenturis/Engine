@@ -70,8 +70,11 @@ namespace LunaraEngine
     public:
         inline static RendererAPI* GetInstance() { return s_Instance; }
 
+        inline static RendererAPIType GetAPIType() { return s_APIType; }
+
         static void CreateRendererAPI();
         static void DestroyRendererAPI();
+
 
     public:
         virtual ~RendererAPI() = default;

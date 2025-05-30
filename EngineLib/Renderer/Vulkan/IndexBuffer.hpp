@@ -2,26 +2,31 @@
 #include <cstdint>
 #include <vector>
 #include <vulkan/vulkan.h>
-#include "Buffer.hpp"
-#include "StagingBuffer.hpp"
+#include <Renderer/Vulkan/VulkanDataTypes.hpp>
+#include <Renderer/Vulkan/Buffer.hpp>
+#include <Renderer/Vulkan/StagingBuffer.hpp>
 
 namespace LunaraEngine
 {
     class CommandPool;
+    struct RendererDataType;
 
-    class IndexBuffer: public Buffer
+    class VulkanIndexBuffer: public Buffer
     {
     public:
-        IndexBuffer() = default;
-        IndexBuffer(VkDevice device, VkPhysicalDevice physicalDevice, CommandPool* commandPool, VkQueue executeQueue,
-                    uint8_t* data, size_t size);
-        ~IndexBuffer() = default;
+        VulkanIndexBuffer() = default;
+        VulkanIndexBuffer(RendererDataType* rendererData, VkQueue executeQueue, uint8_t* data, size_t length,
+                          size_t stride = 1);
+        ~VulkanIndexBuffer() = default;
+
     public:
-        void Create(VkDevice device, VkPhysicalDevice physicalDevice, CommandPool* commandPool, VkQueue executeQueue,
-                    uint8_t* data, size_t size);
-        [[nodiscard]] static const auto& GetIndices() { return m_Indices; }
+        void Create(RendererDataType* rendererData, VkQueue executeQueue, uint8_t* data, size_t length,
+                    size_t stride = 1);
+
+        void Upload(RendererDataType* rendererData, VkQueue executeQueue, uint8_t* data, size_t length,
+                    size_t stride = 1);
+
     private:
         StagingBuffer m_StagingBuffer;
-        inline static const std::vector<uint16_t> m_Indices = {0, 1, 2, 2, 3, 0};
     };
 }// namespace LunaraEngine

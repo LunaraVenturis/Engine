@@ -1,7 +1,7 @@
 /**
  * @file
  * @author Krusto Stoyanov ( k.stoianov2@gmail.com ) 
- * @coauthor Neyko Naydenov (neyko641@gmail.com)
+ * @coauthor Neyko Naydenov ( neyko641@gmail.com )
  * @brief 
  * @version 1.0
  * @date 
@@ -31,55 +31,27 @@
  * 
  * @section DESCRIPTION
  * 
- * Renderer declarations
+ * Renderer definitions
  */
 
-#pragma once
 
 /***********************************************************************************************************************
 Includes
 ***********************************************************************************************************************/
-#include "VulkanDataTypes.hpp"
-#include <memory>
+#include "Renderer.hpp"
+#include "RendererAPI.hpp"
+#include "Texture.hpp"
+#include "Fonts.hpp"
+#include <Core/Log.h>
+#include <string_view>
+
 
 namespace LunaraEngine
 {
-
-    class VulkanRendererAPI: public RendererAPI
+    template <typename T>
+    void Renderer::DrawIndexed(VertexBuffer* vb, IndexBuffer<T>* ib)
     {
-    public:
-        VulkanRendererAPI() = default;
-        ~VulkanRendererAPI() = default;
-        VulkanRendererAPI(const VulkanRendererAPI& other) = delete;
-        VulkanRendererAPI& operator=(const VulkanRendererAPI&) = delete;
-        VulkanRendererAPI(VulkanRendererAPI&& other) = delete;
-        VulkanRendererAPI& operator=(VulkanRendererAPI&& other) = delete;
-
-    public:
-        std::weak_ptr<RendererDataType> GetData() { return m_RendererData; }
-
-    public:
-        virtual Window* GetWindow() override;
-        virtual void Present() override;
-        virtual void Init(const RendererAPIConfig& config) override;
-        virtual void Destroy() override;
-        virtual void HandleCommand(const RendererCommand* command,
-                                   const RendererCommandType type = RendererCommandType::None) override;
-        virtual void HandleCommand(const RendererCommandType type) override;
-
-    private:
-        void CreateWindow();
-
-    private:
-        VkInstance* GetVkInstance() { return &m_RendererData->instance; }
-
-        VkDevice* GetDevice() { return &m_RendererData->device; }
-
-        VkPhysicalDevice* GetPhysicalDevice() { return &m_RendererData->physicalDevice; }
-
-    private:
-        std::shared_ptr<RendererDataType> m_RendererData;
-        RendererAPIConfig m_Config;
-    };
+        PushCommand(new RendererCommandDrawIndexed((void*) vb, (void*) ib));
+    }
 
 }// namespace LunaraEngine

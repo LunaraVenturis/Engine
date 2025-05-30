@@ -1,5 +1,6 @@
 #include "GraphicsPipeline.hpp"
 #include "SwapChain.hpp"
+#include "VertexBuffer.hpp"
 #include <array>
 #include <stdexcept>
 

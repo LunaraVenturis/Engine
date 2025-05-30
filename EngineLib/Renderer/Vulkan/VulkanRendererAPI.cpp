@@ -37,15 +37,19 @@
 /***********************************************************************************************************************
 Includes
 ***********************************************************************************************************************/
-#include "VulkanRendererAPI.hpp"
-#include "Renderer/Window.hpp"
-#include "Core/Log.h"
-#include "VulkanInitialization.hpp"
-#include <vulkan/vulkan.h>
-#include "SDL3/SDL_vulkan.h"
-#include "SDL3/SDL.h"
-#include "GraphicsPipeline.hpp"
 #include <stdexcept>
+#include <Core/Log.h>
+#include <vulkan/vulkan.h>
+#include <SDL3/SDL_vulkan.h>
+#include <SDL3/SDL.h>
+#include <Renderer/Vulkan/VulkanRendererAPI.hpp>
+#include <Renderer/Window.hpp>
+#include <Renderer/Vulkan/VulkanInitialization.hpp>
+#include <Renderer/Vulkan/GraphicsPipeline.hpp>
+#include <Renderer/Vulkan/IndexBuffer.hpp>
+#include <Renderer/Vulkan/VertexBuffer.hpp>
+#include <Renderer/IndexBuffer.hpp>
+#include <Renderer/VertexBuffer.hpp>
 
 namespace LunaraEngine
 {
@@ -115,10 +119,6 @@ namespace LunaraEngine
             case RendererCommandType::DrawTriangle: {
                 const auto& buffer = m_RendererData->commandPool->GetBuffer(m_RendererData->currentFrame);
                 vkCmdBindPipeline(buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_RendererData->pipeline->GetPipeline());
-                std::array<VkBuffer, 1> vertexBuffers = {m_RendererData->vertexBuffer->GetBuffer()};
-                std::array<VkDeviceSize, 1> offsets = {0};
-                vkCmdBindVertexBuffers(buffer, 0, 1, vertexBuffers.data(), offsets.data());
-                vkCmdBindIndexBuffer(buffer, m_RendererData->indexBuffer->GetBuffer(), 0, VK_INDEX_TYPE_UINT16);
                 VkViewport viewport{};
                 viewport.x = 0.0f;
                 viewport.y = 0.0f;
@@ -132,10 +132,36 @@ namespace LunaraEngine
                 scissor.offset = {0, 0};
                 scissor.extent = m_RendererData->surfaceExtent;
                 vkCmdSetScissor(buffer, 0, 1, &scissor);
-                vkCmdDrawIndexed(buffer, static_cast<uint32_t>(IndexBuffer::GetIndices().size()), 1, 0, 0, 0);
+                vkCmdDraw(buffer, 3, 1, 0, 0);
+                // vkCmdDrawIndexed(buffer, static_cast<uint32_t>(IndexBuffer::GetIndices().size()), 1, 0, 0, 0);
                 break;
             }
+            case RendererCommandType::DrawIndexed: {
+                auto arg = static_cast<const RendererCommandDrawIndexed*>(command);
+                VulkanVertexBuffer* vertBuffer = (VulkanVertexBuffer*) (((VertexBuffer*) arg->vb)->GetHandle());
+                VulkanIndexBuffer* indexBuffer = (VulkanIndexBuffer*) (((IndexBuffer<uint16_t>*) arg->ib)->GetHandle());
+                const auto& buffer = m_RendererData->commandPool->GetBuffer(m_RendererData->currentFrame);
+                vkCmdBindPipeline(buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, m_RendererData->pipeline->GetPipeline());
+                std::array<VkBuffer, 1> vertexBuffers = {vertBuffer->GetBuffer()};
+                std::array<VkDeviceSize, 1> offsets = {0};
+                vkCmdBindVertexBuffers(buffer, 0, 1, vertexBuffers.data(), offsets.data());
+                vkCmdBindIndexBuffer(buffer, indexBuffer->GetBuffer(), 0, VK_INDEX_TYPE_UINT16);
+                VkViewport viewport{};
+                viewport.x = 0.0f;
+                viewport.y = 0.0f;
+                viewport.width = static_cast<float>(m_RendererData->surfaceExtent.width);
+                viewport.height = static_cast<float>(m_RendererData->surfaceExtent.height);
+                viewport.minDepth = 0.0f;
+                viewport.maxDepth = 1.0f;
+                vkCmdSetViewport(buffer, 0, 1, &viewport);
 
+                VkRect2D scissor{};
+                scissor.offset = {0, 0};
+                scissor.extent = m_RendererData->surfaceExtent;
+                vkCmdSetScissor(buffer, 0, 1, &scissor);
+                vkCmdDrawIndexed(buffer, static_cast<uint32_t>(indexBuffer->GetLength()), 1, 0, 0, 0);
+                break;
+            }
             case RendererCommandType::BeginFrame: {
 
                 vkWaitForFences(m_RendererData->device, 1, &m_RendererData->inFlightFence[m_RendererData->currentFrame],
@@ -204,7 +230,7 @@ namespace LunaraEngine
     void VulkanRendererAPI::Init(const RendererAPIConfig& config)
     {
         m_Config = config;
-        m_RendererData = std::make_unique<RendererDataType>();
+        m_RendererData = std::make_shared<RendererDataType>();
         m_RendererData->surfaceExtent = {m_Config.initialWidth, m_Config.initialHeight};
 
         CreateWindow();
@@ -225,26 +251,12 @@ namespace LunaraEngine
 
         m_RendererData->commandPool = new CommandPool(m_RendererData->device, m_RendererData->gfxQueue.GetIndex(),
                                                       m_RendererData->maxFramesInFlight);
-        m_RendererData->vertexBuffer = new VertexBuffer();
-        m_RendererData->vertexBuffer->Create(m_RendererData->device, m_RendererData->physicalDevice,
-                                             m_RendererData->commandPool, m_RendererData->gfxQueue,
-                                             (uint8_t*) VertexBuffer::GetVertices().data(),
-                                             (size_t) (VertexBuffer::GetVertices().size() * sizeof(Vertex)));
-        m_RendererData->indexBuffer = new IndexBuffer();
-        m_RendererData->indexBuffer->Create(
-                m_RendererData->device, m_RendererData->physicalDevice, m_RendererData->commandPool,
-                m_RendererData->gfxQueue,
-                const_cast<uint8_t*>(reinterpret_cast<const uint8_t*>(IndexBuffer::GetIndices().data())),
-                static_cast<size_t>(IndexBuffer::GetIndices().size() * sizeof(m_RendererData->indexBuffer->GetIndices()[0])));
-
         VulkanInitializer::CreateSyncObjects(m_RendererData.get());
     }
 
     void VulkanRendererAPI::Destroy()
     {
         vkDeviceWaitIdle(m_RendererData->device);
-        delete m_RendererData->indexBuffer;
-        delete m_RendererData->vertexBuffer;
         delete m_RendererData->stagingBuffer;
         delete m_RendererData->commandPool;
         delete m_RendererData->pipeline;
@@ -252,6 +264,4 @@ namespace LunaraEngine
         VulkanInitializer::Goodbye(m_RendererData.get());
         SDL_DestroyWindow(static_cast<SDL_Window*>(m_RendererData->window->data));
     }
-
-
 }// namespace LunaraEngine

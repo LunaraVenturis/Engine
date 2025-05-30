@@ -26,6 +26,7 @@ namespace LunaraEngine
         DrawTexture,
         DrawCircle,
         DrawText,
+        DrawIndexed,
         BeginRenderPass,
         EndRenderPass,
         Submit,
@@ -143,6 +144,20 @@ namespace LunaraEngine
         RendererTextAlignAttribute align{};
     };
 
+    class RendererCommandDrawIndexed: public RendererCommand
+    {
+    public:
+        RendererCommandDrawIndexed() = default;
+
+        RendererCommandDrawIndexed(void* vb, void* ib) : vb(vb), ib(ib) {}
+
+        virtual RendererCommandType GetType() const override { return RendererCommandType::DrawIndexed; }
+
+    public:
+        void* vb{};
+        void* ib{};
+    };
+
     class RendererCommandDrawTexture: public RendererCommand
     {
     public:
@@ -189,6 +204,7 @@ namespace LunaraEngine
         RegisterCommand<RendererCommandDrawTexture>(RendererCommandType::DrawTexture);
         RegisterCommand<RendererCommandDrawCircle>(RendererCommandType::DrawCircle);
         RegisterCommand<RendererCommandDrawText>(RendererCommandType::DrawText);
+        RegisterCommand<RendererCommandDrawIndexed>(RendererCommandType::DrawIndexed);
     }
 
     template <typename T, std::enable_if_t<std::is_base_of<RendererCommand, T>::value>>

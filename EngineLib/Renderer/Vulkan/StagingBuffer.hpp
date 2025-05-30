@@ -8,9 +8,10 @@ namespace LunaraEngine
     {
     public:
         StagingBuffer() = default;
-        StagingBuffer(VkDevice device, VkPhysicalDevice physicalDevice, uint8_t* data, size_t size);
+        StagingBuffer(VkDevice device, VkPhysicalDevice physicalDevice, uint8_t* data, size_t length,
+                      size_t stride = 1);
 
     public:
-        void Create(VkDevice device, VkPhysicalDevice physicalDevice, uint8_t* data, size_t size);
+        void Create(VkDevice device, VkPhysicalDevice physicalDevice, uint8_t* data, size_t length, size_t stride = 1);
     };
 }// namespace LunaraEngine

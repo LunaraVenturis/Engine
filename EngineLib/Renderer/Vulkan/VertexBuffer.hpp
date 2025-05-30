@@ -1,4 +1,5 @@
 #pragma once
+
 #include "Buffer.hpp"
 #include "StagingBuffer.hpp"
 #include <glm/glm.hpp>
@@ -41,26 +42,24 @@ namespace LunaraEngine
     };
 
     class CommandPool;
+    struct RendererDataType;
 
-    class VertexBuffer: public Buffer
+    class VulkanVertexBuffer: public Buffer
     {
     public:
-        VertexBuffer() = default;
-        VertexBuffer(VkDevice device, VkPhysicalDevice physicalDevice, CommandPool* commandPool, VkQueue executeQueue,
-                     uint8_t* data, size_t size);
-        ~VertexBuffer() = default;
+        VulkanVertexBuffer() = default;
+        VulkanVertexBuffer(RendererDataType* rendererData, VkQueue executeQueue, uint8_t* data, size_t length,
+                           size_t stride = 1);
+        ~VulkanVertexBuffer() = default;
 
     public:
-        [[nodiscard]] static const auto& GetVertices() { return m_Vertices; }
+        void Upload(RendererDataType* rendererData, VkQueue executeQueue, uint8_t* data, size_t length,
+                    size_t stride = 1);
 
-        void Create(VkDevice device, VkPhysicalDevice physicalDevice, CommandPool* commandPool, VkQueue executeQueue,
-                    uint8_t* data, size_t size);
+        void Create(RendererDataType* rendererData, VkQueue executeQueue, uint8_t* data, size_t length,
+                    size_t stride = 1);
 
     private:
         StagingBuffer m_StagingBuffer;
-        inline static const std::vector<Vertex> m_Vertices = {{{-0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}},
-                                                              {{0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}},
-                                                              {{0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}},
-                                                              {{-0.5f, 0.5f}, {1.0f, 1.0f, 1.0f}}};
     };
 }// namespace LunaraEngine

@@ -41,8 +41,9 @@ namespace LunaraEngine
     {
         if (m_BufferMemory != VK_NULL_HANDLE)
         {
-            vkFreeMemory(m_Device, m_BufferMemory, nullptr);
+            vkDeviceWaitIdle(m_Device);
             if (m_Buffer != VK_NULL_HANDLE) { vkDestroyBuffer(m_Device, m_Buffer, nullptr); }
+            vkFreeMemory(m_Device, m_BufferMemory, nullptr);
             m_Device = VK_NULL_HANDLE;
             m_Buffer = VK_NULL_HANDLE;
             m_BufferMemory = VK_NULL_HANDLE;
@@ -52,11 +53,13 @@ namespace LunaraEngine
 
     Buffer::~Buffer() { Destroy(); }
 
-    void Buffer::Upload(uint8_t* data, size_t size)
+    void Buffer::Upload(uint8_t* data, size_t length, size_t stride)
     {
+        m_Size = length * stride;
+        m_Stride = stride;
         void* mappedMemory;
-        vkMapMemory(m_Device, m_BufferMemory, 0, size, 0, &mappedMemory);
-        memcpy(mappedMemory, data, size);
+        vkMapMemory(m_Device, m_BufferMemory, 0, m_Size, 0, &mappedMemory);
+        memcpy(mappedMemory, data, m_Size);
         vkUnmapMemory(m_Device, m_BufferMemory);
     }
 

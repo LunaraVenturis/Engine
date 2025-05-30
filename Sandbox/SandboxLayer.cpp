@@ -1,12 +1,30 @@
 #include "SandboxLayer.hpp"
 #include "Engine.hpp"
+#include <glm/glm.hpp>
 
 void SandboxLayer::Init()
 {
-    m_Window = LunaraEngine::Renderer::GetWindow();
-    LunaraEngine::AudioManager::LoadAudio("AudioTest", "Assets/Audio/AudioTest.wav");
-    auto result = LunaraEngine::LoadFont("Assets/Fonts/joystixmonospace.ttf", 24, &m_Font);
-    if (result != LunaraEngine::FontResultType::FONT_RESULT_SUCCESS) { exit(-6); }
+    using namespace LunaraEngine;
+
+    m_Window = Renderer::GetWindow();
+    AudioManager::LoadAudio("AudioTest", "Assets/Audio/AudioTest.wav");
+    auto result = LoadFont("Assets/Fonts/joystixmonospace.ttf", 24, &m_Font);
+    if (result != FontResultType::FONT_RESULT_SUCCESS) { exit(-6); }
+
+    struct Vertex {
+        glm::vec2 pos;
+        glm::vec3 color;
+    };
+
+    std::vector<Vertex> vertices = {{glm::vec2{-0.5f, -0.5f}, glm::vec3{1.0f, 0.0f, 0.0f}},
+                                    {glm::vec2{0.5f, -0.5f}, glm::vec3{0.0f, 1.0f, 0.0f}},
+                                    {glm::vec2{0.5f, 0.5f}, glm::vec3{0.0f, 0.0f, 1.0f}},
+                                    {glm::vec2{-0.5f, 0.5f}, glm::vec3{1.0f, 1.0f, 1.0f}}};
+
+    m_QuadBuffer.Create({{"Position", VertexAttributeType::VEC3}, {"Color", VertexAttributeType::VEC3}},
+                        (uint8_t*) vertices.data(), vertices.size());
+    std::vector<uint16_t> indices{0, 1, 2, 2, 3, 0};
+    m_QuadIndexBuffer.Create(indices.data(), indices.size());
 }
 
 void SandboxLayer::OnUpdate(float dt)
@@ -18,8 +36,8 @@ void SandboxLayer::OnUpdate(float dt)
 
     Renderer::Clear(Color4{0.0f, 0.0f, 0.0f, 1.0f});
 
-    Renderer::DrawTriangle();
-    
+    Renderer::DrawIndexed(&m_QuadBuffer, &m_QuadIndexBuffer);
+
     Renderer::DrawQuad(FRect{300.0f, 300.0f, 100.0f, 100.0f}, Color4{1.0f, 0.0f, 0.0f, 1.0f});
 
     size_t length = (size_t) snprintf(NULL, 0, "%u, %u", x, y);
