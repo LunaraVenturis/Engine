@@ -12,7 +12,7 @@ set(CMAKE_CXX_STANDARD 20)
 message("Compiler Version: ${CMAKE_CXX_COMPILER_VERSION}")
 
 
-if (WIN32)
+if(WIN32)
     message(STATUS "${PROJECT_NAME}: Windows platform detected")
     set(LUNARA_ENGINE_WIN32 ON CACHE BOOL "Build Windows backend" FORCE)
     set(LUNARA_ENGINE_X11 OFF CACHE BOOL "Build X11 backend" FORCE)
@@ -56,12 +56,12 @@ message("${PROJECT_NAME}: Adding source files")
 file(GLOB_RECURSE SANDBOX_SOURCE_FILES ./Sandbox/*.cpp ./Sandbox/*.c)
 file(GLOB_RECURSE SANDBOX_HEADER_FILES ./Sandbox/*.hpp ./Sandbox/*.h)
 
-file(GLOB_RECURSE ENGINE_SOURCE_FILES ./EngineLib/*.cpp ./EngineLib/*.c) 
+file(GLOB_RECURSE ENGINE_SOURCE_FILES ./EngineLib/*.cpp ./EngineLib/*.c)
 file(GLOB_RECURSE ENGINE_HEADER_FILES ./EngineLib/*.hpp ./EngineLib/*.h)
 
 add_compile_definitions(GLM_ENABLE_EXPERIMENTAL)
 
-set(GLM_INCLDUE_DIR            "./Vendor/glm")
+set(GLM_INCLDUE_DIR "./Vendor/glm")
 
 add_library(EngineLib STATIC ${ENGINE_SOURCE_FILES} ${ENGINE_HEADER_FILES})
 set_target_properties(EngineLib PROPERTIES LINKER_LANGUAGE CXX)
@@ -90,38 +90,38 @@ target_compile_definitions(EngineLib PRIVATE
     $<$<BOOL:${LUNARA_ENGINE_X11}>:_LUNARA_ENGINE_X11>
     $<$<BOOL:${LUNARA_ENGINE_WAYLAND}>:_LUNARA_ENGINE_WAYLAND>
 )
-if (WIN32)
+if(WIN32)
     ## assume user will install this in C:/VulkanSDK/ 
     #List All directories in the directory
     file(GLOB DIRECTORIES "C:/VulkanSDK/*")
     # Filter out only directories
     set(VERSION_NAME "")
-foreach(dir IN LISTS DIRECTORIES)
-    if(IS_DIRECTORY ${dir})
-        # Extract the folder name
-        get_filename_component(VERSION_NAME ${dir} NAME)
-        break()  # Exit the loop after finding the first directory
+    foreach(dir IN LISTS DIRECTORIES)
+        if(IS_DIRECTORY ${dir})
+            # Extract the folder name
+            get_filename_component(VERSION_NAME ${dir} NAME)
+            break() # Exit the loop after finding the first directory
+        endif()
+    endforeach()
+    # Check if a folder was found
+    if(VERSION_NAME STREQUAL "")
+        message(FATAL_ERROR "No folder found in C:/VulkanSDK")
+    else()
+        message(STATUS "The folder name is: ${VERSION_NAME}")
     endif()
-endforeach()
-# Check if a folder was found
-if(VERSION_NAME STREQUAL "")
-    message(FATAL_ERROR "No folder found in C:/VulkanSDK")
-else()
-    message(STATUS "The folder name is: ${VERSION_NAME}")
-endif()
-    set(VULKAN_INCLUDE_DIR    "C:/VulkanSDK/${VERSION_NAME}/Include")
+    set(VULKAN_INCLUDE_DIR "C:/VulkanSDK/${VERSION_NAME}/Include")
     ## __LibVulkan  DO NOT REMOVE THIS LINE IT IS VERY IMPORTANT FOR VULKAN LIBRARY MANAGEMENT
     set(VULKAN_LIBRARY "C:/VulkanSDK/${VERSION_NAME}/Lib/vulkan-1.lib")
 
-else ()
+else()
     find_package(Vulkan REQUIRED)
-    set(VULKAN_INCLUDE_DIR  ${Vulkan_INCLUDE_DIRS})
+    set(VULKAN_INCLUDE_DIR ${Vulkan_INCLUDE_DIRS})
     set(VULKAN_LIBRARY ${Vulkan_LIBRARIES})
 
     find_package(X11 REQUIRED)
     link_libraries(${X11_LIBRARIES})
     target_compile_definitions(EngineLib PRIVATE _LINUX)
-endif ()
+endif()
 
 target_include_directories(EngineLib PRIVATE "./EngineLib")
 target_include_directories(EngineLib PRIVATE "./Vendor/include")
@@ -131,8 +131,8 @@ target_include_directories(EngineLib PUBLIC ${VULKAN_INCLUDE_DIR})
 add_library(EngineInterfaceLibrary INTERFACE)
 
 target_link_libraries(EngineInterfaceLibrary INTERFACE
-        ${VULKAN_LIBRARY}
-        )
+    ${VULKAN_LIBRARY}
+)
 target_link_libraries(EngineLib PRIVATE EngineInterfaceLibrary)
 
 if(TARGET SDL3::SDL3main)
@@ -147,23 +147,37 @@ target_include_directories(Sandbox PRIVATE "${CMAKE_SOURCE_DIR}/Vendor/include")
 target_include_directories(Sandbox PRIVATE "${CMAKE_SOURCE_DIR}/Sandbox")
 target_link_libraries(Sandbox PRIVATE EngineInterfaceLibrary EngineLib)
 if(WIN32)
-add_custom_command(TARGET Sandbox POST_BUILD
-  COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_RUNTIME_DLLS:Sandbox> $<TARGET_FILE_DIR:Sandbox>
-  COMMAND_EXPAND_LISTS
-  )
+    add_custom_command(TARGET Sandbox POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_RUNTIME_DLLS:Sandbox> $<TARGET_FILE_DIR:Sandbox>
+        COMMAND_EXPAND_LISTS
+    )
 endif()
 function(target_add_flags target)
-if(CMAKE_CXX_COMPILE_ID MATCHES "MSVC")
-elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-    target_compile_options(${target} PRIVATE -Wall -Wconversion -Werror -Wextra -Wpedantic)
-    
-elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
-    target_compile_options(${target} PRIVATE -Wall -Wconversion -Werror -Wextra -Wpedantic)
-endif()
+    if(CMAKE_CXX_COMPILE_ID MATCHES "MSVC")
+    elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+        target_compile_options(${target} PRIVATE -Wall -Wconversion -Werror -Wextra -Wpedantic)
+
+    elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+        target_compile_options(${target} PRIVATE -Wall -Wconversion -Werror -Wextra -Wpedantic)
+    endif()
 endfunction(target_add_flags)
 
-add_custom_command(TARGET Sandbox POST_BUILD
-  COMMAND ${CMAKE_COMMAND} -E copy_directory  ${CMAKE_SOURCE_DIR}/Assets $<TARGET_FILE_DIR:Sandbox>/Assets DEPENDS Sandbox)
+
+if(WIN32)
+    set(SHELL_INTERPRETER "powershell")
+    set(SHELL_EXTENSION ".bat")
+else()
+    set(SHELL_INTERPRETER "/bin/bash")
+    set(SHELL_EXTENSION ".sh")
+endif()
+
+add_custom_target(copy_assets COMMAND ${SHELL_INTERPRETER}
+    ${CMAKE_SOURCE_DIR}/BuildShaders${SHELL_EXTENSION} ${CMAKE_SOURCE_DIR}
+    COMMENT "Copying Assets"
+)
+
+add_dependencies(EngineLib copy_assets)
+add_dependencies(Sandbox copy_assets)
 
 target_add_flags(EngineLib)
 target_add_flags(Sandbox)

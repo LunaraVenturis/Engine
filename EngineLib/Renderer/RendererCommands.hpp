@@ -144,18 +144,26 @@ namespace LunaraEngine
         RendererTextAlignAttribute align{};
     };
 
+    class Shader;
+    class VertexBuffer;
+    template <typename T>
+    class IndexBuffer;
+
     class RendererCommandDrawIndexed: public RendererCommand
     {
     public:
         RendererCommandDrawIndexed() = default;
 
-        RendererCommandDrawIndexed(void* vb, void* ib) : vb(vb), ib(ib) {}
+        RendererCommandDrawIndexed(Shader* shader, VertexBuffer* vb, IndexBuffer<uint16_t>* ib)
+            : shader(shader), vb(vb), ib(ib)
+        {}
 
         virtual RendererCommandType GetType() const override { return RendererCommandType::DrawIndexed; }
 
     public:
-        void* vb{};
-        void* ib{};
+        Shader* shader{};
+        VertexBuffer* vb{};
+        IndexBuffer<uint16_t>* ib{};
     };
 
     class RendererCommandDrawTexture: public RendererCommand

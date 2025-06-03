@@ -45,13 +45,12 @@ Includes
 #include <Core/Log.h>
 #include <string_view>
 
-
 namespace LunaraEngine
 {
     template <typename T>
-    void Renderer::DrawIndexed(VertexBuffer* vb, IndexBuffer<T>* ib)
+    void Renderer::DrawIndexed(Shader* shader, VertexBuffer* vb, IndexBuffer<T>* ib)
     {
-        PushCommand(new RendererCommandDrawIndexed((void*) vb, (void*) ib));
+        PushCommand(new RendererCommandDrawIndexed(shader, vb, (IndexBuffer<>*) ib));
     }
 
 }// namespace LunaraEngine

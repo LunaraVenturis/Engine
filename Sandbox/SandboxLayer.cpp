@@ -2,7 +2,7 @@
 #include "Engine.hpp"
 #include <glm/glm.hpp>
 
-void SandboxLayer::Init()
+void SandboxLayer::Init(std::filesystem::path workingDirectory)
 {
     using namespace LunaraEngine;
 
@@ -25,6 +25,39 @@ void SandboxLayer::Init()
                         (uint8_t*) vertices.data(), vertices.size());
     std::vector<uint16_t> indices{0, 1, 2, 2, 3, 0};
     m_QuadIndexBuffer.Create(indices.data(), indices.size());
+
+    struct UniformBufferObject {
+        glm::mat4 model;
+        glm::mat4 view;
+        glm::mat4 proj;
+    };
+
+    ShaderResources basicShaderResources;
+    basicShaderResources.bufferResources.push_back(ShaderResource{
+            .type = ShaderResourceType::UniformBuffer,
+            .name = "UniformBuffer",
+            .size = sizeof(UniformBufferObject),
+            .layout = ShaderResourceLayout{.binding = 0, .layoutType = ShaderResourceMemoryLayout::STD140}});
+
+    ShaderInfo basicShaderInfo;
+    basicShaderInfo.isComputeShader = false;
+    basicShaderInfo.name = L"BasicShader";
+    basicShaderInfo.path = workingDirectory / "Assets/Shaders/output";
+    basicShaderInfo.resources = basicShaderResources;
+
+    basicShaderInfo.resources.inputResources.push_back(ShaderInputResource{.name = "Position",
+                                                                           .binding = 0,
+                                                                           .location = 0,
+                                                                           .format = ShaderResourceFormatT::R32G32,
+                                                                           .type = ShaderResourceDataTypeT::SFloat,
+                                                                           .offset = 0});
+    basicShaderInfo.resources.inputResources.push_back(ShaderInputResource{.name = "Color",
+                                                                           .binding = 0,
+                                                                           .location = 1,
+                                                                           .format = ShaderResourceFormatT::R32G32B32,
+                                                                           .type = ShaderResourceDataTypeT::SFloat,
+                                                                           .offset = 8});
+    m_Shader.Init(basicShaderInfo);
 }
 
 void SandboxLayer::OnUpdate(float dt)
@@ -36,7 +69,7 @@ void SandboxLayer::OnUpdate(float dt)
 
     Renderer::Clear(Color4{0.0f, 0.0f, 0.0f, 1.0f});
 
-    Renderer::DrawIndexed(&m_QuadBuffer, &m_QuadIndexBuffer);
+    Renderer::DrawIndexed(&m_Shader, &m_QuadBuffer, &m_QuadIndexBuffer);
 
     Renderer::DrawQuad(FRect{300.0f, 300.0f, 100.0f, 100.0f}, Color4{1.0f, 0.0f, 0.0f, 1.0f});
 

@@ -11,7 +11,21 @@ namespace LunaraEngine
         Create(layout, data, length);
     }
 
-    VertexBuffer::~VertexBuffer() { delete (VulkanVertexBuffer*) m_Handle; }
+    VertexBuffer::~VertexBuffer() noexcept(false)
+    {
+        auto api = (VulkanRendererAPI*) RendererAPI::GetInstance();
+        auto apiInstance = api->GetData();
+
+        switch (RendererAPI::GetAPIType())
+        {
+            case RendererAPIType::Vulkan:
+                delete (VulkanVertexBuffer*) m_Handle;
+                break;
+            default:
+                throw std::runtime_error("Unknown renderer API");
+                break;
+        }
+    }
 
     void VertexBuffer::Create(VertexAttributeLayout layout, uint8_t* data, size_t length)
     {

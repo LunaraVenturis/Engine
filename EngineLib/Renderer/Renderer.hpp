@@ -48,6 +48,7 @@ Includes
 #include "Texture.hpp"
 #include "IndexBuffer.hpp"
 #include "VertexBuffer.hpp"
+#include "Shader.hpp"
 
 #include <SDL3/SDL_render.h>
 
@@ -79,7 +80,7 @@ namespace LunaraEngine
         static void DrawText(std::string_view text, Font* font, float x, float y, const Color4& color,
                              RendererTextAlignAttribute align = RendererTextAlignAttribute::TextAlign_TopLeft);
         template <typename T>
-        static void DrawIndexed(VertexBuffer* vb, IndexBuffer<T>* ib);
+        static void DrawIndexed(Shader* shader, VertexBuffer* vb, IndexBuffer<T>* ib);
         static void Clear(const Color4& color);
         static void BeginRenderPass();
         static void EndRenderPass();

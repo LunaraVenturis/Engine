@@ -1,7 +1,7 @@
 #include "Buffer.hpp"
 #include <stdexcept>
-#include "Common.hpp"
-#include "CommandPool.hpp"
+#include <Renderer/Vulkan/Common.hpp>
+#include <Renderer/Vulkan/CommandPool.hpp>
 
 namespace LunaraEngine
 {

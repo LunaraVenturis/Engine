@@ -39,10 +39,8 @@ namespace LunaraEngine
         VkSurfaceKHR vkSurface;
         Queue presentQueue;
         Queue computeQueue;
-        Pipeline* pipeline;
         SwapChain* swapChain;
         CommandPool* commandPool;
-        StagingBuffer* stagingBuffer;
         uint32_t currentFrame;
         uint32_t imageIndex;
         uint32_t maxFramesInFlight;

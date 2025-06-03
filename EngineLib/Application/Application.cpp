@@ -5,8 +5,10 @@ namespace LunaraEngine
 {
     // inline static Application s_Instance;
 
-    ApplicationResult Application::Create(std::string_view name, uint32_t width, uint32_t height)
+    ApplicationResult Application::Create(std::filesystem::path workingDirectory, std::string_view name, uint32_t width,
+                                          uint32_t height)
     {
+        m_WorkingDirectory = workingDirectory;
         auto renderer_result = Renderer::Init(name, width, height);
         if (renderer_result != LunaraEngine::RendererResultType::Renderer_Result_Success)
         {
@@ -21,7 +23,7 @@ namespace LunaraEngine
 
     void Application::Run()
     {
-        LayerStack::InitLayers();
+        LayerStack::InitLayers(m_WorkingDirectory);
         Event event;
         while (true)
         {

@@ -2,9 +2,9 @@
 
 namespace LunaraEngine
 {
-    void LayerStack::InitLayers()
+    void LayerStack::InitLayers(std::filesystem::path workingDirectory)
     {
-        for (const auto& layer: m_Layers) { layer->Init(); }
+        for (const auto& layer: m_Layers) { layer->Init(workingDirectory); }
     }
 
     void LayerStack::_PushLayer(Layer* layer, std::string_view name)

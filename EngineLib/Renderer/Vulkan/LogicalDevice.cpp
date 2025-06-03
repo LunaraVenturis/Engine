@@ -1,5 +1,5 @@
 #include "LogicalDevice.hpp"
-#include "Common.hpp"
+#include <Renderer/Vulkan/Common.hpp>
 
 namespace LunaraEngine
 {

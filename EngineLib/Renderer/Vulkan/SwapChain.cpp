@@ -1,5 +1,5 @@
-#include "Common.hpp"
-#include "SwapChain.hpp"
+#include <Renderer/Vulkan/Common.hpp>
+#include <Renderer/Vulkan/SwapChain.hpp>
 #include <algorithm>
 #include <stdexcept>
 

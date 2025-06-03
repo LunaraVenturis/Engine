@@ -5,6 +5,7 @@
 #include <vector>
 #include <utility>
 #include <string>
+#include <filesystem>
 
 namespace LunaraEngine
 {
@@ -27,7 +28,7 @@ namespace LunaraEngine
 
         static void PopLayers();
 
-        static void InitLayers();
+        static void InitLayers(std::filesystem::path workingDirectory);
 
         static void DestroyLayers();
 

@@ -1,6 +1,8 @@
 #pragma once
 #include <string_view>
+#include <filesystem>
 #include <Core/STDTypes.h>
+
 namespace LunaraEngine
 {
     typedef enum ApplicationResult
@@ -16,10 +18,14 @@ namespace LunaraEngine
         ~Application() = default;
 
     public:
-        static ApplicationResult Create(std::string_view name, uint32_t width, uint32_t height);
+        static ApplicationResult Create(std::filesystem::path workingDirectory, std::string_view name, uint32_t width,
+                                        uint32_t height);
 
         static void Run();
 
         static void Close();
+
+    private:
+        inline static std::filesystem::path m_WorkingDirectory;
     };
 }// namespace LunaraEngine

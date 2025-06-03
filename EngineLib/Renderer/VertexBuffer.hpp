@@ -161,7 +161,7 @@ namespace LunaraEngine
 
         VertexBuffer(VertexAttributeLayout layout, size_t length);
         VertexBuffer(VertexAttributeLayout layout, uint8_t* data, size_t length);
-        ~VertexBuffer();
+        ~VertexBuffer() noexcept(false);
 
     public:
         void Create(VertexAttributeLayout layout, uint8_t* data, size_t length);

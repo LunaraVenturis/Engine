@@ -18,7 +18,6 @@ namespace LunaraEngine
         pipelineLayoutInfo.pSetLayouts = p_DescriptorLayouts.data();
         pipelineLayoutInfo.pushConstantRangeCount = 0;   // Optional
         pipelineLayoutInfo.pPushConstantRanges = nullptr;// Optional
-
         if (vkCreatePipelineLayout(p_Device, &pipelineLayoutInfo, nullptr, &p_Layout) != VK_SUCCESS)
         {
             throw std::runtime_error("failed to create pipeline layout!");
