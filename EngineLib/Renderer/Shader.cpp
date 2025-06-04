@@ -43,6 +43,25 @@ namespace LunaraEngine
         }
     }
 
+    void Shader::SetUniform(std::string_view name, const glm::vec3& value)
+    {
+        auto api = (VulkanRendererAPI*) RendererAPI::GetInstance();
+        auto apiInstance = api->GetData();
+
+        switch (RendererAPI::GetAPIType())
+        {
+            case RendererAPIType::Vulkan: {
+                if (apiInstance.expired()) { return; }
+                VulkanShader* shader = (VulkanShader*) m_Handle;
+                shader->SetUniform(name, value);
+                break;
+            }
+            default:
+                throw std::runtime_error("Unknown renderer API");
+                break;
+        }
+    }
+
     Shader* Shader::GetHandle() { return m_Handle; }
 
     size_t Shader::GetFormatSize(ShaderResourceFormatT format)

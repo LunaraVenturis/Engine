@@ -1,5 +1,6 @@
 #pragma once
 #include <Renderer/CommonTypes.hpp>
+#include <glm/glm.hpp>
 
 namespace LunaraEngine
 {
@@ -15,6 +16,8 @@ namespace LunaraEngine
         void Init(ShaderInfo info);
         Shader* GetHandle();
 
+        void SetUniform(std::string_view name, const glm::vec3& value);
+
     public:
         static size_t GetInputResourceSize(const ShaderInputResource& resource);
         static size_t GetFormatSize(ShaderResourceFormatT format);
@@ -25,5 +28,6 @@ namespace LunaraEngine
     public:
         ShaderInfo m_Info;
         Shader* m_Handle;
+        uint8_t* m_Data;
     };
 }// namespace LunaraEngine

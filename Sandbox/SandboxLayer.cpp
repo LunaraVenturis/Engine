@@ -37,7 +37,10 @@ void SandboxLayer::Init(std::filesystem::path workingDirectory)
             .type = ShaderResourceType::UniformBuffer,
             .name = "UniformBuffer",
             .size = sizeof(UniformBufferObject),
-            .layout = ShaderResourceLayout{.binding = 0, .layoutType = ShaderResourceMemoryLayout::STD140}});
+            .layout = ShaderResourceLayout{.binding = 0, .layoutType = ShaderResourceMemoryLayout::STD140},
+            .attributes = {
+                    ShaderResourceAttribute{.name = "offset", .type = ShaderResourceAttributeType::Vec3},
+            }});
 
     ShaderInfo basicShaderInfo;
     basicShaderInfo.isComputeShader = false;
@@ -68,6 +71,9 @@ void SandboxLayer::OnUpdate(float dt)
     Renderer::BeginRenderPass();
 
     Renderer::Clear(Color4{0.0f, 0.0f, 0.0f, 1.0f});
+    elapsedTime += dt;
+    glm::vec3 offset = glm::vec3{sin(elapsedTime), 0.0f, 0.0f};
+    m_Shader.SetUniform("offset", offset);
 
     Renderer::DrawIndexed(&m_Shader, &m_QuadBuffer, &m_QuadIndexBuffer);
 

@@ -12,6 +12,7 @@ namespace LunaraEngine
 
     void VulkanShader::Create(RendererDataType* rendererData, const ShaderInfo& info)
     {
+        m_Info = info;
         if (info.isComputeShader) { throw std::runtime_error("Compute shaders are not supported"); }
 
         PrintShaderResource(info);
@@ -47,6 +48,24 @@ namespace LunaraEngine
             for (auto uniformBuffer: m_UniformBuffers) { delete uniformBuffer; }
             m_UniformBuffers.clear();
         }
+    }
+
+    void VulkanShader::SetUniform(std::string_view name, const glm::vec3& value)
+    {
+        size_t offset{};
+        for (const auto& resource: m_Info.resources.bufferResources)
+        {
+            if (resource.type == ShaderResourceType::UniformBuffer)
+            {
+                for (const auto& attribute: resource.attributes)
+                {
+                    if (attribute.name == name) { break; }
+                    offset += VulkanShader::GetResourceAttributeSize(attribute.type);
+                }
+            }
+        }
+        m_UniformBuffers[m_RendererData->currentFrame]->Upload(m_RendererData, offset, (uint8_t*) &value,
+                                                               sizeof(glm::vec3));
     }
 
     VkPipeline VulkanShader::GetPipeline() const { return m_Pipeline->GetPipeline(); }
@@ -142,6 +161,37 @@ namespace LunaraEngine
                 return "STD430";
             default:
                 return "Unknown";
+        }
+    }
+
+    size_t VulkanShader::GetResourceAttributeSize(ShaderResourceAttributeType type)
+    {
+        switch (type)
+        {
+            case ShaderResourceAttributeType::Float:
+                return sizeof(float);
+            case ShaderResourceAttributeType::Vec2:
+                return sizeof(float) * 2;
+            case ShaderResourceAttributeType::Vec3:
+                return sizeof(float) * 3;
+            case ShaderResourceAttributeType::Vec4:
+                return sizeof(float) * 4;
+            case ShaderResourceAttributeType::Mat2:
+                return sizeof(float) * 4;
+            case ShaderResourceAttributeType::Mat3:
+                return sizeof(float) * 9;
+            case ShaderResourceAttributeType::Mat4:
+                return sizeof(float) * 16;
+            case ShaderResourceAttributeType::Int:
+                return sizeof(int);
+            case ShaderResourceAttributeType::IVec2:
+                return sizeof(int) * 2;
+            case ShaderResourceAttributeType::IVec3:
+                return sizeof(int) * 3;
+            case ShaderResourceAttributeType::IVec4:
+                return sizeof(int) * 4;
+            default:
+                return 0;
         }
     }
 

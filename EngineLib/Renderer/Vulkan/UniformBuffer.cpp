@@ -30,10 +30,21 @@ namespace LunaraEngine
     {
         if (data == nullptr) { return; }
         if (stride * length > m_Size || length == 0) { return; }
-        
+
         uint8_t* m_Data;
         vkMapMemory(rendererData->device, m_BufferMemory, 0, m_Size, 0, (void**) &m_Data);
         memcpy(rendererData->device, data, length * stride);
+        vkUnmapMemory(rendererData->device, m_BufferMemory);
+    }
+
+    void VulkanUniformBuffer::Upload(RendererDataType* rendererData, size_t offset, uint8_t* data, size_t size)
+    {
+        if (data == nullptr) { return; }
+        if (offset + size > m_Size || size == 0) { return; }
+
+        uint8_t* m_Data;
+        vkMapMemory(rendererData->device, m_BufferMemory, offset, size, 0, (void**) &m_Data);
+        memcpy(rendererData->device, data, size);
         vkUnmapMemory(rendererData->device, m_BufferMemory);
     }
 

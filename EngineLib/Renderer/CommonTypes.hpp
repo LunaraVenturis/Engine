@@ -26,27 +26,6 @@ namespace LunaraEngine
         StorageBuffer,
     };
 
-    using ShaderBindingT = uint32_t;
-    using ShaderLocationT = uint32_t;
-
-    enum class ShaderResourceMemoryLayout
-    {
-        None = 0,
-        STD140,
-        STD430
-    };
-
-    struct ShaderResourceLayout {
-        ShaderBindingT binding;
-        ShaderResourceMemoryLayout layoutType = ShaderResourceMemoryLayout::None;
-    };
-
-    struct ShaderResource {
-        ShaderResourceType type;
-        std::string_view name;
-        size_t size;
-        ShaderResourceLayout layout;
-    };
 
     enum class ShaderResourceFormatT
     {
@@ -73,6 +52,49 @@ namespace LunaraEngine
         UInt,
         SNorm,
         UNorm
+    };
+
+    enum class ShaderResourceAttributeType
+    {
+        None = 0,
+        Float,
+        Vec2,
+        Vec3,
+        Vec4,
+        Int,
+        IVec2,
+        IVec3,
+        IVec4,
+        Mat2,
+        Mat3,
+        Mat4
+    };
+    using ShaderBindingT = uint32_t;
+    using ShaderLocationT = uint32_t;
+
+    enum class ShaderResourceMemoryLayout
+    {
+        None = 0,
+        STD140,
+        STD430
+    };
+
+    struct ShaderResourceLayout {
+        ShaderBindingT binding;
+        ShaderResourceMemoryLayout layoutType = ShaderResourceMemoryLayout::None;
+    };
+
+    struct ShaderResourceAttribute {
+        std::string_view name;
+        ShaderResourceAttributeType type;
+    };
+
+    struct ShaderResource {
+        ShaderResourceType type;
+        std::string_view name;
+        size_t size;
+        ShaderResourceLayout layout;
+        std::vector<ShaderResourceAttribute> attributes;
     };
 
     struct ShaderInputResource {
