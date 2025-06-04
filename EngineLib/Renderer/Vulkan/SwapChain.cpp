@@ -1,5 +1,5 @@
-#include "Common.hpp"
-#include "SwapChain.hpp"
+#include <Renderer/Vulkan/Common.hpp>
+#include <Renderer/Vulkan/SwapChain.hpp>
 #include <algorithm>
 #include <stdexcept>
 
@@ -79,6 +79,13 @@ namespace LunaraEngine
 
     SwapChain::~SwapChain()
     {
+        if (!m_swapChainFrameBuffer.empty())
+        {
+            for (const auto framebuffer: m_swapChainFrameBuffer)
+            {
+                vkDestroyFramebuffer(m_device, framebuffer, nullptr);
+            }
+        }
         if (m_renderPass != VK_NULL_HANDLE) { vkDestroyRenderPass(m_device, m_renderPass, nullptr); }
         for (auto imageView: m_ImageViews) { vkDestroyImageView(m_device, imageView, nullptr); }
         if (m_swapChain != VK_NULL_HANDLE) { vkDestroySwapchainKHR(m_device, m_swapChain, nullptr); }
@@ -147,13 +154,14 @@ namespace LunaraEngine
 
         CreateImageViews();
         CreateRenderPass();
+        CreateFrameBuffers();
     }
 
     void SwapChain::CreateImageViews()
     {
-        if (m_ImageViews.size() > 0)
+        if (!m_ImageViews.empty())
         {
-            for (auto imageView: m_ImageViews) { vkDestroyImageView(m_device, imageView, nullptr); }
+            for (const auto imageView: m_ImageViews) { vkDestroyImageView(m_device, imageView, nullptr); }
         }
         m_ImageViews.resize(m_Images.size());
         for (size_t i = 0; i < m_Images.size(); ++i)
@@ -219,4 +227,29 @@ namespace LunaraEngine
             throw std::runtime_error("failed to create render pass!");
         }
     }
+
+    void SwapChain::CreateFrameBuffers()
+    {
+        m_swapChainFrameBuffer.resize(m_ImageViews.size());
+        for (size_t i = 0; i < m_ImageViews.size(); i++)
+        {
+            VkImageView attachments = m_ImageViews[i];
+
+            VkFramebufferCreateInfo framebufferInfo{};
+            framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+            framebufferInfo.renderPass = m_renderPass;
+            framebufferInfo.attachmentCount = 1;
+            framebufferInfo.pAttachments = &attachments;
+            framebufferInfo.width = m_extent.width;
+            framebufferInfo.height = m_extent.height;
+            framebufferInfo.layers = 1;
+
+            if (vkCreateFramebuffer(m_device, &framebufferInfo, nullptr, &m_swapChainFrameBuffer[i]) != VK_SUCCESS)
+            {
+                throw std::runtime_error("failed to create framebuffer!");
+            }
+        }
+    }
+
+
 }// namespace LunaraEngine

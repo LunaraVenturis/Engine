@@ -9,6 +9,7 @@ namespace LunaraEngine
     public:
         static void Initialize(RendererDataType* rendererData);
         static void Goodbye(RendererDataType* rendererData);
+        static void CreateSyncObjects(RendererDataType* rendererData);
 
     private:
         VulkanInitializer() = delete;
@@ -28,7 +29,7 @@ namespace LunaraEngine
         void CreateSurface();
 
     private:
-        RendererDataType* m_RendererData;
+        RendererDataType* m_RendererData{};
     };
 
 }// namespace LunaraEngine

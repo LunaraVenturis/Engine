@@ -10,7 +10,7 @@ public:
     ~SandboxLayer() = default;
 
 public:
-    virtual void Init() override;
+    virtual void Init(std::filesystem::path workingDirectory) override;
 
     virtual void OnAttach() override {}
 
@@ -55,4 +55,9 @@ private:
     LunaraEngine::Font m_Font;
     uint32_t x{}, y{};
     char text[100];
+
+    LunaraEngine::VertexBuffer m_QuadBuffer;
+    LunaraEngine::IndexBuffer<> m_QuadIndexBuffer;
+    LunaraEngine::Shader m_Shader;
+    float elapsedTime{};
 };

@@ -46,10 +46,18 @@ Includes
 #include "RendererCommands.hpp"
 #include "Fonts.hpp"
 #include "Texture.hpp"
+#include "IndexBuffer.hpp"
+#include "VertexBuffer.hpp"
+#include "Shader.hpp"
 
 #include <SDL3/SDL_render.h>
 
 #include <string_view>
+#include <vector>
+#include <map>
+#include <functional>
+#include <variant>
+#include <Core/Log.h>
 
 namespace LunaraEngine
 {
@@ -57,20 +65,49 @@ namespace LunaraEngine
     class Renderer
     {
     public:
+        Renderer() = default;
+        ~Renderer() = default;
+
+    public:
         static RendererResultType Init(std::string_view window_name, uint32_t width, uint32_t height);
         static void Destroy();
+        static void BeginFrame();
         static void Present();
         static void DrawQuad(const FRect& rect, const Color4& color);
         static void DrawTexture(float x, float y, Texture* texture);
+        static void DrawTriangle();
         static void DrawCircle(float x, float y, float radius, const Color4& color);
         static void DrawText(std::string_view text, Font* font, float x, float y, const Color4& color,
                              RendererTextAlignAttribute align = RendererTextAlignAttribute::TextAlign_TopLeft);
+        template <typename T>
+        static void DrawIndexed(Shader* shader, VertexBuffer* vb, IndexBuffer<T>* ib);
         static void Clear(const Color4& color);
-
         static void BeginRenderPass();
         static void EndRenderPass();
         static void Flush();
 
+    public:
         static Window* GetWindow();
+
+        inline static Renderer* GetInstance() { return s_Instance; }
+
+    private:
+        inline static void PushCommand(RendererCommand* command)
+        {
+            GetInstance()->m_CommandStack.push_back(std::variant<RendererCommandType, RendererCommand*>(command));
+        }
+
+        inline static void PushCommand(RendererCommandType type)
+        {
+            GetInstance()->m_CommandStack.push_back(std::variant<RendererCommandType, RendererCommand*>(type));
+        }
+
+    private:
+        inline static Renderer* s_Instance{};
+
+    private:
+        std::vector<std::variant<RendererCommandType, RendererCommand*>> m_CommandStack;
     };
 }// namespace LunaraEngine
+
+#include <Renderer/Renderer.inl>

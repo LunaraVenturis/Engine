@@ -2,6 +2,7 @@
 #include "Core/Events.h"
 #include <string_view>
 #include <memory>
+#include <filesystem>
 
 namespace LunaraEngine
 {
@@ -13,10 +14,10 @@ namespace LunaraEngine
         void SetShouldExit(bool value) { p_ShouldExit = value; }
 
     public:
-        virtual ~Layer() = default;
+        virtual ~Layer() noexcept(false) = default;
 
     public:
-        virtual void Init() = 0;
+        virtual void Init(std::filesystem::path workingDirectory) = 0;
 
         virtual void OnAttach() = 0;
 

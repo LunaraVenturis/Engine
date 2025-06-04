@@ -1,7 +1,7 @@
 #include "VulkanInitialization.hpp"
 #include "Renderer/Window.hpp"
-#include "Common.hpp"
-#include "Core/Log.h"
+#include <Renderer/Vulkan/Common.hpp>
+#include <Core/Log.h>
 #include <stdexcept>
 #include <SDL3/SDL_vulkan.h>
 #include <vulkan/vulkan.h>
@@ -46,6 +46,15 @@ namespace LunaraEngine
 
     void VulkanInitializer::Goodbye(RendererDataType* rendererData)
     {
+        for (auto& fence: rendererData->inFlightFence) { vkDestroyFence(rendererData->device, fence, nullptr); }
+        for (auto& semaphore: rendererData->imageAvailableSemaphore)
+        {
+            vkDestroySemaphore(rendererData->device, semaphore, nullptr);
+        }
+        for (auto& semaphore: rendererData->renderFinishedSemaphore)
+        {
+            vkDestroySemaphore(rendererData->device, semaphore, nullptr);
+        }
         vkDestroySurfaceKHR(rendererData->instance, rendererData->vkSurface, nullptr);
         vkDestroyDevice(rendererData->device, nullptr);
         rendererData->debugMessanger.Destroy(rendererData->instance);
@@ -131,9 +140,15 @@ namespace LunaraEngine
         {
             throw std::runtime_error("failed to create logical device!");
         }
-        vkGetDeviceQueue(m_RendererData->device, indices.graphicsFamily.value(), 0, &m_RendererData->gfxQueue);
-        vkGetDeviceQueue(m_RendererData->device, indices.presentFamily.value(), 0, &m_RendererData->presentQueue);
-        vkGetDeviceQueue(m_RendererData->device, indices.computeFamily.value(), 0, &m_RendererData->computeQueue);
+
+        VkQueue queues[3];
+        vkGetDeviceQueue(m_RendererData->device, indices.graphicsFamily.value(), 0, &queues[0]);
+        vkGetDeviceQueue(m_RendererData->device, indices.presentFamily.value(), 0, &queues[1]);
+        vkGetDeviceQueue(m_RendererData->device, indices.computeFamily.value(), 0, &queues[2]);
+
+        m_RendererData->gfxQueue = Queue(queues[0], indices.graphicsFamily.value());
+        m_RendererData->presentQueue = Queue(queues[1], indices.presentFamily.value());
+        m_RendererData->computeQueue = Queue(queues[2], indices.computeFamily.value());
     }
 
     void VulkanInitializer::CreateSurface()
@@ -173,5 +188,29 @@ namespace LunaraEngine
         }
     }
 
+    void VulkanInitializer::CreateSyncObjects(RendererDataType* rendererData)
+    {
+        VkSemaphoreCreateInfo semaphoreInfo{};
+        VkFenceCreateInfo fenceInfo{};
+        fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
+        semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+        fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+        rendererData->imageAvailableSemaphore.resize(rendererData->swapChain->GetImages().size());
+        rendererData->renderFinishedSemaphore.resize(rendererData->swapChain->GetImages().size());
+        rendererData->inFlightFence.resize(rendererData->swapChain->GetImages().size());
+
+        for (size_t i = 0; i < rendererData->swapChain->GetImages().size(); i++)
+        {
+            if (vkCreateSemaphore(rendererData->device, &semaphoreInfo, nullptr,
+                                  &(rendererData->imageAvailableSemaphore[i])) != VK_SUCCESS ||
+                vkCreateSemaphore(rendererData->device, &semaphoreInfo, nullptr,
+                                  &(rendererData->renderFinishedSemaphore[i])) != VK_SUCCESS ||
+                vkCreateFence(rendererData->device, &fenceInfo, nullptr, &(rendererData->inFlightFence[i])) !=
+                        VK_SUCCESS)
+            {
+                throw std::runtime_error("failed to create semaphores!");
+            }
+        }
+    }
 }// namespace LunaraEngine

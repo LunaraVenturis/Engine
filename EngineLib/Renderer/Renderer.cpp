@@ -58,95 +58,85 @@ namespace LunaraEngine
         config.initialWidth = width;
         config.initialHeight = height;
 
-        LOG("Initializing renderer...\n");
-        LOG("Working directory: %s\n", config.workingDirectory.c_str());
-        LOG("Assets directory: %s\n", config.assetsDirectory.c_str());
-        LOG("Shaders directory: %s\n", config.shadersDirectory.c_str());
-        LOG("Window name: %s\n", config.windowName.data());
-        LOG("Initial width: %d\n", config.initialWidth);
-        LOG("Initial height: %d\n", config.initialHeight);
+        LOG_DEBUG("Initializing renderer...\n");
+        LOG_DEBUG("Working directory: %s\n", config.workingDirectory.c_str());
+        LOG_DEBUG("Assets directory: %s\n", config.assetsDirectory.c_str());
+        LOG_DEBUG("Shaders directory: %s\n", config.shadersDirectory.c_str());
+        LOG_DEBUG("Window name: %s\n", config.windowName.data());
+        LOG_DEBUG("Initial width: %d\n", config.initialWidth);
+        LOG_DEBUG("Initial height: %d\n", config.initialHeight);
+
+        s_Instance = new Renderer();
 
         RendererAPI::CreateRendererAPI();
         RendererAPI::GetInstance()->Init(config);
-        return RendererResultType::Renderer_Result_Error;
+
+        RendererCommand::RegisterCommands();
+
+        LOG_DEBUG("Renderer initialized\n");
+
+        return RendererResultType::Renderer_Result_Not_Done;
     }
 
     void Renderer::Destroy() { RendererAPI::GetInstance()->Destroy(); }
 
-    void Renderer::Present() {}
+    void Renderer::BeginFrame() { PushCommand(RendererCommandType::BeginFrame); }
+
+    void Renderer::Present() { PushCommand(RendererCommandType::Present); }
+
+    void Renderer::DrawTriangle() { PushCommand(RendererCommandType::DrawTriangle); }
 
     void Renderer::DrawQuad(const FRect& rect, const Color4& color)
     {
-        RendererCommandDrawQuad quad;
-        quad.x = rect.x;
-        quad.y = rect.y;
-        quad.width = rect.w;
-        quad.height = rect.h;
-        quad.r = (uint8_t) color.r;
-        quad.g = (uint8_t) color.g;
-        quad.b = (uint8_t) color.b;
-        quad.a = (uint8_t) color.a;
-        (void) quad;
-        //RendererCmdDrawQuad(&quad);
+        PushCommand(new RendererCommandDrawQuad(rect.x, rect.y, rect.w, rect.h, color.r, color.g, color.b, color.a));
     }
 
     void Renderer::DrawTexture(float x, float y, Texture* texture)
     {
-        RendererCommandDrawTexture tex;
-        tex.x = x;
-        tex.y = y;
-        tex.texture = texture;
-        (void) tex;
-        // RendererCmdDrawTexture(&tex);
+        PushCommand(new RendererCommandDrawTexture(x, y, texture));
     }
 
     void Renderer::DrawCircle(float x, float y, float radius, const Color4& color)
     {
-        RendererCommandDrawCircle circle;
-        circle.x = x;
-        circle.y = y;
-        circle.radius = radius;
-        circle.r = (uint8_t) color.r;
-        circle.g = (uint8_t) color.g;
-        circle.b = (uint8_t) color.b;
-        circle.a = (uint8_t) color.a;
-        (void) circle;
-        //  RendererCmdDrawCircle(&circle);
+        PushCommand(new RendererCommandDrawCircle(x, y, radius, color.r, color.g, color.b, color.a));
     }
 
     void Renderer::DrawText(std::string_view text, Font* font, float x, float y, const Color4& color,
                             RendererTextAlignAttribute align)
     {
-        RendererCommandDrawText text_cmd;
-        text_cmd.text = (char*) text.data();
-        text_cmd.font = (void*) font;
-        text_cmd.x = x;
-        text_cmd.y = y;
-        text_cmd.r = (uint8_t) color.r;
-        text_cmd.g = (uint8_t) color.g;
-        text_cmd.b = (uint8_t) color.b;
-        text_cmd.a = (uint8_t) color.a;
-        text_cmd.align = align;
-        (void) text_cmd;
-        // RendererCmdDrawText(&text_cmd);
+        PushCommand(new RendererCommandDrawText(text.data(), font, x, y, color.r, color.g, color.b, color.a, align));
     }
 
     void Renderer::Clear(const Color4& color)
     {
-        RendererCommandClear clear;
-        clear.r = (uint8_t) color.r;
-        clear.g = (uint8_t) color.g;
-        clear.b = (uint8_t) color.b;
-        clear.a = (uint8_t) color.a;
-        (void) clear;
-        //RendererCmdClear(&clear);
+        PushCommand(new RendererCommandClear(color.r, color.g, color.b, color.a));
     }
 
-    void Renderer::BeginRenderPass() {}
+    void Renderer::BeginRenderPass() { PushCommand(RendererCommandType::BeginRenderPass); }
 
-    void Renderer::EndRenderPass() {}
+    void Renderer::EndRenderPass() { PushCommand(RendererCommandType::EndRenderPass); }
 
-    void Renderer::Flush() {}
+    void Renderer::Flush()
+    {
+        for (const auto& cmd: Renderer::GetInstance()->m_CommandStack)
+        {
+            std::visit(
+                    [](auto&& arg) {
+                        if constexpr (std::is_enum_v<std::decay_t<decltype(arg)>>)
+                        {
+                            RendererAPI::GetInstance()->HandleCommand(nullptr, arg);
+                        }
+                        else
+                        {
+                            RendererAPI::GetInstance()->HandleCommand(arg, arg->GetType());
+                            RendererCommand::FreeCommand(arg);
+                        }
+                    },
+                    cmd);
+        }
+
+        Renderer::GetInstance()->m_CommandStack.clear();
+    }
 
     Window* Renderer::GetWindow() { return RendererAPI::GetInstance()->GetWindow(); }
 

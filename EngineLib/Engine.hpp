@@ -7,6 +7,8 @@
 #include "Renderer/Fonts.hpp"
 #include "Renderer/Renderer.hpp"
 #include "Renderer/Texture.hpp"
+#include "Renderer/IndexBuffer.hpp"
+#include "Renderer/VertexBuffer.hpp"
 #include "Layer/Layer.hpp"
 #include "Layer/LayerStack.hpp"
 #include "Application/Application.hpp"
