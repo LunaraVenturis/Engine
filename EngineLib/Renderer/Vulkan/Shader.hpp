@@ -21,6 +21,9 @@ namespace LunaraEngine
     public:
         void SetUniform(std::string_view name, const glm::vec3& value);
         VkPipeline GetPipeline() const;
+        VkPipelineLayout GetPipelineLayout() const;
+
+        const std::vector<VkDescriptorSet>& GetDescriptorSets() const { return m_DescriptorSets; }
 
     public:
         static VkFormat GetShaderResourceFormat(ShaderResourceFormatT format, ShaderResourceDataTypeT type);
@@ -32,6 +35,7 @@ namespace LunaraEngine
         void ReadShaderSource(const ShaderInfo& info, std::map<size_t, std::vector<uint32_t>>& shaderSource);
         void PrintShaderResource(const ShaderInfo& info);
         void CreateUniformBuffers(const ShaderInfo& info);
+        void CreateDescriptorSets();
 
     private:
         static std::vector<uint32_t> ReadFile(std::filesystem::path name);
@@ -40,6 +44,8 @@ namespace LunaraEngine
         ShaderInfo m_Info;
         RendererDataType* m_RendererData{};
         std::vector<VulkanUniformBuffer*> m_UniformBuffers{};
+        std::vector<VkDescriptorSet> m_DescriptorSets;
+        VkDescriptorPool m_DescriptorPool{};
         Pipeline* m_Pipeline{};
     };
 }// namespace LunaraEngine

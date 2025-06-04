@@ -36,7 +36,7 @@ void SandboxLayer::Init(std::filesystem::path workingDirectory)
     basicShaderResources.bufferResources.push_back(ShaderResource{
             .type = ShaderResourceType::UniformBuffer,
             .name = "UniformBuffer",
-            .size = sizeof(UniformBufferObject),
+            .size = sizeof(glm::vec3),
             .layout = ShaderResourceLayout{.binding = 0, .layoutType = ShaderResourceMemoryLayout::STD140},
             .attributes = {
                     ShaderResourceAttribute{.name = "offset", .type = ShaderResourceAttributeType::Vec3},
@@ -65,13 +65,12 @@ void SandboxLayer::Init(std::filesystem::path workingDirectory)
 
 void SandboxLayer::OnUpdate(float dt)
 {
-    (void) dt;
     using namespace LunaraEngine;
 
     Renderer::BeginRenderPass();
 
     Renderer::Clear(Color4{0.0f, 0.0f, 0.0f, 1.0f});
-    elapsedTime += dt;
+    elapsedTime += dt * 0.0001f;
     glm::vec3 offset = glm::vec3{sin(elapsedTime), 0.0f, 0.0f};
     m_Shader.SetUniform("offset", offset);
 

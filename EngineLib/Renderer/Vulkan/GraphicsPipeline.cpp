@@ -14,15 +14,15 @@ namespace LunaraEngine
                                        const std::map<size_t, std::vector<uint32_t>>& shaderSources)
         : Pipeline(rendererData->device)
     {
-        CreateDescriptorSets(rendererData, *info);
-
-        CreatePipelineLayout(m_DescriptorSets);
 
         std::array<VkShaderModule, 2> shaderModules = {};
         std::array<VkShaderStageFlagBits, 2> shaderStageFlags = {VK_SHADER_STAGE_VERTEX_BIT,
                                                                  VK_SHADER_STAGE_FRAGMENT_BIT};
         std::array<VkPipelineShaderStageCreateInfo, 2> shaderStages = {};
 
+        CreateDescriptorLayout(rendererData, *info);
+        std::vector<VkDescriptorSetLayout> descriptorSetLayouts = {m_DescriptorLayout};
+        CreatePipelineLayout(descriptorSetLayouts);
         for (size_t i = 0; i < shaderStages.size(); ++i)
         {
             const std::vector<uint32_t>& shaderSource = shaderSources.at(shaderStageFlags[i]);
@@ -133,14 +133,6 @@ namespace LunaraEngine
 
         if (p_Layout != VK_NULL_HANDLE) { vkDestroyPipelineLayout(p_Device, p_Layout, nullptr); }
         if (p_Pipeline != VK_NULL_HANDLE) { vkDestroyPipeline(p_Device, p_Pipeline, nullptr); }
-        if (m_DescriptorSets.size() > 0)
-        {
-            for (const auto& descriptorSet: m_DescriptorSets)
-            {
-                vkDestroyDescriptorSetLayout(p_Device, descriptorSet, nullptr);
-            }
-            m_DescriptorSets.clear();
-        }
     }
 
     VkDescriptorType GraphicsPipeline::GetDescriptorType(ShaderResourceType type)
@@ -160,8 +152,9 @@ namespace LunaraEngine
         }
     }
 
-    void GraphicsPipeline::CreateDescriptorSets(RendererDataType* rendererData, const ShaderInfo& info)
+    void GraphicsPipeline::CreateDescriptorLayout(RendererDataType* rendererData, const ShaderInfo& info)
     {
+
         std::vector<VkDescriptorSetLayoutBinding> descriptorSetLayoutBindings;
         for (const auto& resource: info.resources.bufferResources)
         {
@@ -205,13 +198,10 @@ namespace LunaraEngine
         //if there are no bindings exit
         if (layoutInfo.bindingCount == 0) return;
 
-        VkDescriptorSetLayout layout;
-        if (vkCreateDescriptorSetLayout(rendererData->device, &layoutInfo, nullptr, &layout) != VK_SUCCESS)
+        if (vkCreateDescriptorSetLayout(rendererData->device, &layoutInfo, nullptr, &m_DescriptorLayout) != VK_SUCCESS)
         {
             throw std::runtime_error("failed to create descriptor set layout!");
         }
-
-        m_DescriptorSets.push_back(layout);
     }
 
     VkPipelineVertexInputStateCreateInfo

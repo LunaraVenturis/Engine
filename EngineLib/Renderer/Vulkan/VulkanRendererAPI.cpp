@@ -110,6 +110,9 @@ namespace LunaraEngine
 
                 const auto& buffer = m_RendererData->commandPool->GetBuffer(m_RendererData->currentFrame);
                 vkCmdBindPipeline(buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, shader->GetPipeline());
+                vkCmdBindDescriptorSets(buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, shader->GetPipelineLayout(), 0, 1,
+                                        &shader->GetDescriptorSets()[m_RendererData->currentFrame], 0, nullptr);
+
                 std::array<VkBuffer, 1> vertexBuffers = {vertBuffer->GetBuffer()};
                 std::array<VkDeviceSize, 1> offsets = {0};
                 vkCmdBindVertexBuffers(buffer, 0, 1, vertexBuffers.data(), offsets.data());

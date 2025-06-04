@@ -15,14 +15,16 @@ namespace LunaraEngine
                          const std::map<size_t, std::vector<uint32_t>>& shaderSources);
         ~GraphicsPipeline();
 
+        VkDescriptorSetLayout GetDescriptorLayout() const { return m_DescriptorLayout; }
+
     private:
-        void CreateDescriptorSets(RendererDataType* rendererData, const ShaderInfo& info);
+        void CreateDescriptorLayout(RendererDataType* rendererData, const ShaderInfo& info);
         VkPipelineVertexInputStateCreateInfo
         CreateVertexInputInfo(const ShaderInfo& info, VkVertexInputBindingDescription& bindingDescription,
                               std::vector<VkVertexInputAttributeDescription>& attributeDescriptions);
         static VkDescriptorType GetDescriptorType(ShaderResourceType type);
 
     private:
-        std::vector<VkDescriptorSetLayout> m_DescriptorSets;
+        VkDescriptorSetLayout m_DescriptorLayout;
     };
 }// namespace LunaraEngine

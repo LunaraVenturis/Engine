@@ -25,6 +25,7 @@ namespace LunaraEngine
         m_Pipeline = new GraphicsPipeline(rendererData, &info, shaderSource);
 
         CreateUniformBuffers(info);
+        CreateDescriptorSets();
     }
 
     void VulkanShader::ReadShaderSource(const ShaderInfo& info, std::map<size_t, std::vector<uint32_t>>& shaderSource)
@@ -70,6 +71,8 @@ namespace LunaraEngine
 
     VkPipeline VulkanShader::GetPipeline() const { return m_Pipeline->GetPipeline(); }
 
+    VkPipelineLayout VulkanShader::GetPipelineLayout() const { return m_Pipeline->GetLayout(); }
+
     void VulkanShader::CreateUniformBuffers(const ShaderInfo& info)
     {
         for (const auto& resource: info.resources.bufferResources)
@@ -82,6 +85,71 @@ namespace LunaraEngine
                     m_UniformBuffers.push_back(new VulkanUniformBuffer(m_RendererData, nullptr, 1, size));
                 }
             }
+        }
+    }
+
+    void VulkanShader::CreateDescriptorSets()
+    {
+        VkDescriptorPoolSize descriptorPoolSize{};
+        descriptorPoolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+        descriptorPoolSize.descriptorCount = m_RendererData->maxFramesInFlight;
+
+        VkDescriptorPoolCreateInfo descriptorPoolInfo{};
+        descriptorPoolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+        descriptorPoolInfo.poolSizeCount = 1;
+        descriptorPoolInfo.pPoolSizes = &descriptorPoolSize;
+        descriptorPoolInfo.maxSets = m_RendererData->maxFramesInFlight;
+        descriptorPoolInfo.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
+
+        if (vkCreateDescriptorPool(m_RendererData->device, &descriptorPoolInfo, nullptr, &m_DescriptorPool) !=
+            VK_SUCCESS)
+        {
+            throw std::runtime_error("failed to create descriptor pool!");
+        }
+
+        std::vector<VkDescriptorSetLayout> layouts(m_RendererData->maxFramesInFlight,
+                                                   ((GraphicsPipeline*) m_Pipeline)->GetDescriptorLayout());
+        VkDescriptorSetAllocateInfo allocateInfo{};
+        allocateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+        allocateInfo.descriptorPool = m_DescriptorPool;
+        allocateInfo.descriptorSetCount = m_RendererData->maxFramesInFlight;
+        allocateInfo.pSetLayouts = layouts.data();
+
+        m_DescriptorSets.resize(m_RendererData->maxFramesInFlight);
+
+        if (vkAllocateDescriptorSets(m_RendererData->device, &allocateInfo, m_DescriptorSets.data()) != VK_SUCCESS)
+        {
+            throw std::runtime_error("failed to allocate descriptor sets!");
+        }
+
+        const std::optional<std::reference_wrapper<const ShaderResource>> bufferResource =
+                [&]() -> const std::optional<std::reference_wrapper<const ShaderResource>> {
+            auto it = std::find_if(
+                    m_Info.resources.bufferResources.begin(), m_Info.resources.bufferResources.end(),
+                    [](const ShaderResource& resource) { return resource.type == ShaderResourceType::UniformBuffer; });
+            return it != m_Info.resources.bufferResources.end()
+                           ? std::optional<std::reference_wrapper<const ShaderResource>>(*it)
+                           : std::nullopt;
+        }();
+
+        if (!bufferResource) return;
+
+        for (size_t i = 0; i < m_RendererData->maxFramesInFlight; i++)
+        {
+            VkDescriptorBufferInfo bufferInfo{};
+            bufferInfo.buffer = m_UniformBuffers[i]->GetBuffer();
+            bufferInfo.offset = 0;
+            bufferInfo.range = bufferResource->get().size;
+
+            VkWriteDescriptorSet descriptorWrite{};
+            descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+            descriptorWrite.dstSet = m_DescriptorSets[i];
+            descriptorWrite.dstBinding = bufferResource->get().layout.binding;
+            descriptorWrite.dstArrayElement = 0;
+            descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+            descriptorWrite.descriptorCount = 1;
+            descriptorWrite.pBufferInfo = &bufferInfo;
+            vkUpdateDescriptorSets(m_RendererData->device, 1, &descriptorWrite, 0, nullptr);
         }
     }
 

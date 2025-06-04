@@ -23,5 +23,8 @@ namespace LunaraEngine
 
         void Upload(RendererDataType* rendererData, uint8_t* data, size_t length, size_t stride = 1);
         void Upload(RendererDataType* rendererData, size_t offset, uint8_t* data, size_t size);
+
+    private:
+        uint8_t* m_Data;
     };
 }// namespace LunaraEngine
