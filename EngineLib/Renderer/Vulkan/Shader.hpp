@@ -7,6 +7,7 @@ namespace LunaraEngine
     class CommandPool;
     class Pipeline;
     struct RendererDataType;
+    class VulkanUniformBuffer;
 
     class VulkanShader
     {
@@ -27,12 +28,14 @@ namespace LunaraEngine
     private:
         void ReadShaderSource(const ShaderInfo& info, std::map<size_t, std::vector<uint32_t>>& shaderSource);
         void PrintShaderResource(const ShaderInfo& info);
+        void CreateUniformBuffers(const ShaderInfo& info);
 
     private:
         static std::vector<uint32_t> ReadFile(std::filesystem::path name);
 
     private:
         RendererDataType* m_RendererData{};
+        std::vector<VulkanUniformBuffer*> m_UniformBuffers{};
         Pipeline* m_Pipeline{};
     };
 }// namespace LunaraEngine

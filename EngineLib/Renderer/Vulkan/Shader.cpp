@@ -3,6 +3,7 @@
 #include <Renderer/Vulkan/VulkanDataTypes.hpp>
 #include <Renderer/Vulkan/Shader.hpp>
 #include <Renderer/Vulkan/GraphicsPipeline.hpp>
+#include <Renderer/Vulkan/UniformBuffer.hpp>
 #include <Core/Log.h>
 #include "Shader.hpp"
 
@@ -21,6 +22,8 @@ namespace LunaraEngine
         ReadShaderSource(info, shaderSource);
 
         m_Pipeline = new GraphicsPipeline(rendererData, &info, shaderSource);
+
+        CreateUniformBuffers(info);
     }
 
     void VulkanShader::ReadShaderSource(const ShaderInfo& info, std::map<size_t, std::vector<uint32_t>>& shaderSource)
@@ -40,10 +43,28 @@ namespace LunaraEngine
             vkDeviceWaitIdle(m_RendererData->device);
             delete (GraphicsPipeline*) m_Pipeline;
             m_Pipeline = nullptr;
+
+            for (auto uniformBuffer: m_UniformBuffers) { delete uniformBuffer; }
+            m_UniformBuffers.clear();
         }
     }
 
     VkPipeline VulkanShader::GetPipeline() const { return m_Pipeline->GetPipeline(); }
+
+    void VulkanShader::CreateUniformBuffers(const ShaderInfo& info)
+    {
+        for (const auto& resource: info.resources.bufferResources)
+        {
+            if (resource.type == ShaderResourceType::UniformBuffer)
+            {
+                auto size = resource.size;
+                for (size_t i = 0; i < m_RendererData->maxFramesInFlight; i++)
+                {
+                    m_UniformBuffers.push_back(new VulkanUniformBuffer(m_RendererData, nullptr, 1, size));
+                }
+            }
+        }
+    }
 
     std::vector<uint32_t> VulkanShader::ReadFile(std::filesystem::path name)
     {

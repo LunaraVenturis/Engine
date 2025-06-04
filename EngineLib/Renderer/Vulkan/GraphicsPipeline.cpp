@@ -133,6 +133,14 @@ namespace LunaraEngine
 
         if (p_Layout != VK_NULL_HANDLE) { vkDestroyPipelineLayout(p_Device, p_Layout, nullptr); }
         if (p_Pipeline != VK_NULL_HANDLE) { vkDestroyPipeline(p_Device, p_Pipeline, nullptr); }
+        if (m_DescriptorSets.size() > 0)
+        {
+            for (const auto& descriptorSet: m_DescriptorSets)
+            {
+                vkDestroyDescriptorSetLayout(p_Device, descriptorSet, nullptr);
+            }
+            m_DescriptorSets.clear();
+        }
     }
 
     VkDescriptorType GraphicsPipeline::GetDescriptorType(ShaderResourceType type)
