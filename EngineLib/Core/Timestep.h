@@ -71,6 +71,7 @@ Function Prototypes
 ***********************************************************************************************************************/
 extern void Timer_Start(Timer* timer);
 extern void Timer_End(Timer* timer);
+extern void Timer_Wait(Timer* timer, long milliseconds);
 
 #ifdef __cplusplus
 }

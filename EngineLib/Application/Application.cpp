@@ -1,10 +1,9 @@
 #include "Application.hpp"
 #include "Engine.hpp"
+#include <Core/Timestep.h>
 
 namespace LunaraEngine
 {
-    // inline static Application s_Instance;
-
     ApplicationResult Application::Create(std::filesystem::path workingDirectory, std::string_view name, uint32_t width,
                                           uint32_t height)
     {
@@ -25,9 +24,13 @@ namespace LunaraEngine
     {
         LayerStack::InitLayers(m_WorkingDirectory);
         Event event;
+        double dt = 0.0f;
+        Timer timer;
+        size_t count{};
+        double elapsed{};
         while (true)
         {
-
+            Timer_Start(&timer);
             if (PollEvents(&event))
             {
                 if (event.type == EVENT_QUIT) { break; }
@@ -36,12 +39,15 @@ namespace LunaraEngine
             }
             Renderer::BeginFrame();
             LayerStack::Begin();
-            LayerStack::OnUpdate(1.0f);
+            LayerStack::OnUpdate((float) dt);
             LayerStack::OnImGuiDraw();
             LayerStack::End();
 
             //Present to screen
             Renderer::Present();
+
+            Timer_End(&timer);
+            dt = timer.t;
         }
     }
 

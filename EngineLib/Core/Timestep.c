@@ -43,15 +43,22 @@ Includes
 Implementation
 ***********************************************************************************************************************/
 
-void Timer_Start( Timer* timer )
+void Timer_Start(Timer* timer)
 {
     timer->start = clock();
     timer->end = 0;
+    timer->t = 0;
+    timer->t_ms = 0;
 }
 
-void Timer_End( Timer* timer )
+void Timer_End(Timer* timer)
 {
     timer->end = clock();
-    timer->t = ( double ) ( timer->end - timer->start ) / CLOCKS_PER_SEC;
-    timer->t_ms = ( double ) ( timer->end - timer->start );
+    timer->t = (double) (timer->end - timer->start) / CLOCKS_PER_SEC;
+    timer->t_ms = (double) (timer->end - timer->start);
+}
+
+void Timer_Wait(Timer* timer, long milliseconds)
+{
+    while (clock() - timer->start < (long) (milliseconds * (CLOCKS_PER_SEC / 1000))) {}
 }
