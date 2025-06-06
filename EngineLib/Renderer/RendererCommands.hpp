@@ -31,7 +31,8 @@ namespace LunaraEngine
         EndRenderPass,
         Submit,
         BeginFrame,
-        Present
+        Present,
+        Count
     };
 
 
@@ -49,6 +50,7 @@ namespace LunaraEngine
     };
 
     struct Texture;
+    class Shader;
 
     class RendererCommand
     {
@@ -154,14 +156,11 @@ namespace LunaraEngine
     public:
         RendererCommandDrawIndexed() = default;
 
-        RendererCommandDrawIndexed(Shader* shader, VertexBuffer* vb, IndexBuffer<uint16_t>* ib)
-            : shader(shader), vb(vb), ib(ib)
-        {}
+        RendererCommandDrawIndexed(VertexBuffer* vb, IndexBuffer<uint16_t>* ib) : vb(vb), ib(ib) {}
 
         virtual RendererCommandType GetType() const override { return RendererCommandType::DrawIndexed; }
 
     public:
-        Shader* shader{};
         VertexBuffer* vb{};
         IndexBuffer<uint16_t>* ib{};
     };
@@ -179,6 +178,19 @@ namespace LunaraEngine
         float x{};
         float y{};
         Texture* texture{};
+    };
+
+    class RendererCommandBindShader: public RendererCommand
+    {
+    public:
+        RendererCommandBindShader() = default;
+
+        RendererCommandBindShader(Shader* shader) : shader(shader) {}
+
+        virtual RendererCommandType GetType() const override { return RendererCommandType::BindShader; }
+
+    public:
+        Shader* shader{};
     };
 
     class RendererCommandClear: public RendererCommand

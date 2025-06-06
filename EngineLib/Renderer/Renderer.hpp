@@ -73,6 +73,7 @@ namespace LunaraEngine
         static void Destroy();
         static void BeginFrame();
         static void Present();
+        static void BindShader(Shader* shader);
         static void DrawQuad(const FRect& rect, const Color4& color);
         static void DrawTexture(float x, float y, Texture* texture);
         static void DrawTriangle();
@@ -80,7 +81,7 @@ namespace LunaraEngine
         static void DrawText(std::string_view text, Font* font, float x, float y, const Color4& color,
                              RendererTextAlignAttribute align = RendererTextAlignAttribute::TextAlign_TopLeft);
         template <typename T>
-        static void DrawIndexed(Shader* shader, VertexBuffer* vb, IndexBuffer<T>* ib);
+        static void DrawIndexed(VertexBuffer* vb, IndexBuffer<T>* ib);
         static void Clear(const Color4& color);
         static void BeginRenderPass();
         static void EndRenderPass();

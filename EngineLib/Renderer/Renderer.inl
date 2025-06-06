@@ -48,9 +48,9 @@ Includes
 namespace LunaraEngine
 {
     template <typename T>
-    void Renderer::DrawIndexed(Shader* shader, VertexBuffer* vb, IndexBuffer<T>* ib)
+    void Renderer::DrawIndexed(VertexBuffer* vb, IndexBuffer<T>* ib)
     {
-        PushCommand(new RendererCommandDrawIndexed(shader, vb, (IndexBuffer<>*) ib));
+        PushCommand(new RendererCommandDrawIndexed(vb, (IndexBuffer<>*) ib));
     }
 
 }// namespace LunaraEngine

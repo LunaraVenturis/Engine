@@ -86,6 +86,8 @@ namespace LunaraEngine
 
     void Renderer::DrawTriangle() { PushCommand(RendererCommandType::DrawTriangle); }
 
+    void Renderer::BindShader(Shader* shader) { PushCommand(new RendererCommandBindShader(shader)); }
+
     void Renderer::DrawQuad(const FRect& rect, const Color4& color)
     {
         PushCommand(new RendererCommandDrawQuad(rect.x, rect.y, rect.w, rect.h, color.r, color.g, color.b, color.a));

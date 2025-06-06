@@ -70,6 +70,16 @@ namespace LunaraEngine
     private:
         void CreateWindow();
 
+        static void _BindShader(RendererDataType* rendererData, const RendererCommandBindShader* command);
+        static void _DrawQuad(RendererDataType* rendererData, const RendererCommandDrawQuad* command);
+        static void _Clear(RendererDataType* rendererData, const RendererCommandClear* command);
+        static void _DrawIndexed(RendererDataType* rendererData, const RendererCommandDrawIndexed* command);
+        static void _BeginRenderPass(RendererDataType* rendererData, const RendererCommand* command);
+        static void _EndRenderPass(RendererDataType* rendererData, const RendererCommand* command);
+        static void _BeginFrame(RendererDataType* rendererData, const RendererCommand* command);
+        static void _Present(RendererDataType* rendererData, const RendererCommand* command);
+        static void _NOP(RendererDataType* rendererData, const RendererCommand* command);
+
     private:
         VkInstance* GetVkInstance() { return &m_RendererData->instance; }
 

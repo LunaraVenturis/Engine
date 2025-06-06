@@ -70,11 +70,12 @@ void SandboxLayer::OnUpdate(float dt)
     Renderer::BeginRenderPass();
 
     Renderer::Clear(Color4{0.0f, 0.0f, 0.0f, 1.0f});
-    elapsedTime += dt * 0.0001f;
+    elapsedTime += dt;
     glm::vec3 offset = glm::vec3{sin(elapsedTime), 0.0f, 0.0f};
     m_Shader.SetUniform("offset", offset);
 
-    Renderer::DrawIndexed(&m_Shader, &m_QuadBuffer, &m_QuadIndexBuffer);
+    Renderer::BindShader(&m_Shader);
+    Renderer::DrawIndexed(&m_QuadBuffer, &m_QuadIndexBuffer);
 
     // Renderer::DrawQuad(FRect{300.0f, 300.0f, 100.0f, 100.0f}, Color4{1.0f, 0.0f, 0.0f, 1.0f});
 
