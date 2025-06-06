@@ -40,46 +40,26 @@
 Includes
 ***********************************************************************************************************************/
 #include "VulkanDataTypes.hpp"
-#include <memory>
 
 namespace LunaraEngine
 {
 
-    class VulkanRendererAPI: public RendererAPI
+    class VulkanRendererCommand
     {
     public:
-        VulkanRendererAPI() = default;
-        ~VulkanRendererAPI() = default;
-        VulkanRendererAPI(const VulkanRendererAPI& other) = delete;
-        VulkanRendererAPI& operator=(const VulkanRendererAPI&) = delete;
-        VulkanRendererAPI(VulkanRendererAPI&& other) = delete;
-        VulkanRendererAPI& operator=(VulkanRendererAPI&& other) = delete;
+        VulkanRendererCommand() = delete;
+        ~VulkanRendererCommand() = delete;
 
     public:
-        std::weak_ptr<RendererDataType> GetData() { return m_RendererData; }
-
-    public:
-        virtual Window* GetWindow() override;
-        virtual void Present() override;
-        virtual void Init(const RendererAPIConfig& config) override;
-        virtual void Destroy() override;
-        virtual void HandleCommand(const RendererCommand* command,
-                                   const RendererCommandType type = RendererCommandType::None) override;
-        virtual void HandleCommand(const RendererCommandType type) override;
-
-    private:
-        void CreateWindow();
-
-    private:
-        VkInstance* GetVkInstance() { return &m_RendererData->instance; }
-
-        VkDevice* GetDevice() { return &m_RendererData->device; }
-
-        VkPhysicalDevice* GetPhysicalDevice() { return &m_RendererData->physicalDevice; }
-
-    private:
-        std::shared_ptr<RendererDataType> m_RendererData;
-        RendererAPIConfig m_Config;
+        static void BindShader(RendererDataType* rendererData, const RendererCommandBindShader* command);
+        static void DrawQuad(RendererDataType* rendererData, const RendererCommandDrawQuad* command);
+        static void Clear(RendererDataType* rendererData, const RendererCommandClear* command);
+        static void DrawIndexed(RendererDataType* rendererData, const RendererCommandDrawIndexed* command);
+        static void BeginRenderPass(RendererDataType* rendererData, const RendererCommand* command);
+        static void EndRenderPass(RendererDataType* rendererData, const RendererCommand* command);
+        static void BeginFrame(RendererDataType* rendererData, const RendererCommand* command);
+        static void Present(RendererDataType* rendererData, const RendererCommand* command);
+        static void Nop(RendererDataType* rendererData, const RendererCommand* command);
     };
 
 }// namespace LunaraEngine

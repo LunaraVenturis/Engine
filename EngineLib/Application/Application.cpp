@@ -26,8 +26,6 @@ namespace LunaraEngine
         Event event;
         double dt = 0.0f;
         Timer timer;
-        size_t count{};
-        double elapsed{};
         while (true)
         {
             Timer_Start(&timer);
