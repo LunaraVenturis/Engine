@@ -70,6 +70,8 @@ namespace LunaraEngine
     private:
         void CreateWindow();
 
+        constexpr auto MakeDispatchableTable();
+
     private:
         VkInstance* GetVkInstance() { return &m_RendererData->instance; }
 

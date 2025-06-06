@@ -53,6 +53,7 @@ Includes
 #include <Renderer/IndexBuffer.hpp>
 #include <Renderer/VertexBuffer.hpp>
 #include <Renderer/Shader.hpp>
+#include "VulkanRendererAPI.hpp"
 
 namespace LunaraEngine
 {
@@ -68,33 +69,55 @@ namespace LunaraEngine
         if (m_RendererData->window->data == nullptr) { throw std::runtime_error("Couldn't create Window"); }
     }
 
+    constexpr auto VulkanRendererAPI::MakeDispatchableTable()
+    {
+        using DispatchFunction = void (*)(RendererDataType*, const RendererCommand*);
+
+        auto CastToDispatchable = [](auto f) { return static_cast<DispatchFunction>(f); };
+        auto CastToIndex = [](RendererCommandType type) { return static_cast<size_t>(type); };
+
+        // clang-format off
+        const auto registeredCommands =
+                std::array<std::tuple<RendererCommandType, DispatchFunction>, CastToIndex(RendererCommandType::Count)>{
+                        std::tuple<RendererCommandType, DispatchFunction>{RendererCommandType::None, VulkanRendererCommand::Nop},
+                        {RendererCommandType::BindShader, VulkanRendererCommand::BindShader},
+                        {RendererCommandType::BindTexture, VulkanRendererCommand::Nop},
+                        {RendererCommandType::Clear, VulkanRendererCommand::Clear},
+                        {RendererCommandType::DrawQuad, VulkanRendererCommand::Nop},
+                        {RendererCommandType::DrawTriangle, VulkanRendererCommand::Nop},
+                        {RendererCommandType::DrawTexture, VulkanRendererCommand::Nop},
+                        {RendererCommandType::DrawCircle, VulkanRendererCommand::Nop},
+                        {RendererCommandType::DrawText, VulkanRendererCommand::Nop},
+                        {RendererCommandType::DrawIndexed, VulkanRendererCommand::DrawIndexed},
+                        {RendererCommandType::BeginRenderPass, VulkanRendererCommand::BeginRenderPass},
+                        {RendererCommandType::EndRenderPass, VulkanRendererCommand::EndRenderPass},
+                        {RendererCommandType::Submit, VulkanRendererCommand::Nop},
+                        {RendererCommandType::BeginFrame, VulkanRendererCommand::BeginFrame},
+                        {RendererCommandType::Present, VulkanRendererCommand::Present}};
+        // clang-format on
+
+        std::array<DispatchFunction, static_cast<size_t>(RendererCommandType::Count)> table;
+        for (auto& command: registeredCommands)
+        {
+            table[CastToIndex(std::get<0>(command))] = CastToDispatchable(std::get<1>(command));
+        }
+
+        return table;
+    }
+
     Window* VulkanRendererAPI::GetWindow() { return m_RendererData->window; }
 
     void VulkanRendererAPI::HandleCommand(const RendererCommandType type) { HandleCommand(nullptr, type); }
 
     void VulkanRendererAPI::HandleCommand(const RendererCommand* command, const RendererCommandType type)
     {
-        // clang-format off
-        using CommandFunction = void (*)(RendererDataType*, const RendererCommand*);
-        static const std::map<RendererCommandType, CommandFunction> opCommands = {
-                {RendererCommandType::None,            (CommandFunction) VulkanRendererCommand::Nop},
-                {RendererCommandType::BindShader,      (CommandFunction) VulkanRendererCommand::BindShader},
-                {RendererCommandType::BindTexture,     (CommandFunction) VulkanRendererCommand::Nop},
-                {RendererCommandType::Clear,           (CommandFunction) VulkanRendererCommand::Clear},
-                {RendererCommandType::DrawQuad,        (CommandFunction) VulkanRendererCommand::Nop},
-                {RendererCommandType::DrawTriangle,    (CommandFunction) VulkanRendererCommand::Nop},
-                {RendererCommandType::DrawTexture,     (CommandFunction) VulkanRendererCommand::Nop},
-                {RendererCommandType::DrawCircle,      (CommandFunction) VulkanRendererCommand::Nop},
-                {RendererCommandType::DrawText,        (CommandFunction) VulkanRendererCommand::Nop},
-                {RendererCommandType::DrawIndexed,     (CommandFunction) VulkanRendererCommand::DrawIndexed},
-                {RendererCommandType::BeginRenderPass, (CommandFunction) VulkanRendererCommand::BeginRenderPass},
-                {RendererCommandType::EndRenderPass,   (CommandFunction) VulkanRendererCommand::EndRenderPass},
-                {RendererCommandType::Submit,          (CommandFunction) VulkanRendererCommand::Nop},
-                {RendererCommandType::BeginFrame,      (CommandFunction) VulkanRendererCommand::BeginFrame},
-                {RendererCommandType::Present,         (CommandFunction) VulkanRendererCommand::Present},
-        };
-        // clang-format on
-        std::invoke(opCommands.at(type), m_RendererData.get(), command);
+        static const auto dispatchTable = MakeDispatchableTable();
+        auto index = static_cast<size_t>(type);
+
+        assert(index < static_cast<size_t>(RendererCommandType::Count));
+        assert(dispatchTable[index] != nullptr);
+
+        std::invoke(dispatchTable[index], m_RendererData.get(), command);
     }
 
     void VulkanRendererAPI::Present() { throw std::runtime_error("Not implemented"); }

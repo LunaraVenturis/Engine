@@ -52,7 +52,7 @@ Includes
 namespace LunaraEngine
 {
 
-    void VulkanRendererCommand::BindShader(RendererDataType* rendererData, const RendererCommandBindShader* command)
+    void VulkanRendererCommand::BindShader(RendererDataType* rendererData, const RendererCommand* command)
     {
         auto arg = static_cast<const RendererCommandBindShader*>(command);
         VulkanShader* shader = (VulkanShader*) (arg->shader->GetHandle());
@@ -63,7 +63,7 @@ namespace LunaraEngine
                                 &shader->GetDescriptorSets()[rendererData->currentFrame], 0, nullptr);
     }
 
-    void VulkanRendererCommand::DrawQuad(RendererDataType* rendererData, const RendererCommandDrawQuad* command)
+    void VulkanRendererCommand::DrawQuad(RendererDataType* rendererData, const RendererCommand* command)
     {
         (void) rendererData;
         (void) command;
@@ -71,7 +71,7 @@ namespace LunaraEngine
         throw std::runtime_error("Not implemented");
     }
 
-    void VulkanRendererCommand::Clear(RendererDataType* rendererData, const RendererCommandClear* command)
+    void VulkanRendererCommand::Clear(RendererDataType* rendererData, const RendererCommand* command)
     {
         rendererData->clearValue.color.float32[0] = static_cast<const RendererCommandClear*>(command)->r;
         rendererData->clearValue.color.float32[1] = static_cast<const RendererCommandClear*>(command)->g;
@@ -79,7 +79,7 @@ namespace LunaraEngine
         rendererData->clearValue.color.float32[3] = static_cast<const RendererCommandClear*>(command)->a;
     }
 
-    void VulkanRendererCommand::DrawIndexed(RendererDataType* rendererData, const RendererCommandDrawIndexed* command)
+    void VulkanRendererCommand::DrawIndexed(RendererDataType* rendererData, const RendererCommand* command)
     {
         auto arg = static_cast<const RendererCommandDrawIndexed*>(command);
         VulkanVertexBuffer* vertBuffer = (VulkanVertexBuffer*) (arg->vb->GetHandle());

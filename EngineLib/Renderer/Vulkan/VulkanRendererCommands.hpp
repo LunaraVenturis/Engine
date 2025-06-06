@@ -51,10 +51,10 @@ namespace LunaraEngine
         ~VulkanRendererCommand() = delete;
 
     public:
-        static void BindShader(RendererDataType* rendererData, const RendererCommandBindShader* command);
-        static void DrawQuad(RendererDataType* rendererData, const RendererCommandDrawQuad* command);
-        static void Clear(RendererDataType* rendererData, const RendererCommandClear* command);
-        static void DrawIndexed(RendererDataType* rendererData, const RendererCommandDrawIndexed* command);
+        static void BindShader(RendererDataType* rendererData, const RendererCommand* command);
+        static void DrawQuad(RendererDataType* rendererData, const RendererCommand* command);
+        static void Clear(RendererDataType* rendererData, const RendererCommand* command);
+        static void DrawIndexed(RendererDataType* rendererData, const RendererCommand* command);
         static void BeginRenderPass(RendererDataType* rendererData, const RendererCommand* command);
         static void EndRenderPass(RendererDataType* rendererData, const RendererCommand* command);
         static void BeginFrame(RendererDataType* rendererData, const RendererCommand* command);
