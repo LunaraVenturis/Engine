@@ -32,11 +32,7 @@ public:
 
     virtual void OnMouseMoveEvent(uint32_t width, uint32_t height) override;
 
-    virtual void OnKeyboardEvent(uint32_t key, KeyEventType type) override
-    {
-        (void) type;
-        (void) key;
-    }
+    virtual void OnKeyboardEvent(uint32_t key, KeyEventType type) override;
 
     virtual void OnWindowResizeEvent(uint32_t width, uint32_t height) override
     {
@@ -54,7 +50,7 @@ private:
     LunaraEngine::Window* m_Window;
     LunaraEngine::Font m_Font;
     uint32_t x{}, y{};
-    char text[100];
+    // char text[100];
 
     LunaraEngine::VertexBuffer m_QuadBuffer;
     LunaraEngine::IndexBuffer<> m_QuadIndexBuffer;
