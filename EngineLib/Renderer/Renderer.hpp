@@ -82,6 +82,8 @@ namespace LunaraEngine
                              RendererTextAlignAttribute align = RendererTextAlignAttribute::TextAlign_TopLeft);
         template <typename T>
         static void DrawIndexed(VertexBuffer* vb, IndexBuffer<T>* ib);
+        template <typename T>
+        static void DrawInstanced(VertexBuffer* vb, IndexBuffer<T>* ib, uint32_t count);
         static void Clear(const Color4& color);
         static void BeginRenderPass();
         static void EndRenderPass();

@@ -13,7 +13,7 @@ namespace LunaraEngine
         ~Shader() noexcept(false);
 
     public:
-        void Init(ShaderInfo info);
+        void Init(const ShaderInfo& info);
         Shader* GetHandle();
 
         void SetUniform(std::string_view name, const glm::vec3& value);
@@ -30,4 +30,17 @@ namespace LunaraEngine
         Shader* m_Handle;
         uint8_t* m_Data;
     };
+
+    class FlatInstancedShader: public Shader
+    {
+    public:
+        FlatInstancedShader() = default;
+        FlatInstancedShader(std::filesystem::path assetsDirectory);
+        ~FlatInstancedShader() noexcept(false) = default;
+
+    public:
+        void Init(std::filesystem::path assetsDirectory);
+    };
+
+
 }// namespace LunaraEngine

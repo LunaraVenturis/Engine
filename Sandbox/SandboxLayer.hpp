@@ -54,6 +54,6 @@ private:
 
     LunaraEngine::VertexBuffer m_QuadBuffer;
     LunaraEngine::IndexBuffer<> m_QuadIndexBuffer;
-    LunaraEngine::Shader m_Shader;
+    LunaraEngine::FlatInstancedShader m_Shader;
     float elapsedTime{};
 };

@@ -53,4 +53,10 @@ namespace LunaraEngine
         PushCommand(new RendererCommandDrawIndexed(vb, (IndexBuffer<>*) ib));
     }
 
+    template <typename T>
+    void Renderer::DrawInstanced(VertexBuffer* vb, IndexBuffer<T>* ib, uint32_t count)
+    {
+        PushCommand(new RendererCommandDrawInstanced(vb, ib, count));
+    }
+
 }// namespace LunaraEngine

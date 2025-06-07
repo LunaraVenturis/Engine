@@ -108,6 +108,35 @@ namespace LunaraEngine
         vkCmdDrawIndexed(buffer, static_cast<uint32_t>(indexBuffer->GetLength()), 1, 0, 0, 0);
     }
 
+    void VulkanRendererCommand::DrawInstanced(RendererDataType* rendererData, const RendererCommand* command)
+    {
+        auto arg = static_cast<const RendererCommandDrawInstanced*>(command);
+        VulkanVertexBuffer* vertBuffer = (VulkanVertexBuffer*) (arg->vb->GetHandle());
+        VulkanIndexBuffer* indexBuffer = (VulkanIndexBuffer*) (arg->ib->GetHandle());
+
+        const auto& buffer = rendererData->commandPool->GetBuffer(rendererData->currentFrame);
+
+        std::array<VkBuffer, 1> vertexBuffers = {vertBuffer->GetBuffer()};
+        std::array<VkDeviceSize, 1> offsets = {0};
+        vkCmdBindVertexBuffers(buffer, 0, 1, vertexBuffers.data(), offsets.data());
+        vkCmdBindIndexBuffer(buffer, indexBuffer->GetBuffer(), 0, VK_INDEX_TYPE_UINT16);
+
+        VkViewport viewport{};
+        viewport.x = 0.0f;
+        viewport.y = 0.0f;
+        viewport.width = static_cast<float>(rendererData->surfaceExtent.width);
+        viewport.height = static_cast<float>(rendererData->surfaceExtent.height);
+        viewport.minDepth = 0.0f;
+        viewport.maxDepth = 1.0f;
+        vkCmdSetViewportWithCount(buffer, 1, &viewport);
+
+        VkRect2D scissor{};
+        scissor.offset = {0, 0};
+        scissor.extent = rendererData->surfaceExtent;
+        vkCmdSetScissorWithCount(buffer, 1, &scissor);
+        vkCmdDrawIndexed(buffer, static_cast<uint32_t>(indexBuffer->GetLength()), arg->count, 0, 0, 0);
+    }
+
     void VulkanRendererCommand::BeginRenderPass(RendererDataType* rendererData, const RendererCommand* command)
     {
         (void) command;

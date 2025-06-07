@@ -323,4 +323,40 @@ namespace LunaraEngine
                 return VK_FORMAT_UNDEFINED;
         }
     }
+
+    FlatInstancedShader::FlatInstancedShader(std::filesystem::path assetsDirectory) { Init(assetsDirectory); }
+
+    void FlatInstancedShader::Init(std::filesystem::path assetsDirectory)
+    {
+        ShaderResources basicShaderResources;
+        basicShaderResources.bufferResources.push_back(ShaderResource{
+                .type = ShaderResourceType::UniformBuffer,
+                .name = "UniformBuffer",
+                .size = sizeof(glm::vec3),
+                .layout = ShaderResourceLayout{.binding = 0, .layoutType = ShaderResourceMemoryLayout::STD140},
+                .attributes = {
+                        ShaderResourceAttribute{.name = "offset", .type = ShaderResourceAttributeType::Vec3},
+                }});
+
+        ShaderInfo basicShaderInfo;
+        basicShaderInfo.isComputeShader = false;
+        basicShaderInfo.name = L"FlatInstanced";
+        basicShaderInfo.path = assetsDirectory / "Shaders/output";
+        basicShaderInfo.resources = basicShaderResources;
+
+        basicShaderInfo.resources.inputResources.push_back(ShaderInputResource{.name = "Position",
+                                                                               .binding = 0,
+                                                                               .location = 0,
+                                                                               .format = ShaderResourceFormatT::R32G32,
+                                                                               .type = ShaderResourceDataTypeT::SFloat,
+                                                                               .offset = 0});
+        basicShaderInfo.resources.inputResources.push_back(
+                ShaderInputResource{.name = "Color",
+                                    .binding = 0,
+                                    .location = 1,
+                                    .format = ShaderResourceFormatT::R32G32B32,
+                                    .type = ShaderResourceDataTypeT::SFloat,
+                                    .offset = 8});
+        Shader::Init(basicShaderInfo);
+    }
 }// namespace LunaraEngine

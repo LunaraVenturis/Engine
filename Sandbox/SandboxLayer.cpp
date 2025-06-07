@@ -32,35 +32,7 @@ void SandboxLayer::Init(std::filesystem::path workingDirectory)
         glm::mat4 proj;
     };
 
-    ShaderResources basicShaderResources;
-    basicShaderResources.bufferResources.push_back(ShaderResource{
-            .type = ShaderResourceType::UniformBuffer,
-            .name = "UniformBuffer",
-            .size = sizeof(glm::vec3),
-            .layout = ShaderResourceLayout{.binding = 0, .layoutType = ShaderResourceMemoryLayout::STD140},
-            .attributes = {
-                    ShaderResourceAttribute{.name = "offset", .type = ShaderResourceAttributeType::Vec3},
-            }});
-
-    ShaderInfo basicShaderInfo;
-    basicShaderInfo.isComputeShader = false;
-    basicShaderInfo.name = L"BasicShader";
-    basicShaderInfo.path = workingDirectory / "Assets/Shaders/output";
-    basicShaderInfo.resources = basicShaderResources;
-
-    basicShaderInfo.resources.inputResources.push_back(ShaderInputResource{.name = "Position",
-                                                                           .binding = 0,
-                                                                           .location = 0,
-                                                                           .format = ShaderResourceFormatT::R32G32,
-                                                                           .type = ShaderResourceDataTypeT::SFloat,
-                                                                           .offset = 0});
-    basicShaderInfo.resources.inputResources.push_back(ShaderInputResource{.name = "Color",
-                                                                           .binding = 0,
-                                                                           .location = 1,
-                                                                           .format = ShaderResourceFormatT::R32G32B32,
-                                                                           .type = ShaderResourceDataTypeT::SFloat,
-                                                                           .offset = 8});
-    m_Shader.Init(basicShaderInfo);
+    m_Shader.Init(workingDirectory / "Assets");
 }
 
 void SandboxLayer::OnUpdate(float dt)
@@ -75,8 +47,9 @@ void SandboxLayer::OnUpdate(float dt)
     m_Shader.SetUniform("offset", offset);
 
     Renderer::BindShader(&m_Shader);
-    Renderer::DrawIndexed(&m_QuadBuffer, &m_QuadIndexBuffer);
+    // Renderer::DrawIndexed(&m_QuadBuffer, &m_QuadIndexBuffer);
 
+    Renderer::DrawInstanced(&m_QuadBuffer, &m_QuadIndexBuffer, 5);
     // Renderer::DrawQuad(FRect{300.0f, 300.0f, 100.0f, 100.0f}, Color4{1.0f, 0.0f, 0.0f, 1.0f});
 
     // size_t length = (size_t) snprintf(NULL, 0, "%u, %u", x, y);

@@ -27,6 +27,7 @@ namespace LunaraEngine
         DrawCircle,
         DrawText,
         DrawIndexed,
+        DrawInstanced,
         BeginRenderPass,
         EndRenderPass,
         Submit,
@@ -165,7 +166,25 @@ namespace LunaraEngine
         IndexBuffer<uint16_t>* ib{};
     };
 
+    class RendererCommandDrawInstanced: public RendererCommand
+    {
+    public:
+        RendererCommandDrawInstanced() = default;
+
+        RendererCommandDrawInstanced(VertexBuffer* vb, IndexBuffer<uint16_t>* ib, uint32_t count)
+            : vb(vb), ib(ib), count(count)
+        {}
+
+        virtual RendererCommandType GetType() const override { return RendererCommandType::DrawInstanced; }
+
+    public:
+        VertexBuffer* vb{};
+        IndexBuffer<uint16_t>* ib{};
+        uint32_t count{};
+    };
+
     class RendererCommandDrawTexture: public RendererCommand
+
     {
     public:
         RendererCommandDrawTexture() = default;
@@ -225,6 +244,7 @@ namespace LunaraEngine
         RegisterCommand<RendererCommandDrawCircle>(RendererCommandType::DrawCircle);
         RegisterCommand<RendererCommandDrawText>(RendererCommandType::DrawText);
         RegisterCommand<RendererCommandDrawIndexed>(RendererCommandType::DrawIndexed);
+        RegisterCommand<RendererCommandDrawInstanced>(RendererCommandType::DrawInstanced);
     }
 
     template <typename T, std::enable_if_t<std::is_base_of<RendererCommand, T>::value>>

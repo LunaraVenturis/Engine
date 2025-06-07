@@ -89,6 +89,7 @@ namespace LunaraEngine
                         {RendererCommandType::DrawCircle, VulkanRendererCommand::Nop},
                         {RendererCommandType::DrawText, VulkanRendererCommand::Nop},
                         {RendererCommandType::DrawIndexed, VulkanRendererCommand::DrawIndexed},
+                        {RendererCommandType::DrawInstanced, VulkanRendererCommand::DrawInstanced},
                         {RendererCommandType::BeginRenderPass, VulkanRendererCommand::BeginRenderPass},
                         {RendererCommandType::EndRenderPass, VulkanRendererCommand::EndRenderPass},
                         {RendererCommandType::Submit, VulkanRendererCommand::Nop},

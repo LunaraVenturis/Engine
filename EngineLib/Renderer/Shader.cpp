@@ -21,7 +21,7 @@ namespace LunaraEngine
         }
     }
 
-    void Shader::Init(ShaderInfo info)
+    void Shader::Init(const ShaderInfo& info)
     {
         m_Info = info;
         auto api = (VulkanRendererAPI*) RendererAPI::GetInstance();
