@@ -6,11 +6,11 @@ layout(location = 0) out vec3 fragColor;
 
 layout(binding = 0) uniform UniformBuffer 
 { 
-    vec3 offset;
+    vec2 offset;
 }ubo;
 
 void main()
 {
-    gl_Position = vec4(ubo.offset.xy + inPos, 0.0, 1.0);
+    gl_Position = vec4(ubo.offset + inPos, 0.0, 1.0);
     fragColor = inColor;
 }

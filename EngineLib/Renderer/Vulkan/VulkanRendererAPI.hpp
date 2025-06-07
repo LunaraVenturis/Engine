@@ -56,7 +56,7 @@ namespace LunaraEngine
         VulkanRendererAPI& operator=(VulkanRendererAPI&& other) = delete;
 
     public:
-        std::weak_ptr<RendererDataType> GetData() { return m_RendererData; }
+        std::weak_ptr<RendererDataType> GetData() override { return m_RendererData; }
 
     public:
         virtual Window* GetWindow() override;

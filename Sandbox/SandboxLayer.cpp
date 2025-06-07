@@ -6,6 +6,8 @@ void SandboxLayer::Init(std::filesystem::path workingDirectory)
 {
     using namespace LunaraEngine;
 
+    std::filesystem::path assetsDirectory = workingDirectory / std::filesystem::path("Assets");
+
     m_Window = Renderer::GetWindow();
     AudioManager::LoadAudio("AudioTest", "Assets/Audio/AudioTest.wav");
     auto result = LoadFont("Assets/Fonts/joystixmonospace.ttf", 24, &m_Font);
@@ -26,13 +28,7 @@ void SandboxLayer::Init(std::filesystem::path workingDirectory)
     std::vector<uint16_t> indices{0, 1, 2, 2, 3, 0};
     m_QuadIndexBuffer.Create(indices.data(), indices.size());
 
-    struct UniformBufferObject {
-        glm::mat4 model;
-        glm::mat4 view;
-        glm::mat4 proj;
-    };
-
-    m_Shader.Init(workingDirectory / "Assets");
+    m_Shader = Shader::Create(ShaderType::FlatInstanced, assetsDirectory);
 }
 
 void SandboxLayer::OnUpdate(float dt)
@@ -43,10 +39,10 @@ void SandboxLayer::OnUpdate(float dt)
 
     Renderer::Clear(Color4{0.0f, 0.0f, 0.0f, 1.0f});
     elapsedTime += dt;
-    glm::vec3 offset = glm::vec3{sin(elapsedTime), 0.0f, 0.0f};
-    m_Shader.SetUniform("offset", offset);
+    glm::vec2 offset = glm::vec2{(sin(elapsedTime) + cos(elapsedTime)) / 2, (cos(elapsedTime) - sin(elapsedTime)) / 2};
+    m_Shader->SetUniform("offset", offset);
 
-    Renderer::BindShader(&m_Shader);
+    Renderer::BindShader(m_Shader.get());
     // Renderer::DrawIndexed(&m_QuadBuffer, &m_QuadIndexBuffer);
 
     Renderer::DrawInstanced(&m_QuadBuffer, &m_QuadIndexBuffer, 5);

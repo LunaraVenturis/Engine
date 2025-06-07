@@ -1,5 +1,6 @@
 #pragma once
 #include <Renderer/CommonTypes.hpp>
+#include <Renderer/Shader.hpp>
 
 namespace LunaraEngine
 {
@@ -9,17 +10,29 @@ namespace LunaraEngine
     struct RendererDataType;
     class VulkanUniformBuffer;
 
-    class VulkanShader
+    class VulkanShader: public Shader
     {
     public:
         VulkanShader() = default;
+        VulkanShader(RendererDataType* rendererData, const ShaderInfo& info);
+
         ~VulkanShader();
 
-        void Create(RendererDataType* rendererData, const ShaderInfo& info);
+        void Init(RendererDataType* rendererData, const ShaderInfo& info);
         void Destroy();
 
     public:
-        void SetUniform(std::string_view name, const glm::vec3& value);
+        virtual void SetUniform(std::string_view name, const float& value) override;
+        virtual void SetUniform(std::string_view name, const glm::vec2& value) override;
+        virtual void SetUniform(std::string_view name, const glm::vec3& value) override;
+        virtual void SetUniform(std::string_view name, const glm::vec4& value) override;
+        virtual void SetUniform(std::string_view name, const glm::mat3& value) override;
+        virtual void SetUniform(std::string_view name, const glm::mat4& value) override;
+        virtual void SetUniform(std::string_view name, const int& value) override;
+        virtual void SetUniform(std::string_view name, const glm::ivec2& value) override;
+        virtual void SetUniform(std::string_view name, const glm::ivec3& value) override;
+        virtual void SetUniform(std::string_view name, const glm::ivec4& value) override;
+
         VkPipeline GetPipeline() const;
         VkPipelineLayout GetPipelineLayout() const;
 
@@ -36,12 +49,12 @@ namespace LunaraEngine
         void PrintShaderResource(const ShaderInfo& info);
         void CreateUniformBuffers(const ShaderInfo& info);
         void CreateDescriptorSets();
+        size_t FindUniformAttributeOffset(std::string_view name);
 
     private:
         static std::vector<uint32_t> ReadFile(std::filesystem::path name);
 
     private:
-        ShaderInfo m_Info;
         RendererDataType* m_RendererData{};
         std::vector<VulkanUniformBuffer*> m_UniformBuffers{};
         std::vector<VkDescriptorSet> m_DescriptorSets;

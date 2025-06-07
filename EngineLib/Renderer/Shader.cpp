@@ -1,40 +1,127 @@
 #include "Shader.hpp"
 #include <Renderer/Vulkan/VulkanRendererAPI.hpp>
 #include <Renderer/Vulkan/Shader.hpp>
+#include <Core/Log.h>
 
 namespace LunaraEngine
 {
-    Shader::Shader(ShaderInfo info) { Init(info); }
-
-    Shader::~Shader() noexcept(false)
+    namespace FlatInstancedShader
     {
+        inline static std::shared_ptr<Shader> Create(std::filesystem::path assetsDirectory)
+        {
+            ShaderResources basicShaderResources;
+            basicShaderResources.bufferResources.push_back(ShaderResource{
+                    .type = ShaderResourceType::UniformBuffer,
+                    .name = "UniformBuffer",
+                    .size = sizeof(glm::vec3),
+                    .layout = ShaderResourceLayout{.binding = 0, .layoutType = ShaderResourceMemoryLayout::STD140},
+                    .attributes = {
+                            ShaderResourceAttribute{.name = "offset", .type = ShaderResourceAttributeType::Vec3},
+                    }});
+
+            ShaderInfo basicShaderInfo;
+            basicShaderInfo.isComputeShader = false;
+            basicShaderInfo.name = L"FlatInstanced";
+            basicShaderInfo.path = assetsDirectory / "Shaders/output";
+            basicShaderInfo.resources = basicShaderResources;
+
+            basicShaderInfo.resources.inputResources.push_back(
+                    ShaderInputResource{.name = "Position",
+                                        .binding = 0,
+                                        .location = 0,
+                                        .format = ShaderResourceFormatT::R32G32,
+                                        .type = ShaderResourceDataTypeT::SFloat,
+                                        .offset = 0});
+            basicShaderInfo.resources.inputResources.push_back(
+                    ShaderInputResource{.name = "Color",
+                                        .binding = 0,
+                                        .location = 1,
+                                        .format = ShaderResourceFormatT::R32G32B32,
+                                        .type = ShaderResourceDataTypeT::SFloat,
+                                        .offset = 8});
+            return Shader::Create(basicShaderInfo);
+        }
+    }// namespace FlatInstancedShader
+
+    namespace FlatShader
+    {
+        inline static std::shared_ptr<Shader> Create(std::filesystem::path assetsDirectory)
+        {
+            ShaderResources basicShaderResources;
+            basicShaderResources.bufferResources.push_back(ShaderResource{
+                    .type = ShaderResourceType::UniformBuffer,
+                    .name = "UniformBuffer",
+                    .size = sizeof(glm::vec2),
+                    .layout = ShaderResourceLayout{.binding = 0, .layoutType = ShaderResourceMemoryLayout::STD140},
+                    .attributes = {
+                            ShaderResourceAttribute{.name = "offset", .type = ShaderResourceAttributeType::Vec2},
+                    }});
+
+            ShaderInfo basicShaderInfo;
+            basicShaderInfo.isComputeShader = false;
+            basicShaderInfo.name = L"FlatQuad";
+            basicShaderInfo.path = assetsDirectory / "Shaders/output";
+            basicShaderInfo.resources = basicShaderResources;
+
+            basicShaderInfo.resources.inputResources.push_back(
+                    ShaderInputResource{.name = "Position",
+                                        .binding = 0,
+                                        .location = 0,
+                                        .format = ShaderResourceFormatT::R32G32,
+                                        .type = ShaderResourceDataTypeT::SFloat,
+                                        .offset = 0});
+            basicShaderInfo.resources.inputResources.push_back(
+                    ShaderInputResource{.name = "Color",
+                                        .binding = 0,
+                                        .location = 1,
+                                        .format = ShaderResourceFormatT::R32G32B32,
+                                        .type = ShaderResourceDataTypeT::SFloat,
+                                        .offset = 8});
+            return Shader::Create(basicShaderInfo);
+        }
+    }// namespace FlatShader
+
+    std::shared_ptr<Shader> Shader::Create(ShaderType type, std::filesystem::path assetsDirectory)
+    {
+        switch (type)
+        {
+            case ShaderType::FlatInstanced:
+                return FlatInstancedShader::Create(assetsDirectory);
+            case ShaderType::FlatQuad:
+                return FlatShader::Create(assetsDirectory);
+            default:
+                throw std::runtime_error("Unknown shader type");
+        }
+    }
+
+    std::shared_ptr<Shader> Shader::Create(const ShaderInfo& info)
+    {
+        auto api = (VulkanRendererAPI*) RendererAPI::GetInstance();
+        auto apiInstance = api->GetData();
+
         switch (RendererAPI::GetAPIType())
         {
             case RendererAPIType::Vulkan: {
-                auto shader = (VulkanShader*) m_Handle;
-                delete shader;
-                break;
+                if (apiInstance.expired()) { throw std::runtime_error("VulkanRendererAPI instance is expired"); }
+                return std::make_shared<VulkanShader>(apiInstance.lock().get(), info);
             }
             default:
                 throw std::runtime_error("Unknown renderer API");
                 break;
         }
     }
+
+    Shader::~Shader() noexcept(false) { LOG_DEBUG("Shader destroyed"); }
 
     void Shader::Init(const ShaderInfo& info)
     {
-        m_Info = info;
-        auto api = (VulkanRendererAPI*) RendererAPI::GetInstance();
-        auto apiInstance = api->GetData();
-
         switch (RendererAPI::GetAPIType())
         {
             case RendererAPIType::Vulkan: {
+                auto api = (VulkanRendererAPI*) RendererAPI::GetInstance();
+                auto apiInstance = api->GetData();
                 if (apiInstance.expired()) { return; }
-                auto shader = new VulkanShader();
-                auto apiInstancePtr = apiInstance.lock();
-                shader->Create(apiInstancePtr.get(), info);
-                m_Handle = (Shader*) shader;
+                ((VulkanShader*) this)->Init(apiInstance.lock().get(), info);
                 break;
             }
             default:
@@ -42,27 +129,6 @@ namespace LunaraEngine
                 break;
         }
     }
-
-    void Shader::SetUniform(std::string_view name, const glm::vec3& value)
-    {
-        auto api = (VulkanRendererAPI*) RendererAPI::GetInstance();
-        auto apiInstance = api->GetData();
-
-        switch (RendererAPI::GetAPIType())
-        {
-            case RendererAPIType::Vulkan: {
-                if (apiInstance.expired()) { return; }
-                VulkanShader* shader = (VulkanShader*) m_Handle;
-                shader->SetUniform(name, value);
-                break;
-            }
-            default:
-                throw std::runtime_error("Unknown renderer API");
-                break;
-        }
-    }
-
-    Shader* Shader::GetHandle() { return m_Handle; }
 
     size_t Shader::GetFormatSize(ShaderResourceFormatT format)
     {
@@ -247,4 +313,5 @@ namespace LunaraEngine
                 return "";
         }
     }
+
 }// namespace LunaraEngine

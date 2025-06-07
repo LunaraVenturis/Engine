@@ -13,7 +13,10 @@ namespace LunaraEngine
         None = 0,
         Vertex,
         Fragment,
-        Compute
+        Compute,
+        Count,
+        FlatQuad,
+        FlatInstanced
     };
 
     enum class ShaderResourceType
@@ -117,4 +120,6 @@ namespace LunaraEngine
         bool isComputeShader = false;
         ShaderResources resources;
     };
+
+    struct RendererDataType;
 }// namespace LunaraEngine

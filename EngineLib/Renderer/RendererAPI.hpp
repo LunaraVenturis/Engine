@@ -42,6 +42,7 @@ Includes
 #include "Core/STDTypes.h"
 #include "Window.hpp"
 #include "RendererCommands.hpp"
+#include "CommonTypes.hpp"
 #include <filesystem>
 #include <string_view>
 #include <cstdint>
@@ -86,6 +87,8 @@ namespace LunaraEngine
         virtual void HandleCommand(const RendererCommand* command,
                                    const RendererCommandType type = RendererCommandType::None) = 0;
         virtual void HandleCommand(const RendererCommandType type) = 0;
+
+        virtual std::weak_ptr<RendererDataType> GetData() = 0;
 
     public:
         inline static RendererAPI* s_Instance;

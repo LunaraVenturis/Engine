@@ -55,7 +55,7 @@ namespace LunaraEngine
     void VulkanRendererCommand::BindShader(RendererDataType* rendererData, const RendererCommand* command)
     {
         auto arg = static_cast<const RendererCommandBindShader*>(command);
-        VulkanShader* shader = (VulkanShader*) (arg->shader->GetHandle());
+        VulkanShader* shader = (VulkanShader*) (arg->shader);
 
         const auto& buffer = rendererData->commandPool->GetBuffer(rendererData->currentFrame);
         vkCmdBindPipeline(buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, shader->GetPipeline());

@@ -131,6 +131,10 @@ namespace LunaraEngine
     GraphicsPipeline::~GraphicsPipeline()
     {
 
+        if (m_DescriptorLayout != VK_NULL_HANDLE)
+        {
+            vkDestroyDescriptorSetLayout(p_Device, m_DescriptorLayout, nullptr);
+        }
         if (p_Layout != VK_NULL_HANDLE) { vkDestroyPipelineLayout(p_Device, p_Layout, nullptr); }
         if (p_Pipeline != VK_NULL_HANDLE) { vkDestroyPipeline(p_Device, p_Pipeline, nullptr); }
     }
