@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Engine.hpp>
-
+#include <Player/Player.hpp>
 class SandboxLayer: public LunaraEngine::Layer
 {
 
@@ -51,9 +51,7 @@ private:
     LunaraEngine::Font m_Font;
     uint32_t x{}, y{};
     // char text[100];
-
-    LunaraEngine::VertexBuffer m_QuadBuffer;
-    LunaraEngine::IndexBuffer<> m_QuadIndexBuffer;
+    Player m_Player = {{-0.5f, -0.5f, 0.0f}, {16.0f,16.0f}};
     std::shared_ptr<LunaraEngine::Shader> m_Shader;
     float elapsedTime{};
 };

@@ -24,7 +24,7 @@ namespace LunaraEngine
 
         [[nodiscard]] size_t GetStride() const { return m_Stride; }
 
-        [[nodiscard]] size_t GetLegnth() const { return m_Size / m_Stride; }
+        [[nodiscard]] size_t GetLength() const { return m_Size / m_Stride; }
 
     public:
         [[nodiscard]] IndexBuffer* GetHandle() const { return m_Handle; }
