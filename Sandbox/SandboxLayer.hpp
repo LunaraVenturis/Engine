@@ -51,7 +51,7 @@ private:
     LunaraEngine::Font m_Font;
     uint32_t x{}, y{};
     // char text[100];
-    Player m_Player = {{-0.5f, -0.5f, 0.0f}, {16.0f,16.0f}};
+    Player m_Player = {{0.0f, 0.0f}, {8.0f,8.0f}};
     std::shared_ptr<LunaraEngine::Shader> m_Shader;
     float elapsedTime{};
 };

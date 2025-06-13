@@ -24,7 +24,8 @@ void SandboxLayer::OnUpdate(float dt)
 
     Renderer::Clear(Color4{0.0f, 0.0f, 0.0f, 1.0f});
     elapsedTime += dt;
-    glm::vec2 offset = glm::vec2{(sin(elapsedTime) + cos(elapsedTime)) / 2, (cos(elapsedTime) - sin(elapsedTime)) / 2};
+//    glm::vec2 offset = glm::vec2{(sin(elapsedTime) + cos(elapsedTime)) / 2, (cos(elapsedTime) - sin(elapsedTime)) / 2};
+    glm::vec2 offset = glm::vec2{m_Player.GetPlayerPosition()};
     m_Shader->SetUniform("offset", offset);
 
     Renderer::BindShader(m_Shader.get());

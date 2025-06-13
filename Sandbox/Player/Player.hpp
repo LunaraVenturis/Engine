@@ -20,7 +20,7 @@ class Player
 {
 public:
     Player() = delete;
-    Player(glm::vec3 playerPosition, PlayerSize playerSize);
+    Player(glm::vec2 playerPosition, PlayerSize playerSize);
     Player(const Player& player) = delete;
     Player(Player&& player) = delete;
     ~Player();
@@ -28,12 +28,12 @@ public:
 public:
     void Draw();
     void Init();
-    [[nodiscard]] glm::vec3 GetPlayerPosition() const { return m_Position; }
+    [[nodiscard]] glm::vec2 GetPlayerPosition() const { return m_Position; }
 
     [[nodiscard]] PlayerSize GetPlayerSize() const { return m_size; }
 
 private:
-    glm::vec3 m_Position;
+    glm::vec2 m_Position;
     PlayerSize m_size;
     LunaraEngine::VertexBuffer m_QuadBuffer;
     LunaraEngine::IndexBuffer<> m_QuadIndexBuffer;

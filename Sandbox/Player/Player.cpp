@@ -1,14 +1,14 @@
 #include "Player.hpp"
 #include "Renderer/Renderer.hpp"
 
-Player::Player(glm::vec3 playerPosition, PlayerSize playerSize) : m_Position(playerPosition), m_size(playerSize) {}
+Player::Player(glm::vec2 playerPosition, PlayerSize playerSize) : m_Position(playerPosition), m_size(playerSize) {}
 
 void Player::Init()
 {
-    std::vector<Vertex> vertices = {{glm::vec2{-0.5f, -0.5f}, glm::vec3{1.0f, 0.0f, 0.0f}},
-                                    {glm::vec2{0.5f, -0.5f}, glm::vec3{0.0f, 1.0f, 0.0f}},
-                                    {glm::vec2{0.5f, 0.5f}, glm::vec3{0.0f, 0.0f, 1.0f}},
-                                    {glm::vec2{-0.5f, 0.5f}, glm::vec3{1.0f, 1.0f, 1.0f}}};
+    std::vector<Vertex> vertices = {{glm::vec2{-0.10f, -0.10f}, glm::vec3{1.0f, 1.0f, 1.0f}},
+                                    {glm::vec2{0.10f, -0.10f}, glm::vec3{1.0f, 1.0f, 1.0f}},
+                                    {glm::vec2{0.10f, 0.10f}, glm::vec3{1.0f, 1.0f, 1.0f}},
+                                    {glm::vec2{-0.10f, 0.10f}, glm::vec3{1.0f, 1.0f, 1.0f}}};
     m_QuadBuffer.Create(
             {{"Position", LunaraEngine::VertexAttributeType::VEC3}, {"Color", LunaraEngine::VertexAttributeType::VEC3}},
             (uint8_t*) vertices.data(), vertices.size());
