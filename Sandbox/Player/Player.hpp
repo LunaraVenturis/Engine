@@ -28,12 +28,13 @@ public:
 public:
     void Draw();
     void Init();
+    void MovePlayer(f32 x, f32 y, f32 acceleration, f32 delta);
     [[nodiscard]] glm::vec2 GetPlayerPosition() const { return m_Position; }
-
     [[nodiscard]] PlayerSize GetPlayerSize() const { return m_size; }
 
 private:
     glm::vec2 m_Position;
+    glm::vec2 m_Velocity;
     PlayerSize m_size;
     LunaraEngine::VertexBuffer m_QuadBuffer;
     LunaraEngine::IndexBuffer<> m_QuadIndexBuffer;

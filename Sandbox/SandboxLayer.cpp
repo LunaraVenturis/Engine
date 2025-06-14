@@ -24,7 +24,6 @@ void SandboxLayer::OnUpdate(float dt)
 
     Renderer::Clear(Color4{0.0f, 0.0f, 0.0f, 1.0f});
     elapsedTime += dt;
-//    glm::vec2 offset = glm::vec2{(sin(elapsedTime) + cos(elapsedTime)) / 2, (cos(elapsedTime) - sin(elapsedTime)) / 2};
     glm::vec2 offset = glm::vec2{m_Player.GetPlayerPosition()};
     m_Shader->SetUniform("offset", offset);
 
@@ -58,4 +57,25 @@ void SandboxLayer::OnMouseMoveEvent(uint32_t width, uint32_t height)
     this->y = height;
 }
 
-void SandboxLayer::OnKeyboardEvent(uint32_t key, KeyEventType type) { LOG_INFO("Key: %d, Type: %d", key, type); }
+void SandboxLayer::OnKeyboardEvent(uint32_t key, KeyEventType type) { 
+    LOG_INFO("Key: %d, Type: %d", key, type);
+    if(type == KeyEventType::KEY_PRESSED)
+    {
+        if(key == KEY_D)
+        {
+            m_Player.MovePlayer(1.0f, 0, 0.01f, elapsedTime);
+        }
+        else if(key == KEY_A)
+        {
+             m_Player.MovePlayer(1.0f, 0 , -0.01f, elapsedTime);
+        }
+        if(key == KEY_W)
+        {
+            m_Player.MovePlayer(0, -1.0f, 0.01f, elapsedTime);
+        }
+        else if(key == KEY_S)
+        {
+            m_Player.MovePlayer(0, 1.0f, 0.01f, elapsedTime);
+        }
+    }
+ }

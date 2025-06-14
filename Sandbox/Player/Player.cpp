@@ -1,7 +1,7 @@
 #include "Player.hpp"
 #include "Renderer/Renderer.hpp"
 
-Player::Player(glm::vec2 playerPosition, PlayerSize playerSize) : m_Position(playerPosition), m_size(playerSize) {}
+Player::Player(glm::vec2 playerPosition, PlayerSize playerSize) : m_Position(playerPosition), m_Velocity({0.0f, 0.0f}), m_size(playerSize) {}
 
 void Player::Init()
 {
@@ -17,5 +17,15 @@ void Player::Init()
 }
 
 void Player::Draw() { LunaraEngine::Renderer::DrawIndexed(&m_QuadBuffer, &m_QuadIndexBuffer); }
-
+void Player::MovePlayer(f32 x, f32 y, f32 acceleration, f32 delta)
+{
+    m_Velocity.x += acceleration * delta;
+    m_Velocity.y += acceleration * delta;
+    if(m_Velocity.x > 1.0f || m_Velocity.y > 1.0f)
+    {
+        m_Velocity = {1.0f, 1.0f};
+    }
+    m_Position.x += x * m_Velocity.x;
+    m_Position.y += y * m_Velocity.y;
+}
 Player::~Player() {}
