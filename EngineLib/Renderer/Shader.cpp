@@ -14,10 +14,12 @@ namespace LunaraEngine
             basicShaderResources.bufferResources.push_back(ShaderResource{
                     .type = ShaderResourceType::UniformBuffer,
                     .name = "UniformBuffer",
-                    .size = sizeof(glm::vec3) * info->numInstances,
+                    .size = sizeof(glm::mat4) * 3,
                     .layout = ShaderResourceLayout{.binding = 0, .layoutType = ShaderResourceMemoryLayout::STD140},
                     .attributes = {
-                            ShaderResourceAttribute{.name = "offset", .type = ShaderResourceAttributeType::Vec3},
+                            ShaderResourceAttribute{.name = "model", .type = ShaderResourceAttributeType::Mat4},
+                            ShaderResourceAttribute{.name = "view", .type = ShaderResourceAttributeType::Mat4},
+                            ShaderResourceAttribute{.name = "projection", .type = ShaderResourceAttributeType::Mat4},
                     }});
 
             ShaderInfo basicShaderInfo;
@@ -53,10 +55,12 @@ namespace LunaraEngine
             basicShaderResources.bufferResources.push_back(ShaderResource{
                     .type = ShaderResourceType::UniformBuffer,
                     .name = "UniformBuffer",
-                    .size = sizeof(glm::vec2),
+                    .size = sizeof(glm::mat4) * 3,
                     .layout = ShaderResourceLayout{.binding = 0, .layoutType = ShaderResourceMemoryLayout::STD140},
                     .attributes = {
-                            ShaderResourceAttribute{.name = "offset", .type = ShaderResourceAttributeType::Vec2},
+                            ShaderResourceAttribute{.name = "model", .type = ShaderResourceAttributeType::Mat4},
+                            ShaderResourceAttribute{.name = "view", .type = ShaderResourceAttributeType::Mat4},
+                            ShaderResourceAttribute{.name = "projection", .type = ShaderResourceAttributeType::Mat4},
                     }});
 
             ShaderInfo basicShaderInfo;
