@@ -39,6 +39,7 @@
 Includes
 ***********************************************************************************************************************/
 #include "Renderer.hpp"
+#include "BatchRenderer.hpp"
 #include "RendererAPI.hpp"
 #include "Texture.hpp"
 #include "Fonts.hpp"
@@ -58,13 +59,13 @@ namespace LunaraEngine
         config.initialWidth = width;
         config.initialHeight = height;
 
-        LOG_DEBUG("Initializing renderer...\n");
-        LOG_DEBUG("Working directory: %s\n", config.workingDirectory.c_str());
-        LOG_DEBUG("Assets directory: %s\n", config.assetsDirectory.c_str());
-        LOG_DEBUG("Shaders directory: %s\n", config.shadersDirectory.c_str());
-        LOG_DEBUG("Window name: %s\n", config.windowName.data());
-        LOG_DEBUG("Initial width: %d\n", config.initialWidth);
-        LOG_DEBUG("Initial height: %d\n", config.initialHeight);
+        LOG_DEBUG("Initializing renderer...");
+        LOG_DEBUG("Working directory: %s", config.workingDirectory.c_str());
+        LOG_DEBUG("Assets directory: %s", config.assetsDirectory.c_str());
+        LOG_DEBUG("Shaders directory: %s", config.shadersDirectory.c_str());
+        LOG_DEBUG("Window name: %s", config.windowName.data());
+        LOG_DEBUG("Initial width: %d", config.initialWidth);
+        LOG_DEBUG("Initial height: %d", config.initialHeight);
 
         s_Instance = new Renderer();
 
@@ -73,7 +74,7 @@ namespace LunaraEngine
 
         RendererCommand::RegisterCommands();
 
-        LOG_DEBUG("Renderer initialized\n");
+        LOG_DEBUG("Renderer initialized");
 
         return RendererResultType::Renderer_Result_Not_Done;
     }
@@ -86,7 +87,10 @@ namespace LunaraEngine
 
     void Renderer::DrawTriangle() { PushCommand(RendererCommandType::DrawTriangle); }
 
-    void Renderer::BindShader(Shader* shader) { PushCommand(new RendererCommandBindShader(shader)); }
+    void Renderer::BindShader(Shader* shader, void* push_constants)
+    {
+        PushCommand(new RendererCommandBindShader(shader, push_constants));
+    }
 
     void Renderer::DrawQuad(const FRect& rect, const Color4& color)
     {
@@ -118,6 +122,12 @@ namespace LunaraEngine
 
     void Renderer::EndRenderPass() { PushCommand(RendererCommandType::EndRenderPass); }
 
+    void Renderer::DrawQuadBatch()
+    {
+        PushCommand(BatchRenderer::GetDrawCommand());
+        BatchRenderer::Flush();
+    }
+
     void Renderer::Flush()
     {
         for (const auto& cmd: Renderer::GetInstance()->m_CommandStack)
@@ -139,6 +149,10 @@ namespace LunaraEngine
 
         Renderer::GetInstance()->m_CommandStack.clear();
     }
+
+    size_t Renderer::GetWidth() { return size_t(); }
+
+    size_t Renderer::GetHeight() { return size_t(); }
 
     Window* Renderer::GetWindow() { return RendererAPI::GetInstance()->GetWindow(); }
 

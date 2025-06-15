@@ -90,6 +90,9 @@ namespace LunaraEngine
 
         virtual std::weak_ptr<RendererDataType> GetData() = 0;
 
+        virtual size_t GetWidth() const = 0;
+        virtual size_t GetHeight() const = 0;
+
     public:
         inline static RendererAPI* s_Instance;
         inline static constexpr RendererAPIType s_APIType = RendererAPIType::Vulkan;

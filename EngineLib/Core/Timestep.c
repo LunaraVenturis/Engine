@@ -51,6 +51,7 @@ void Timer_Start(Timer* timer)
     timer->t_ms = 0;
 }
 
+
 void Timer_End(Timer* timer)
 {
     timer->end = clock();

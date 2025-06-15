@@ -77,7 +77,7 @@ namespace LunaraEngine
         auto CastToIndex = [](RendererCommandType type) { return static_cast<size_t>(type); };
 
         // clang-format off
-        const auto registeredCommands =
+        constexpr auto registeredCommands =
                 std::array<std::tuple<RendererCommandType, DispatchFunction>, CastToIndex(RendererCommandType::Count)>{
                         std::tuple<RendererCommandType, DispatchFunction>{RendererCommandType::None, VulkanRendererCommand::Nop},
                         {RendererCommandType::BindShader, VulkanRendererCommand::BindShader},
@@ -94,14 +94,16 @@ namespace LunaraEngine
                         {RendererCommandType::EndRenderPass, VulkanRendererCommand::EndRenderPass},
                         {RendererCommandType::Submit, VulkanRendererCommand::Nop},
                         {RendererCommandType::BeginFrame, VulkanRendererCommand::BeginFrame},
-                        {RendererCommandType::Present, VulkanRendererCommand::Present}};
-        // clang-format on
+                        {RendererCommandType::Present, VulkanRendererCommand::Present},
+                        {RendererCommandType::DrawQuadBatch, VulkanRendererCommand::DrawQuadBatch},
+                    };
 
         std::array<DispatchFunction, static_cast<size_t>(RendererCommandType::Count)> table;
         for (auto& command: registeredCommands)
         {
-            table[CastToIndex(std::get<0>(command))] = CastToDispatchable(std::get<1>(command));
+            table[CastToIndex(std::get<RendererCommandType>(command))] = CastToDispatchable(std::get<DispatchFunction>(command));
         }
+        // clang-format on
 
         return table;
     }
@@ -110,10 +112,14 @@ namespace LunaraEngine
 
     void VulkanRendererAPI::HandleCommand(const RendererCommandType type) { HandleCommand(nullptr, type); }
 
+    size_t VulkanRendererAPI::GetWidth() const { return m_RendererData->surfaceExtent.width; }
+
+    size_t VulkanRendererAPI::GetHeight() const { return m_RendererData->surfaceExtent.height; }
+
     void VulkanRendererAPI::HandleCommand(const RendererCommand* command, const RendererCommandType type)
     {
-        static const auto dispatchTable = MakeDispatchableTable();
-        auto index = static_cast<size_t>(type);
+        static constexpr auto dispatchTable = MakeDispatchableTable();
+        const auto index = static_cast<size_t>(type);
 
         assert(index < static_cast<size_t>(RendererCommandType::Count));
         assert(dispatchTable[index] != nullptr);

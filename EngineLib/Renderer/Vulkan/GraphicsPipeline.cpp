@@ -7,6 +7,7 @@
 #include <Renderer/Vulkan/VulkanDataTypes.hpp>
 #include <array>
 #include <stdexcept>
+#include "GraphicsPipeline.hpp"
 
 namespace LunaraEngine
 {
@@ -22,7 +23,10 @@ namespace LunaraEngine
 
         CreateDescriptorLayout(rendererData, *info);
         std::vector<VkDescriptorSetLayout> descriptorSetLayouts = {m_DescriptorLayout};
-        CreatePipelineLayout(descriptorSetLayouts);
+        auto pushConstantRanges = CreatePushConstantRanges(*info);
+
+        CreatePipelineLayout(descriptorSetLayouts, pushConstantRanges);
+
         for (size_t i = 0; i < shaderStages.size(); ++i)
         {
             const std::vector<uint32_t>& shaderSource = shaderSources.at(shaderStageFlags[i]);
@@ -75,13 +79,14 @@ namespace LunaraEngine
         VkPipelineColorBlendAttachmentState colorBlendAttachment{};
         colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT |
                                               VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
-        colorBlendAttachment.blendEnable = VK_FALSE;
-        colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_ONE; // Optional
-        colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ZERO;// Optional
-        colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD;            // Optional
-        colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE; // Optional
-        colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;// Optional
-        colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD;            // Optional
+        colorBlendAttachment.blendEnable = VK_TRUE;
+        colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;          // Multiply by fragment alpha
+        colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;// Inverse of it
+        colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD;// FinalColor = src + dst * (1 - src.a)
+
+        colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;// For alpha channel itself
+        colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
+        colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD;
 
         VkPipelineColorBlendStateCreateInfo colorBlending{};
         colorBlending.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
@@ -162,6 +167,8 @@ namespace LunaraEngine
         std::vector<VkDescriptorSetLayoutBinding> descriptorSetLayoutBindings;
         for (const auto& resource: info.resources.bufferResources)
         {
+            if (resource.type == ShaderResourceType::PushConstant) { continue; }
+
             const auto& type = resource.type;
             const auto& name = resource.name;
             size_t size = resource.size;
@@ -174,16 +181,13 @@ namespace LunaraEngine
                 layout = ShaderResourceMemoryLayout::STD140;
             }
 
-            (void) name;
-            (void) size;
-            (void) layout;
 
             VkDescriptorSetLayoutBinding descriptorSetLayoutBinding{};
             descriptorSetLayoutBinding.binding = binding;
             descriptorSetLayoutBinding.descriptorType = GraphicsPipeline::GetDescriptorType(type);
 
             //For now resources are availeble in all stages
-            descriptorSetLayoutBinding.stageFlags = VK_SHADER_STAGE_ALL;
+            descriptorSetLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
 
             //For now only one resource per binding
             descriptorSetLayoutBinding.descriptorCount = 1;
@@ -192,6 +196,10 @@ namespace LunaraEngine
             descriptorSetLayoutBinding.pImmutableSamplers = nullptr;
 
             descriptorSetLayoutBindings.push_back(descriptorSetLayoutBinding);
+
+            (void) name;
+            (void) size;
+            (void) layout;
         }
 
         VkDescriptorSetLayoutCreateInfo layoutInfo{};
@@ -225,9 +233,14 @@ namespace LunaraEngine
             stride += Shader::GetInputResourceSize(resource);
         }
 
-        bindingDescription.binding = info.resources.inputResources[0].binding;
-        bindingDescription.stride = (uint32_t) stride;
-        bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+        if (stride > 0)
+        {
+            bindingDescription.binding = info.resources.inputResources[0].binding;
+            bindingDescription.stride = (uint32_t) stride;
+            bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+            vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
+            vertexInputInfo.vertexBindingDescriptionCount = 1;
+        }
 
         for (const ShaderInputResource& resource: info.resources.inputResources)
         {
@@ -239,13 +252,31 @@ namespace LunaraEngine
 
             attributeDescriptions.push_back(description);
         }
+        if (attributeDescriptions.size() > 0)
+        {
+            vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
+            vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());
+        }
 
-        vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
-        vertexInputInfo.vertexBindingDescriptionCount = 1;
-        vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
-        vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());
 
         return vertexInputInfo;
     }
 
+    std::vector<VkPushConstantRange> GraphicsPipeline::CreatePushConstantRanges(const ShaderInfo& info) const
+    {
+        std::vector<VkPushConstantRange> ranges{};
+
+        for (auto& resource: info.resources.bufferResources)
+        {
+            if (resource.type == ShaderResourceType::PushConstant)
+            {
+                VkPushConstantRange range{};
+                range.offset = 0;
+                range.size = (uint32_t) resource.size;
+                range.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+                ranges.push_back(range);
+            }
+        }
+        return ranges;
+    }
 }// namespace LunaraEngine

@@ -44,9 +44,11 @@ Includes
 #include <Renderer/Vulkan/GraphicsPipeline.hpp>
 #include <Renderer/Vulkan/IndexBuffer.hpp>
 #include <Renderer/Vulkan/VertexBuffer.hpp>
+#include <Renderer/Vulkan/StorageBuffer.hpp>
 #include <Renderer/Vulkan/Shader.hpp>
 #include <Renderer/IndexBuffer.hpp>
 #include <Renderer/VertexBuffer.hpp>
+#include <Renderer/StorageBuffer.hpp>
 #include <Renderer/Shader.hpp>
 
 namespace LunaraEngine
@@ -59,8 +61,14 @@ namespace LunaraEngine
 
         const auto& buffer = rendererData->commandPool->GetBuffer(rendererData->currentFrame);
         vkCmdBindPipeline(buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, shader->GetPipeline());
+        if (arg->push_constants)
+        {
+            vkCmdPushConstants(buffer, shader->GetPipelineLayout(), VK_SHADER_STAGE_VERTEX_BIT, 0, 128,
+                               (void*) &arg->push_constants);
+        }
         vkCmdBindDescriptorSets(buffer, VK_PIPELINE_BIND_POINT_GRAPHICS, shader->GetPipelineLayout(), 0, 1,
                                 &shader->GetDescriptorSets()[rendererData->currentFrame], 0, nullptr);
+        shader->UpdateDescriptorSets(rendererData->currentFrame);
     }
 
     void VulkanRendererCommand::DrawQuad(RendererDataType* rendererData, const RendererCommand* command)
@@ -135,6 +143,31 @@ namespace LunaraEngine
         scissor.extent = rendererData->surfaceExtent;
         vkCmdSetScissorWithCount(buffer, 1, &scissor);
         vkCmdDrawIndexed(buffer, static_cast<uint32_t>(indexBuffer->GetLength()), arg->count, 0, 0, 0);
+    }
+
+    void VulkanRendererCommand::DrawQuadBatch(RendererDataType* rendererData, const RendererCommand* command)
+    {
+        auto arg = static_cast<const RendererCommandDrawBatch*>(command);
+        VulkanStorageBuffer* batchStorage = (VulkanStorageBuffer*) (arg->batchStorage);
+        batchStorage->Upload(rendererData, rendererData->gfxQueue, arg->data, batchStorage->GetLength(),
+                             batchStorage->GetStride());
+        const auto& buffer = rendererData->commandPool->GetBuffer(rendererData->currentFrame);
+
+        VkViewport viewport{};
+        viewport.x = 0.0f;
+        viewport.y = 0.0f;
+        viewport.width = static_cast<float>(rendererData->surfaceExtent.width);
+        viewport.height = static_cast<float>(rendererData->surfaceExtent.height);
+        viewport.minDepth = 0.0f;
+        viewport.maxDepth = 1.0f;
+        vkCmdSetViewportWithCount(buffer, 1, &viewport);
+
+        VkRect2D scissor{};
+        scissor.offset = {0, 0};
+        scissor.extent = rendererData->surfaceExtent;
+        vkCmdSetScissorWithCount(buffer, 1, &scissor);
+
+        vkCmdDraw(buffer, 6, (uint32_t) arg->count, 0, (uint32_t) arg->offset);
     }
 
     void VulkanRendererCommand::BeginRenderPass(RendererDataType* rendererData, const RendererCommand* command)

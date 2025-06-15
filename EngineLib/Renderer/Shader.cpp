@@ -7,13 +7,14 @@ namespace LunaraEngine
 {
     namespace FlatInstancedShader
     {
-        inline static std::shared_ptr<Shader> Create(std::filesystem::path assetsDirectory)
+        inline static std::shared_ptr<Shader> Create(std::filesystem::path assetsDirectory,
+                                                     FlatInstancedShaderInfo* info)
         {
             ShaderResources basicShaderResources;
             basicShaderResources.bufferResources.push_back(ShaderResource{
                     .type = ShaderResourceType::UniformBuffer,
                     .name = "UniformBuffer",
-                    .size = sizeof(glm::vec3),
+                    .size = sizeof(glm::vec3) * info->numInstances,
                     .layout = ShaderResourceLayout{.binding = 0, .layoutType = ShaderResourceMemoryLayout::STD140},
                     .attributes = {
                             ShaderResourceAttribute{.name = "offset", .type = ShaderResourceAttributeType::Vec3},
@@ -39,6 +40,7 @@ namespace LunaraEngine
                                         .format = ShaderResourceFormatT::R32G32B32,
                                         .type = ShaderResourceDataTypeT::SFloat,
                                         .offset = 8});
+            basicShaderInfo.numInstances = (uint32_t) info->numInstances;
             return Shader::Create(basicShaderInfo);
         }
     }// namespace FlatInstancedShader
@@ -81,12 +83,13 @@ namespace LunaraEngine
         }
     }// namespace FlatShader
 
-    std::shared_ptr<Shader> Shader::Create(ShaderType type, std::filesystem::path assetsDirectory)
+    std::shared_ptr<Shader> Shader::Create(ShaderType type, std::filesystem::path assetsDirectory,
+                                           ShaderTypeInfo* shaderTypeInfo)
     {
         switch (type)
         {
             case ShaderType::FlatInstanced:
-                return FlatInstancedShader::Create(assetsDirectory);
+                return FlatInstancedShader::Create(assetsDirectory, (FlatInstancedShaderInfo*) shaderTypeInfo);
             case ShaderType::FlatQuad:
                 return FlatShader::Create(assetsDirectory);
             default:
@@ -99,11 +102,16 @@ namespace LunaraEngine
         auto api = (VulkanRendererAPI*) RendererAPI::GetInstance();
         auto apiInstance = api->GetData();
 
+
+        LOG_DEBUG("Creating shader %ls %s", info.name.c_str(), info.path.c_str());
+
         switch (RendererAPI::GetAPIType())
         {
             case RendererAPIType::Vulkan: {
                 if (apiInstance.expired()) { throw std::runtime_error("VulkanRendererAPI instance is expired"); }
-                return std::make_shared<VulkanShader>(apiInstance.lock().get(), info);
+                auto apiInstancePtr = apiInstance.lock();
+                auto shader = std::make_shared<VulkanShader>(apiInstancePtr.get(), info);
+                return std::static_pointer_cast<Shader>(shader);
             }
             default:
                 throw std::runtime_error("Unknown renderer API");

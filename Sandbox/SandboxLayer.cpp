@@ -1,6 +1,8 @@
 #include "SandboxLayer.hpp"
 #include "Engine.hpp"
 #include <glm/glm.hpp>
+#include <glm/ext/matrix_transform.hpp>
+#include <glm/ext/matrix_clip_space.hpp>
 
 void SandboxLayer::Init(std::filesystem::path workingDirectory)
 {
@@ -13,58 +15,84 @@ void SandboxLayer::Init(std::filesystem::path workingDirectory)
     auto result = LoadFont("Assets/Fonts/joystixmonospace.ttf", 24, &m_Font);
     if (result != FontResultType::FONT_RESULT_SUCCESS) { exit(-6); }
 
-    struct Vertex {
-        glm::vec2 pos;
-        glm::vec3 color;
-    };
+    BatchRenderer::Create(assetsDirectory / "Shaders/output");
+}
 
-    std::vector<Vertex> vertices = {{glm::vec2{-0.5f, -0.5f}, glm::vec3{1.0f, 0.0f, 0.0f}},
-                                    {glm::vec2{0.5f, -0.5f}, glm::vec3{0.0f, 1.0f, 0.0f}},
-                                    {glm::vec2{0.5f, 0.5f}, glm::vec3{0.0f, 0.0f, 1.0f}},
-                                    {glm::vec2{-0.5f, 0.5f}, glm::vec3{1.0f, 1.0f, 1.0f}}};
-
-    m_QuadBuffer.Create({{"Position", VertexAttributeType::VEC3}, {"Color", VertexAttributeType::VEC3}},
-                        (uint8_t*) vertices.data(), vertices.size());
-    std::vector<uint16_t> indices{0, 1, 2, 2, 3, 0};
-    m_QuadIndexBuffer.Create(indices.data(), indices.size());
-
-    m_Shader = Shader::Create(ShaderType::FlatInstanced, assetsDirectory);
+void SandboxLayer::Destroy()
+{
+    using namespace LunaraEngine;
+    BatchRenderer::Destroy();
 }
 
 void SandboxLayer::OnUpdate(float dt)
 {
     using namespace LunaraEngine;
+    Renderer::Clear(Color4{0.0f, 0.0f, 0.0f, 1.0f});
 
     Renderer::BeginRenderPass();
 
-    Renderer::Clear(Color4{0.0f, 0.0f, 0.0f, 1.0f});
     elapsedTime += dt;
-    glm::vec2 offset = glm::vec2{(sin(elapsedTime) + cos(elapsedTime)) / 2, (cos(elapsedTime) - sin(elapsedTime)) / 2};
-    m_Shader->SetUniform("offset", offset);
 
-    Renderer::BindShader(m_Shader.get());
-    // Renderer::DrawIndexed(&m_QuadBuffer, &m_QuadIndexBuffer);
+    glm::vec2 camPos = {0.f, 0.f};
+    glm::mat4 view = glm::translate(glm::mat4(1.0f), -glm::vec3(camPos.x, camPos.y, 0.0f));
+    glm::mat4 projection = glm::ortho(0.0f, 1280.0f * zoom, 0.0f, 720.0f * zoom);
+    glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
 
-    Renderer::DrawInstanced(&m_QuadBuffer, &m_QuadIndexBuffer, 5);
-    // Renderer::DrawQuad(FRect{300.0f, 300.0f, 100.0f, 100.0f}, Color4{1.0f, 0.0f, 0.0f, 1.0f});
 
-    // size_t length = (size_t) snprintf(NULL, 0, "%u, %u", x, y);
-    // text[length] = '\0';
-    // snprintf(text, length + 1, "%d, %d", x, y);
+    constexpr size_t batchWidth = 100;
+    constexpr size_t batchHeight = 100;
+    constexpr float offset = 1.0f;
+    constexpr size_t size = 100;
+    constexpr Color4 color = {0.2f, 0.3f, 0.6f, 1.0};
+    for (size_t i = 0; i < batchWidth; i++)
+    {
+        for (size_t j = 0; j < batchHeight; j++)
+        {
+            FRect rect = FRect{(float) (size / 2 + offset) * (float) i, (float) (size / 2 + offset) * (float) j,
+                               (float) size, (float) size};
+            BatchRenderer::AddQuad(rect, color);
+        }
+    }
 
-    // std::string_view t = std::string_view(text, length);
-    // Renderer::DrawText(t, &m_Font, 100.0f, 100.0f, Color4{1.0f, 1.0f, 1.0f, 1.0f});
+    // struct PushConstants {
+    // glm::mat4 view_model;
+    // glm::mat4 projection;
+    // } constants;
+
+    auto shader = BatchRenderer::GetShader();
+    if (!shader.expired())
+    {
+        auto shaderPtr = shader.lock().get();
+
+
+        Renderer::BindShader(shaderPtr, (void*) nullptr);
+        shaderPtr->SetUniform("projection", projection);
+        shaderPtr->SetUniform("view", view);
+        shaderPtr->SetUniform("model", model);
+
+        Renderer::DrawQuadBatch();
+    }
 
     Renderer::EndRenderPass();
 
+    //Flush command buffer for drawing
+    Renderer::Flush();
     //Play audio test
     if (!LunaraEngine::AudioManager::IsAudioPlaying("AudioTest"))
     {
         LunaraEngine::AudioManager::PlayAudio("AudioTest");
     }
-
-    //Flush command buffer for drawing
-    Renderer::Flush();
+    if (m_PressedKeys[KEY_L])
+    {
+        zoom += dt;
+        LOG_INFO("Zoom: %f", zoom);
+    }
+    else if (m_PressedKeys[KEY_K])
+    {
+        zoom -= dt;
+        LOG_INFO("Zoom: %f", zoom);
+    }
+    else if (m_PressedKeys[KEY_F]) { LOG_INFO("FPS: %f", 1.0f / dt); }
 }
 
 void SandboxLayer::OnMouseMoveEvent(uint32_t width, uint32_t height)
@@ -73,4 +101,8 @@ void SandboxLayer::OnMouseMoveEvent(uint32_t width, uint32_t height)
     this->y = height;
 }
 
-void SandboxLayer::OnKeyboardEvent(uint32_t key, KeyEventType type) { LOG_INFO("Key: %d, Type: %d", key, type); }
+void SandboxLayer::OnKeyboardEvent(uint32_t key, KeyEventType type)
+{
+    if (type == KEY_PRESSED) { m_PressedKeys[key] = true; }
+    else { m_PressedKeys[key] = false; }
+}

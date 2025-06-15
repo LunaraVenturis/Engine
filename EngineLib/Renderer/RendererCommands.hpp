@@ -33,6 +33,7 @@ namespace LunaraEngine
         Submit,
         BeginFrame,
         Present,
+        DrawQuadBatch,
         Count
     };
 
@@ -183,6 +184,27 @@ namespace LunaraEngine
         uint32_t count{};
     };
 
+    template <typename T>
+    class StorageBuffer;
+
+    class RendererCommandDrawBatch: public RendererCommand
+    {
+    public:
+        RendererCommandDrawBatch() = default;
+
+        RendererCommandDrawBatch(uint8_t* data, StorageBuffer<uint8_t>* batchStorage, size_t count, size_t offset = 0)
+            : data(data), batchStorage(batchStorage), count(count), offset(offset)
+        {}
+
+        virtual RendererCommandType GetType() const override { return RendererCommandType::DrawQuadBatch; }
+
+    public:
+        uint8_t* data{};
+        StorageBuffer<uint8_t>* batchStorage{};
+        size_t count{};
+        size_t offset{};
+    };
+
     class RendererCommandDrawTexture: public RendererCommand
 
     {
@@ -204,12 +226,14 @@ namespace LunaraEngine
     public:
         RendererCommandBindShader() = default;
 
-        RendererCommandBindShader(Shader* shader) : shader(shader) {}
+        RendererCommandBindShader(Shader* shader, void* push_constants) : shader(shader), push_constants(push_constants)
+        {}
 
         virtual RendererCommandType GetType() const override { return RendererCommandType::BindShader; }
 
     public:
         Shader* shader{};
+        void* push_constants{};
     };
 
     class RendererCommandClear: public RendererCommand
@@ -230,18 +254,17 @@ namespace LunaraEngine
 
     constexpr void RendererCommand::RegisterCommands()
     {
-        auto commands = std::array<RendererCommandType, 8>{
-                RendererCommandType::BindShader,    RendererCommandType::BindTexture,
-                RendererCommandType::DrawTriangle,  RendererCommandType::BeginRenderPass,
-                RendererCommandType::EndRenderPass, RendererCommandType::Submit,
-                RendererCommandType::BeginFrame,    RendererCommandType::Present};
+        auto commands = std::array<RendererCommandType, 10>{
+                RendererCommandType::BindTexture,     RendererCommandType::DrawTriangle,
+                RendererCommandType::BeginRenderPass, RendererCommandType::EndRenderPass,
+                RendererCommandType::Submit,          RendererCommandType::BeginFrame,
+                RendererCommandType::Present,         RendererCommandType::BindTexture,
+                RendererCommandType::DrawCircle,      RendererCommandType::DrawText};
 
         for (const auto& command: commands) { RegisterCommand<void>(command); }
 
+        RegisterCommand<RendererCommandBindShader>(RendererCommandType::BindShader);
         RegisterCommand<RendererCommandClear>(RendererCommandType::Clear);
-        RegisterCommand<RendererCommandDrawQuad>(RendererCommandType::DrawQuad);
-        RegisterCommand<RendererCommandDrawTexture>(RendererCommandType::DrawTexture);
-        RegisterCommand<RendererCommandDrawCircle>(RendererCommandType::DrawCircle);
         RegisterCommand<RendererCommandDrawText>(RendererCommandType::DrawText);
         RegisterCommand<RendererCommandDrawIndexed>(RendererCommandType::DrawIndexed);
         RegisterCommand<RendererCommandDrawInstanced>(RendererCommandType::DrawInstanced);

@@ -2,7 +2,6 @@
 #include <cstdint>
 #include "VulkanDataTypes.hpp"
 
-
 namespace LunaraEngine
 {
     QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice device, VkSurfaceKHR surface);

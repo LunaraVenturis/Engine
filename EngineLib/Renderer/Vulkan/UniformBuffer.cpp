@@ -6,11 +6,13 @@ namespace LunaraEngine
     VulkanUniformBuffer::VulkanUniformBuffer(RendererDataType* rendererData, uint8_t* data, size_t length,
                                              size_t stride)
     {
+
         Create(rendererData, data, length, stride);
     }
 
     void VulkanUniformBuffer::Create(RendererDataType* rendererData, uint8_t* data, size_t length, size_t stride)
     {
+        m_ResourceType = ShaderResourceType::UniformBuffer;
         m_Device = rendererData->device;
         m_Size = length * stride;
         m_Stride = stride;

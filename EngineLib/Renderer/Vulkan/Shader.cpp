@@ -4,6 +4,8 @@
 #include <Renderer/Vulkan/Shader.hpp>
 #include <Renderer/Vulkan/GraphicsPipeline.hpp>
 #include <Renderer/Vulkan/UniformBuffer.hpp>
+#include <Renderer/Vulkan/StorageBuffer.hpp>
+#include <Renderer/Vulkan/Buffer.hpp>
 #include <Core/Log.h>
 #include "Shader.hpp"
 
@@ -26,6 +28,7 @@ namespace LunaraEngine
         m_Pipeline = new GraphicsPipeline(rendererData, &info, shaderSource);
 
         CreateUniformBuffers(info);
+        CreateStorageBuffers(info);
         CreateDescriptorSets();
     }
 
@@ -48,8 +51,21 @@ namespace LunaraEngine
             delete (GraphicsPipeline*) m_Pipeline;
             m_Pipeline = nullptr;
 
-            for (auto uniformBuffer: m_UniformBuffers) { delete uniformBuffer; }
-            m_UniformBuffers.clear();
+            for (auto [binding, buffers]: m_Resources)
+            {
+                for (auto buffer: buffers)
+                {
+                    if (buffer->GetResourceType() == ShaderResourceType::UniformBuffer)
+                    {
+                        delete (VulkanUniformBuffer*) buffer;
+                    }
+                    else if (buffer->GetResourceType() == ShaderResourceType::StorageBuffer)
+                    {
+                        delete (VulkanStorageBuffer*) buffer;
+                    }
+                }
+            }
+            m_Resources.clear();
             LOG_DEBUG("VulkanShader destroyed");
         }
     }
@@ -71,74 +87,81 @@ namespace LunaraEngine
         return offset;
     }
 
+    VulkanUniformBuffer* VulkanShader::GetUniformBuffer(size_t frame)
+    {
+        return static_cast<VulkanUniformBuffer*>(m_Resources[m_UniformBinding][frame]);
+    }
+
     void VulkanShader::SetUniform(std::string_view name, const float& value)
     {
         size_t offset = FindUniformAttributeOffset(name);
-        m_UniformBuffers[m_RendererData->currentFrame]->Upload(m_RendererData, offset, (uint8_t*) &value,
-                                                               sizeof(float));
+        GetUniformBuffer(m_RendererData->currentFrame)
+                ->Upload(m_RendererData, offset, (uint8_t*) &value, sizeof(float));
     }
 
     void VulkanShader::SetUniform(std::string_view name, const glm::vec2& value)
     {
         size_t offset = FindUniformAttributeOffset(name);
-        m_UniformBuffers[m_RendererData->currentFrame]->Upload(m_RendererData, offset, (uint8_t*) &value,
-                                                               sizeof(glm::vec2));
+        GetUniformBuffer(m_RendererData->currentFrame)
+                ->Upload(m_RendererData, offset, (uint8_t*) &value, sizeof(glm::vec2));
     }
 
     void VulkanShader::SetUniform(std::string_view name, const glm::vec3& value)
     {
         size_t offset = FindUniformAttributeOffset(name);
-        m_UniformBuffers[m_RendererData->currentFrame]->Upload(m_RendererData, offset, (uint8_t*) &value,
-                                                               sizeof(glm::vec3));
+        GetUniformBuffer(m_RendererData->currentFrame)
+                ->Upload(m_RendererData, offset, (uint8_t*) &value, sizeof(glm::vec3));
     }
 
     void VulkanShader::SetUniform(std::string_view name, const glm::vec4& value)
     {
         size_t offset = FindUniformAttributeOffset(name);
-        m_UniformBuffers[m_RendererData->currentFrame]->Upload(m_RendererData, offset, (uint8_t*) &value,
-                                                               sizeof(glm::vec4));
+        GetUniformBuffer(m_RendererData->currentFrame)
+                ->Upload(m_RendererData, offset, (uint8_t*) &value, sizeof(glm::vec4));
     }
 
     void VulkanShader::SetUniform(std::string_view name, const glm::mat3& value)
     {
         size_t offset = FindUniformAttributeOffset(name);
-        m_UniformBuffers[m_RendererData->currentFrame]->Upload(m_RendererData, offset, (uint8_t*) &value,
-                                                               sizeof(glm::mat3));
+        GetUniformBuffer(m_RendererData->currentFrame)
+                ->Upload(m_RendererData, offset, (uint8_t*) &value, sizeof(glm::mat3));
     }
 
     void VulkanShader::SetUniform(std::string_view name, const glm::mat4& value)
     {
         size_t offset = FindUniformAttributeOffset(name);
-        m_UniformBuffers[m_RendererData->currentFrame]->Upload(m_RendererData, offset, (uint8_t*) &value,
-                                                               sizeof(glm::mat4));
+        GetUniformBuffer(m_RendererData->currentFrame)
+                ->Upload(m_RendererData, offset, (uint8_t*) &value, sizeof(glm::mat4));
     }
 
     void VulkanShader::SetUniform(std::string_view name, const int& value)
     {
         size_t offset = FindUniformAttributeOffset(name);
-        m_UniformBuffers[m_RendererData->currentFrame]->Upload(m_RendererData, offset, (uint8_t*) &value, sizeof(int));
+        GetUniformBuffer(m_RendererData->currentFrame)->Upload(m_RendererData, offset, (uint8_t*) &value, sizeof(int));
     }
 
     void VulkanShader::SetUniform(std::string_view name, const glm::ivec2& value)
     {
         size_t offset = FindUniformAttributeOffset(name);
-        m_UniformBuffers[m_RendererData->currentFrame]->Upload(m_RendererData, offset, (uint8_t*) &value,
-                                                               sizeof(glm::ivec2));
+        GetUniformBuffer(m_RendererData->currentFrame)
+                ->Upload(m_RendererData, offset, (uint8_t*) &value, sizeof(glm::ivec2));
     }
 
     void VulkanShader::SetUniform(std::string_view name, const glm::ivec3& value)
     {
         size_t offset = FindUniformAttributeOffset(name);
-        m_UniformBuffers[m_RendererData->currentFrame]->Upload(m_RendererData, offset, (uint8_t*) &value,
-                                                               sizeof(glm::ivec3));
+        GetUniformBuffer(m_RendererData->currentFrame)
+                ->Upload(m_RendererData, offset, (uint8_t*) &value, sizeof(glm::ivec3));
     }
 
     void VulkanShader::SetUniform(std::string_view name, const glm::ivec4& value)
     {
         size_t offset = FindUniformAttributeOffset(name);
-        m_UniformBuffers[m_RendererData->currentFrame]->Upload(m_RendererData, offset, (uint8_t*) &value,
-                                                               sizeof(glm::ivec4));
+        GetUniformBuffer(m_RendererData->currentFrame)
+                ->Upload(m_RendererData, offset, (uint8_t*) &value, sizeof(glm::ivec4));
     }
+
+    void* VulkanShader::GetBuffer(size_t binding) { return m_Resources[binding][m_RendererData->currentFrame]; }
 
     VkPipeline VulkanShader::GetPipeline() const { return m_Pipeline->GetPipeline(); }
 
@@ -153,7 +176,24 @@ namespace LunaraEngine
                 auto size = resource.size;
                 for (size_t i = 0; i < m_RendererData->maxFramesInFlight; i++)
                 {
-                    m_UniformBuffers.push_back(new VulkanUniformBuffer(m_RendererData, nullptr, 1, size));
+                    m_Resources[resource.layout.binding].push_back(
+                            new VulkanUniformBuffer(m_RendererData, nullptr, 1, size));
+                }
+            }
+        }
+    }
+
+    void VulkanShader::CreateStorageBuffers(const ShaderInfo& info)
+    {
+        for (const auto& resource: info.resources.bufferResources)
+        {
+            if (resource.type == ShaderResourceType::StorageBuffer)
+            {
+                auto size = resource.size;
+                for (size_t i = 0; i < m_RendererData->maxFramesInFlight; i++)
+                {
+                    m_Resources[resource.layout.binding].push_back(
+                            new VulkanStorageBuffer(m_RendererData, m_RendererData->gfxQueue, nullptr, 1, size));
                 }
             }
         }
@@ -161,14 +201,24 @@ namespace LunaraEngine
 
     void VulkanShader::CreateDescriptorSets()
     {
-        VkDescriptorPoolSize descriptorPoolSize{};
-        descriptorPoolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-        descriptorPoolSize.descriptorCount = m_RendererData->maxFramesInFlight;
+        std::vector<VkDescriptorPoolSize> poolSizes;
+
+        for (const auto& resource: p_Info.resources.bufferResources)
+        {
+            if (resource.type == ShaderResourceType::UniformBuffer ||
+                resource.type == ShaderResourceType::StorageBuffer)
+            {
+                VkDescriptorPoolSize poolSize{};
+                poolSize.type = GraphicsPipeline::GetDescriptorType(resource.type);
+                poolSize.descriptorCount = m_RendererData->maxFramesInFlight;
+                poolSizes.push_back(poolSize);
+            }
+        }
 
         VkDescriptorPoolCreateInfo descriptorPoolInfo{};
         descriptorPoolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-        descriptorPoolInfo.poolSizeCount = 1;
-        descriptorPoolInfo.pPoolSizes = &descriptorPoolSize;
+        descriptorPoolInfo.poolSizeCount = static_cast<uint32_t>(poolSizes.size());
+        descriptorPoolInfo.pPoolSizes = poolSizes.data();
         descriptorPoolInfo.maxSets = m_RendererData->maxFramesInFlight;
         descriptorPoolInfo.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
 
@@ -195,9 +245,11 @@ namespace LunaraEngine
 
         const std::optional<std::reference_wrapper<const ShaderResource>> bufferResource =
                 [&]() -> const std::optional<std::reference_wrapper<const ShaderResource>> {
-            auto it = std::find_if(
-                    p_Info.resources.bufferResources.begin(), p_Info.resources.bufferResources.end(),
-                    [](const ShaderResource& resource) { return resource.type == ShaderResourceType::UniformBuffer; });
+            auto it = std::find_if(p_Info.resources.bufferResources.begin(), p_Info.resources.bufferResources.end(),
+                                   [](const ShaderResource& resource) {
+                                       return resource.type == ShaderResourceType::UniformBuffer ||
+                                              resource.type == ShaderResourceType::StorageBuffer;
+                                   });
             return it != p_Info.resources.bufferResources.end()
                            ? std::optional<std::reference_wrapper<const ShaderResource>>(*it)
                            : std::nullopt;
@@ -205,23 +257,42 @@ namespace LunaraEngine
 
         if (!bufferResource) return;
 
-        for (size_t i = 0; i < m_RendererData->maxFramesInFlight; i++)
-        {
-            VkDescriptorBufferInfo bufferInfo{};
-            bufferInfo.buffer = m_UniformBuffers[i]->GetBuffer();
-            bufferInfo.offset = 0;
-            bufferInfo.range = bufferResource->get().size;
+        for (uint32_t i = 0; i < m_RendererData->maxFramesInFlight; i++) { UpdateDescriptorSets(i); }
+    }
 
+    void VulkanShader::UpdateDescriptorSets(uint32_t frameIndex)
+    {
+
+        std::vector<VkWriteDescriptorSet> descriptorWrites;
+        std::vector<VkDescriptorType> descriptorTypes;
+        std::vector<uint32_t> descriptorBindings;
+        std::vector<VkDescriptorBufferInfo> bufferInfos;
+        for (auto& resource: p_Info.resources.bufferResources)
+        {
+            if (resource.type == ShaderResourceType::PushConstant) { continue; }
+            bufferInfos.push_back(VkDescriptorBufferInfo{
+                    .buffer = m_Resources[resource.layout.binding][frameIndex]->GetBuffer(),
+                    .offset = 0,
+                    .range = resource.size,
+            });
+            descriptorBindings.push_back(resource.layout.binding);
+            descriptorTypes.push_back(GraphicsPipeline::GetDescriptorType(resource.type));
+        }
+
+        for (size_t j = 0; j < descriptorBindings.size(); j++)
+        {
             VkWriteDescriptorSet descriptorWrite{};
             descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-            descriptorWrite.dstSet = m_DescriptorSets[i];
-            descriptorWrite.dstBinding = bufferResource->get().layout.binding;
+            descriptorWrite.dstSet = m_DescriptorSets[frameIndex];
+            descriptorWrite.dstBinding = descriptorBindings[j];
             descriptorWrite.dstArrayElement = 0;
-            descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+            descriptorWrite.descriptorType = descriptorTypes[j];
             descriptorWrite.descriptorCount = 1;
-            descriptorWrite.pBufferInfo = &bufferInfo;
-            vkUpdateDescriptorSets(m_RendererData->device, 1, &descriptorWrite, 0, nullptr);
+            descriptorWrite.pBufferInfo = &bufferInfos[j];
+            descriptorWrites.push_back(descriptorWrite);
         }
+        vkUpdateDescriptorSets(m_RendererData->device, static_cast<uint32_t>(descriptorWrites.size()),
+                               descriptorWrites.data(), 0, nullptr);
     }
 
     std::vector<uint32_t> VulkanShader::ReadFile(std::filesystem::path name)
