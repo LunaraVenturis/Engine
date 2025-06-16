@@ -24,9 +24,10 @@ void SandboxLayer::OnUpdate(float dt)
 
     Renderer::Clear(Color4{0.0f, 0.0f, 0.0f, 1.0f});
     elapsedTime += dt;
+    m_PlayerDt = dt;
     glm::vec2 offset = glm::vec2{m_Player.GetPlayerPosition()};
     m_Shader->SetUniform("offset", offset);
-
+    m_Camera.Upload(m_Shader.get());
     Renderer::BindShader(m_Shader.get());
     m_Player.Draw();
     //Renderer::DrawInstanced(&m_QuadBuffer, &m_QuadIndexBuffer, 5);
@@ -63,19 +64,19 @@ void SandboxLayer::OnKeyboardEvent(uint32_t key, KeyEventType type) {
     {
         if(key == KEY_D)
         {
-            m_Player.MovePlayer(1.0f, 0, 0.01f, elapsedTime);
+            m_Player.MovePlayer(1.0f, 0, m_PlayerDt);
         }
         else if(key == KEY_A)
         {
-             m_Player.MovePlayer(1.0f, 0 , -0.01f, elapsedTime);
+             m_Player.MovePlayer(-1.0f, 0, m_PlayerDt);
         }
         if(key == KEY_W)
         {
-            m_Player.MovePlayer(0, -1.0f, 0.01f, elapsedTime);
+            m_Player.MovePlayer(0, -1.0f, m_PlayerDt);
         }
         else if(key == KEY_S)
         {
-            m_Player.MovePlayer(0, 1.0f, 0.01f, elapsedTime);
+            m_Player.MovePlayer(0, 1.0f, m_PlayerDt);
         }
     }
  }

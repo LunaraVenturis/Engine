@@ -2,6 +2,7 @@
 
 #include <Engine.hpp>
 #include <Player/Player.hpp>
+#include "Renderer/Camera.hpp"
 class SandboxLayer: public LunaraEngine::Layer
 {
 
@@ -52,6 +53,8 @@ private:
     uint32_t x{}, y{};
     // char text[100];
     Player m_Player = {{0.0f, 0.0f}, {8.0f,8.0f}};
+    LunaraEngine::Camera m_Camera = {{1280.0f, 720.0f}};
     std::shared_ptr<LunaraEngine::Shader> m_Shader;
     float elapsedTime{};
+    float m_PlayerDt{};
 };
