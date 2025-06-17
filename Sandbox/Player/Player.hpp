@@ -1,7 +1,5 @@
 #pragma once
 #include "glm/glm.hpp"
-#include "Renderer/IndexBuffer.hpp"
-#include "Renderer/VertexBuffer.hpp"
 #include <vector>
 
 using f32 = float;
@@ -9,11 +7,6 @@ using f32 = float;
 struct PlayerSize {
     f32 width;
     f32 height;
-};
-
-struct Vertex {
-    glm::vec2 pos;
-    glm::vec3 color;
 };
 
 class Player
@@ -36,6 +29,4 @@ private:
     glm::vec2 m_Position;
     glm::vec2 m_Speed;
     PlayerSize m_size;
-    LunaraEngine::VertexBuffer m_QuadBuffer;
-    LunaraEngine::IndexBuffer<> m_QuadIndexBuffer;
 };

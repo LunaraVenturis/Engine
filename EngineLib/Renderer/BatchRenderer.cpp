@@ -61,6 +61,7 @@ namespace LunaraEngine
 
     BatchRenderer* BatchRenderer::GetInstance() { return s_BatchRenderer; }
 
+
     void BatchRenderer::AddQuad(const FRect& rect, const Color4& color)
     {
         auto instance = GetInstance();

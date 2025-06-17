@@ -15,7 +15,6 @@ void SandboxLayer::Init(std::filesystem::path workingDirectory)
     auto result = LoadFont("Assets/Fonts/joystixmonospace.ttf", 24, &m_Font);
     if (result != FontResultType::FONT_RESULT_SUCCESS) { exit(-6); }
     m_Player.Init();
-    m_Shader = Shader::Create(ShaderType::FlatQuad, assetsDirectory);
 
     BatchRenderer::Create(assetsDirectory / "Shaders/output");
 }
@@ -32,53 +31,17 @@ void SandboxLayer::OnUpdate(float dt)
     Renderer::Clear(Color4{0.0f, 0.0f, 0.0f, 1.0f});
 
     Renderer::BeginRenderPass();
-
     elapsedTime += dt;
     m_PlayerDt = dt;
-    
-    glm::vec2 offset = glm::vec2{m_Player.GetPlayerPosition()};
-    m_Shader->SetUniform("offset", offset);
-    m_Camera.Upload(m_Shader.get());
-    Renderer::BindShader(m_Shader.get());
+
     m_Player.Draw();
-
-
-    glm::vec2 camPos = {0.f, 0.f};
-    glm::mat4 view = glm::translate(glm::mat4(1.0f), -glm::vec3(camPos.x, camPos.y, 0.0f));
-    glm::mat4 projection = glm::ortho(0.0f, 1280.0f * zoom, 0.0f, 720.0f * zoom);
-    glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
-
-
-    constexpr size_t batchWidth = 100;
-    constexpr size_t batchHeight = 100;
-    constexpr float offset = 1.0f;
-    constexpr size_t size = 100;
-    constexpr Color4 color = {0.2f, 0.3f, 0.6f, 1.0};
-    for (size_t i = 0; i < batchWidth; i++)
-    {
-        for (size_t j = 0; j < batchHeight; j++)
-        {
-            FRect rect = FRect{(float) (size / 2 + offset) * (float) i, (float) (size / 2 + offset) * (float) j,
-                               (float) size, (float) size};
-            BatchRenderer::AddQuad(rect, color);
-        }
-    }
-
-    // struct PushConstants {
-    // glm::mat4 view_model;
-    // glm::mat4 projection;
-    // } constants;
 
     auto shader = BatchRenderer::GetShader();
     if (!shader.expired())
     {
         auto shaderPtr = shader.lock().get();
-
-
         Renderer::BindShader(shaderPtr, (void*) nullptr);
-        shaderPtr->SetUniform("projection", projection);
-        shaderPtr->SetUniform("view", view);
-        shaderPtr->SetUniform("model", model);
+        m_Camera.Upload(shaderPtr);
 
         Renderer::DrawQuadBatch();
     }
@@ -92,14 +55,23 @@ void SandboxLayer::OnUpdate(float dt)
     {
         LunaraEngine::AudioManager::PlayAudio("AudioTest");
     }
+
+
+    if (m_PressedKeys[KEY_W]) { m_Player.MovePlayer(0.0f, 1.0f, dt); }
+    if (m_PressedKeys[KEY_S]) { m_Player.MovePlayer(0.0f, -1.0f, dt); }
+    if (m_PressedKeys[KEY_A]) { m_Player.MovePlayer(-1.0f, 0.0f, dt); }
+    if (m_PressedKeys[KEY_D]) { m_Player.MovePlayer(1.0f, 0.0f, dt); }
+
     if (m_PressedKeys[KEY_L])
     {
         zoom += dt;
+        m_Camera.SetZoom(zoom);
         LOG_INFO("Zoom: %f", zoom);
     }
     else if (m_PressedKeys[KEY_K])
     {
         zoom -= dt;
+        m_Camera.SetZoom(zoom);
         LOG_INFO("Zoom: %f", zoom);
     }
     else if (m_PressedKeys[KEY_F]) { LOG_INFO("FPS: %f", 1.0f / dt); }
@@ -110,6 +82,8 @@ void SandboxLayer::OnMouseMoveEvent(uint32_t width, uint32_t height)
     this->x = width;
     this->y = height;
 }
+
+void SandboxLayer::OnWindowResizeEvent(uint32_t width, uint32_t height) { m_Camera.OnResize(width, height); }
 
 void SandboxLayer::OnKeyboardEvent(uint32_t key, KeyEventType type)
 {

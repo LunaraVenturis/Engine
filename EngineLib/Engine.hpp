@@ -3,6 +3,8 @@
 #include "Core/Memory.h"
 #include "Core/Timestep.h"
 #include "Core/Events.h"
+#include "Math/Color.h"
+#include "Math/Rect.h"
 #include "Renderer/Window.hpp"
 #include "Renderer/Fonts.hpp"
 #include "Renderer/Renderer.hpp"

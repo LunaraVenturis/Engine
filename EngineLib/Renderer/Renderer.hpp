@@ -49,6 +49,7 @@ Includes
 #include "IndexBuffer.hpp"
 #include "VertexBuffer.hpp"
 #include "Shader.hpp"
+#include "BatchRenderer.hpp"
 
 #include <SDL3/SDL_render.h>
 
