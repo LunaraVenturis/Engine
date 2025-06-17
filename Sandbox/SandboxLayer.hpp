@@ -35,11 +35,7 @@ public:
 
     virtual void OnKeyboardEvent(uint32_t key, KeyEventType type) override;
 
-    virtual void OnWindowResizeEvent(uint32_t width, uint32_t height) override
-    {
-        (void) width;
-        (void) height;
-    }
+    virtual void OnWindowResizeEvent(uint32_t width, uint32_t height) override;
 
     virtual void OnWindowShouldCloseEvent() override {}
 

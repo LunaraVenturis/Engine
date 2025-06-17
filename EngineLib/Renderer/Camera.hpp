@@ -27,14 +27,16 @@ namespace LunaraEngine
     public:
         void Upload(Shader* shader);
         void Init();
-        void OnUpdate();
+        void OnUpdate(float dt);
+        void OnResize(uint32_t width, uint32_t height);
+        [[nodiscard]] void Move(glm::vec2 relativePosition);
+        [[nodiscard]] void SetPosition(glm::vec2 position);
 
     private:
         f32 m_AspectRatio;
-        glm::vec3 m_Position;
+        glm::vec2 m_Position;
         glm::mat4 m_Projection;
         glm::mat4 m_View;
         glm::mat4 m_Model;
-        glm::mat4 m_MVP;
     };
 }// namespace LunaraEngine
