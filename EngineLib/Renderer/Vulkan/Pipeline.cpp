@@ -9,15 +9,25 @@ namespace LunaraEngine
 
     VkPipelineLayout Pipeline::GetLayout() const { return p_Layout; }
 
-    void Pipeline::CreatePipelineLayout(const std::vector<VkDescriptorSetLayout>& descriptorSets)
+    void Pipeline::CreatePipelineLayout(const std::vector<VkDescriptorSetLayout>& descriptorSets,
+                                        const std::vector<VkPushConstantRange>& pushConstants)
     {
         p_DescriptorLayouts = descriptorSets;
         VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
         pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
         pipelineLayoutInfo.setLayoutCount = static_cast<uint32_t>(p_DescriptorLayouts.size());
         pipelineLayoutInfo.pSetLayouts = p_DescriptorLayouts.data();
-        pipelineLayoutInfo.pushConstantRangeCount = 0;   // Optional
-        pipelineLayoutInfo.pPushConstantRanges = nullptr;// Optional
+
+        if (pushConstants.empty())
+        {
+            pipelineLayoutInfo.pushConstantRangeCount = 0;
+            pipelineLayoutInfo.pPushConstantRanges = nullptr;
+        }
+        else
+        {
+            pipelineLayoutInfo.pushConstantRangeCount = static_cast<uint32_t>(pushConstants.size());
+            pipelineLayoutInfo.pPushConstantRanges = pushConstants.data();
+        }
         if (vkCreatePipelineLayout(p_Device, &pipelineLayoutInfo, nullptr, &p_Layout) != VK_SUCCESS)
         {
             throw std::runtime_error("failed to create pipeline layout!");

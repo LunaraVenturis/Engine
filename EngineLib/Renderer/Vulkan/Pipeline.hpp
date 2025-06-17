@@ -22,7 +22,8 @@ namespace LunaraEngine
         std::vector<VkDescriptorSetLayout> p_DescriptorLayouts;
 
     protected:
-        void CreatePipelineLayout(const std::vector<VkDescriptorSetLayout>& descriptorSets);
+        void CreatePipelineLayout(const std::vector<VkDescriptorSetLayout>& descriptorSets,
+                                  const std::vector<VkPushConstantRange>& pushConstants);
         VkShaderModule CreateShaderModule(const std::vector<uint32_t>& spirvCode);
     };
 }// namespace LunaraEngine

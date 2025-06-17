@@ -56,6 +56,7 @@ namespace LunaraEngine
         static void Clear(RendererDataType* rendererData, const RendererCommand* command);
         static void DrawIndexed(RendererDataType* rendererData, const RendererCommand* command);
         static void DrawInstanced(RendererDataType* rendererData, const RendererCommand* command);
+        static void DrawQuadBatch(RendererDataType* rendererData, const RendererCommand* command);
         static void BeginRenderPass(RendererDataType* rendererData, const RendererCommand* command);
         static void EndRenderPass(RendererDataType* rendererData, const RendererCommand* command);
         static void BeginFrame(RendererDataType* rendererData, const RendererCommand* command);

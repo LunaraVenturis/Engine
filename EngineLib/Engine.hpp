@@ -9,6 +9,7 @@
 #include "Renderer/Texture.hpp"
 #include "Renderer/IndexBuffer.hpp"
 #include "Renderer/VertexBuffer.hpp"
+#include "Renderer/BatchRenderer.hpp"
 #include "Layer/Layer.hpp"
 #include "Layer/LayerStack.hpp"
 #include "Application/Application.hpp"

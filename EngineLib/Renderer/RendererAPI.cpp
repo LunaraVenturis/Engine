@@ -51,7 +51,7 @@ namespace LunaraEngine
         switch (s_APIType)
         {
             case RendererAPIType::Vulkan:
-                LOG("Creating Vulkan renderer API...\n");
+                LOG("Creating Vulkan renderer API...");
                 s_Instance = new VulkanRendererAPI();
                 break;
             default:

@@ -73,7 +73,7 @@ namespace LunaraEngine
         static void Destroy();
         static void BeginFrame();
         static void Present();
-        static void BindShader(Shader* shader);
+        static void BindShader(Shader* shader, void* push_constants = nullptr);
         static void DrawQuad(const FRect& rect, const Color4& color);
         static void DrawTexture(float x, float y, Texture* texture);
         static void DrawTriangle();
@@ -87,7 +87,10 @@ namespace LunaraEngine
         static void Clear(const Color4& color);
         static void BeginRenderPass();
         static void EndRenderPass();
+        static void DrawQuadBatch();
         static void Flush();
+        static size_t GetWidth();
+        static size_t GetHeight();
 
     public:
         static Window* GetWindow();

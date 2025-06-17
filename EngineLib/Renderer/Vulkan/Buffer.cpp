@@ -51,12 +51,17 @@ namespace LunaraEngine
         }
     }
 
+    ShaderResourceType Buffer::GetResourceType() const { return m_ResourceType; }
+
     Buffer::~Buffer() { Destroy(); }
 
     void Buffer::Upload(uint8_t* data, size_t length, size_t stride)
     {
-        m_Size = length * stride;
-        m_Stride = stride;
+        if (m_Size == 0)
+        {
+            m_Size = length * stride;
+            m_Stride = stride;
+        }
         void* mappedMemory;
         vkMapMemory(m_Device, m_BufferMemory, 0, m_Size, 0, &mappedMemory);
         memcpy(mappedMemory, data, m_Size);

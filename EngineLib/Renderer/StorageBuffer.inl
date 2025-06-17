@@ -1,6 +1,6 @@
 #pragma once
-#include "IndexBuffer.hpp"
-#include <Renderer/Vulkan/IndexBuffer.hpp>
+#include "StorageBuffer.hpp"
+#include <Renderer/Vulkan/StorageBuffer.hpp>
 #include <Renderer/Vulkan/VulkanRendererAPI.hpp>
 
 namespace LunaraEngine
@@ -8,25 +8,25 @@ namespace LunaraEngine
     using std::size_t;
 
     template <typename T>
-    IndexBuffer<T>::IndexBuffer(size_t length, size_t stride)
+    StorageBuffer<T>::StorageBuffer(size_t length, size_t stride)
     {
         Create<T>(nullptr, length, stride);
     }
 
     template <typename T>
-    IndexBuffer<T>::IndexBuffer(T* data, size_t length, size_t stride)
+    StorageBuffer<T>::StorageBuffer(T* data, size_t length, size_t stride)
     {
-        IndexBuffer<T>::Create(data, length, stride);
+        Create<T>(data, length, stride);
     }
 
     template <typename T>
-    IndexBuffer<T>::~IndexBuffer()
+    StorageBuffer<T>::~StorageBuffer()
     {
-        delete (VulkanIndexBuffer*) m_Handle;
+        delete (VulkanStorageBuffer*) m_Handle;
     }
 
     template <typename T>
-    void IndexBuffer<T>::Upload(T* data, size_t length, size_t stride)
+    void StorageBuffer<T>::Upload(T* data, size_t length, size_t stride)
     {
         auto api = (VulkanRendererAPI*) RendererAPI::GetInstance();
         auto apiInstance = api->GetData();
@@ -36,7 +36,7 @@ namespace LunaraEngine
             case RendererAPIType::Vulkan: {
                 if (apiInstance.expired()) { return; }
                 auto apiInstancePtr = apiInstance.lock();
-                ((VulkanIndexBuffer*) m_Handle)
+                ((VulkanStorageBuffer*) m_Handle)
                         ->Upload(apiInstancePtr.get(), apiInstancePtr->gfxQueue, data, length, stride);
                 break;
             }
@@ -47,7 +47,7 @@ namespace LunaraEngine
     }
 
     template <typename T>
-    void IndexBuffer<T>::Create(T* data, size_t length, size_t stride)
+    void StorageBuffer<T>::Create(T* data, size_t length, size_t stride)
     {
         m_Size = stride * length;
         m_Stride = stride;
@@ -59,10 +59,10 @@ namespace LunaraEngine
         {
             case RendererAPIType::Vulkan: {
                 if (apiInstance.expired()) { return; }
-                auto buffer = new VulkanIndexBuffer();
+                auto buffer = new VulkanStorageBuffer();
                 auto apiInstancePtr = apiInstance.lock();
                 buffer->Create(apiInstancePtr.get(), apiInstancePtr->gfxQueue, (uint8_t*) data, length, stride);
-                m_Handle = (IndexBuffer*) buffer;
+                m_Handle = (StorageBuffer*) buffer;
                 break;
             }
             default:

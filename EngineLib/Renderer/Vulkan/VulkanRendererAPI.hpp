@@ -66,11 +66,13 @@ namespace LunaraEngine
         virtual void HandleCommand(const RendererCommand* command,
                                    const RendererCommandType type = RendererCommandType::None) override;
         virtual void HandleCommand(const RendererCommandType type) override;
+        virtual size_t GetWidth() const override;
+        virtual size_t GetHeight() const override;
 
     private:
         void CreateWindow();
 
-        constexpr auto MakeDispatchableTable();
+        static constexpr auto MakeDispatchableTable();
 
     private:
         VkInstance* GetVkInstance() { return &m_RendererData->instance; }

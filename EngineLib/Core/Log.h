@@ -51,8 +51,8 @@ Macro Definitions
     #define LOG_WARNING( ... ) printf( __VA_ARGS__ )
     #define LOG( ... ) printf( __VA_ARGS__ );fflush(stdout)
     #define LOG_ERROR( ... )                                                                                               \
-        LOG( "Error: " );printf("\n");                                                                                                  \
-        printf( __VA_ARGS__ )
+        LOG( "Error: " );                                                                                             \
+        printf( __VA_ARGS__ );printf("\n" );fflush(stdout)
     #define LOG_INFO( ... ) LOG( "Info: ");printf( __VA_ARGS__ );printf("\n" );fflush(stdout)
     #define LOG_DEBUG( ... ) LOG( "Debug: ");printf( __VA_ARGS__ );printf("\n" );fflush(stdout)
 #else

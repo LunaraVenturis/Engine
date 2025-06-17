@@ -107,6 +107,9 @@ int PollEvents(Event* event)
                 event->mouseMotionEvent.xrel = ev.motion.xrel;
                 event->mouseMotionEvent.yrel = ev.motion.yrel;
                 break;
+            case SDL_EVENT_MOUSE_WHEEL:
+                event->type = EVENT_SCROLL_MOTION;
+                break;
             case SDL_EVENT_WINDOW_RESIZED:
                 event->type = EVENT_RESIZE_WINDOW;
                 event->resizeWindowEvent.width = (uint32_t) ev.window.data1;

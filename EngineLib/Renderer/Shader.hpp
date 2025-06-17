@@ -13,7 +13,8 @@ namespace LunaraEngine
         virtual ~Shader() noexcept(false);
 
     public:
-        static std::shared_ptr<Shader> Create(ShaderType type, std::filesystem::path assetsDirectory);
+        static std::shared_ptr<Shader> Create(ShaderType type, std::filesystem::path assetsDirectory,
+                                              ShaderTypeInfo* shaderTypeInfo = nullptr);
         static std::shared_ptr<Shader> Create(const ShaderInfo& info);
 
     public:
@@ -29,6 +30,7 @@ namespace LunaraEngine
         virtual void SetUniform(std::string_view name, const glm::ivec2& value) = 0;
         virtual void SetUniform(std::string_view name, const glm::ivec3& value) = 0;
         virtual void SetUniform(std::string_view name, const glm::ivec4& value) = 0;
+        virtual void* GetBuffer(size_t binding) = 0;
 
     public:
         static size_t GetInputResourceSize(const ShaderInputResource& resource);

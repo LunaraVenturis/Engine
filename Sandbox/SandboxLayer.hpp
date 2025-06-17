@@ -19,7 +19,7 @@ public:
 
     virtual void OnDetach() override {}
 
-    virtual void Destroy() override {}
+    virtual void Destroy() override;
 
     virtual void OnImGuiDraw() override {}
 
@@ -47,10 +47,15 @@ private:
     LunaraEngine::Window* m_Window;
     LunaraEngine::Font m_Font;
     uint32_t x{}, y{};
-    // char text[100];
     Player m_Player = {{0.0f, 0.0f}, {8.0f,8.0f}};
     LunaraEngine::Camera m_Camera = {{1280.0f, 720.0f}};
+    float zoom{1.0f};
+    std::map<uint32_t, uint8_t> m_PressedKeys{};
+
+    LunaraEngine::VertexBuffer m_QuadBuffer;
+    LunaraEngine::IndexBuffer<> m_QuadIndexBuffer;
     std::shared_ptr<LunaraEngine::Shader> m_Shader;
+    std::shared_ptr<LunaraEngine::Shader> m_BatchQuadShader;
     float elapsedTime{};
     float m_PlayerDt{};
 };

@@ -19,6 +19,12 @@ namespace LunaraEngine
         FlatInstanced
     };
 
+    struct ShaderTypeInfo;
+
+    struct FlatInstancedShaderInfo {
+        size_t numInstances{};
+    };
+
     enum class ShaderResourceType
     {
         None = 0,
@@ -92,12 +98,22 @@ namespace LunaraEngine
         ShaderResourceAttributeType type;
     };
 
+    enum ShaderResourceProperty
+    {
+        None = 0,
+        ReadOnly = 1,
+        WriteOnly = 2,
+        ReadWrite = 3
+    };
+
     struct ShaderResource {
-        ShaderResourceType type;
-        std::string_view name;
-        size_t size;
-        ShaderResourceLayout layout;
+        ShaderResourceType type{ShaderResourceType::None};
+        std::string_view name{"UNKNOWN_RESOURCE"};
+        size_t size{};
+        ShaderResourceLayout layout{
+                ShaderResourceLayout{.binding = 0, .layoutType = ShaderResourceMemoryLayout::STD430}};
         std::vector<ShaderResourceAttribute> attributes;
+        ShaderResourceProperty property{ShaderResourceProperty::ReadWrite};
     };
 
     struct ShaderInputResource {
@@ -119,6 +135,7 @@ namespace LunaraEngine
         std::wstring name;
         bool isComputeShader = false;
         ShaderResources resources;
+        uint32_t numInstances{};
     };
 
     struct RendererDataType;
