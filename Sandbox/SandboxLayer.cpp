@@ -14,6 +14,8 @@ void SandboxLayer::Init(std::filesystem::path workingDirectory)
     AudioManager::LoadAudio("AudioTest", "Assets/Audio/AudioTest.wav");
     auto result = LoadFont("Assets/Fonts/joystixmonospace.ttf", 24, &m_Font);
     if (result != FontResultType::FONT_RESULT_SUCCESS) { exit(-6); }
+    m_Player.Init();
+    m_Shader = Shader::Create(ShaderType::FlatQuad, assetsDirectory);
 
     BatchRenderer::Create(assetsDirectory / "Shaders/output");
 }
@@ -32,6 +34,14 @@ void SandboxLayer::OnUpdate(float dt)
     Renderer::BeginRenderPass();
 
     elapsedTime += dt;
+    m_PlayerDt = dt;
+    
+    glm::vec2 offset = glm::vec2{m_Player.GetPlayerPosition()};
+    m_Shader->SetUniform("offset", offset);
+    m_Camera.Upload(m_Shader.get());
+    Renderer::BindShader(m_Shader.get());
+    m_Player.Draw();
+
 
     glm::vec2 camPos = {0.f, 0.f};
     glm::mat4 view = glm::translate(glm::mat4(1.0f), -glm::vec3(camPos.x, camPos.y, 0.0f));
