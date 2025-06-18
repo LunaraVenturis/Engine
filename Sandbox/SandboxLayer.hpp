@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Engine.hpp>
-#include <Player/Player.hpp>
+#include <Entities/Player/Player.hpp>
 #include "Renderer/Camera.hpp"
 
 class SandboxLayer: public LunaraEngine::Layer

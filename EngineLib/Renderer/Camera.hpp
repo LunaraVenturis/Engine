@@ -1,15 +1,12 @@
 #pragma once
 #include "glm/glm.hpp"
-
+#include "UserTypes/UserTypes.hpp"
 namespace LunaraEngine
 {
     class Shader;
 
     class Camera
     {
-        using f32 = float;
-        using u32 = uint32_t;
-
     public:
         Camera(glm::vec2 screen);
         ~Camera() = default;
