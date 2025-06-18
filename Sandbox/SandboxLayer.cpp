@@ -57,8 +57,8 @@ void SandboxLayer::OnUpdate(float dt)
     }
 
 
-    if (m_PressedKeys[KEY_W]) { m_Player.MovePlayer(0.0f, 1.0f, dt); }
-    if (m_PressedKeys[KEY_S]) { m_Player.MovePlayer(0.0f, -1.0f, dt); }
+    if (m_PressedKeys[KEY_W]) { m_Player.MovePlayer(0.0f, -1.0f, dt); }
+    if (m_PressedKeys[KEY_S]) { m_Player.MovePlayer(0.0f, 1.0f, dt); }
     if (m_PressedKeys[KEY_A]) { m_Player.MovePlayer(-1.0f, 0.0f, dt); }
     if (m_PressedKeys[KEY_D]) { m_Player.MovePlayer(1.0f, 0.0f, dt); }
 

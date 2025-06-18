@@ -4,7 +4,8 @@
 
 namespace LunaraEngine
 {
-    Camera::Camera(glm::vec2 screen) : m_Position({0, 0})
+    //default zoom needed to have something on screen
+    Camera::Camera(glm::vec2 screen) : m_Zoom(0.3f), m_Position({0, 0})
     {
         OnResize((u32) screen.x, (u32) screen.y);
         m_View = glm::mat4(1.0f);
