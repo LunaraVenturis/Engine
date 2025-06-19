@@ -2,7 +2,9 @@
 
 #include <Engine.hpp>
 #include <Entities/Player/Player.hpp>
+#include <Entities/Enemy/Enemy.hpp>
 #include "Renderer/Camera.hpp"
+
 
 class SandboxLayer: public LunaraEngine::Layer
 {
@@ -49,7 +51,8 @@ private:
     LunaraEngine::Font m_Font;
     uint32_t x{}, y{};
 
-    Player m_Player = {{0.0f, 0.0f}, {8.0f, 8.0f}};
+    Player m_Player = {{0.0f, 0.0f}, {4.0f, 4.0f}};
+    Enemy m_Enemy = {{1.0f, 1.0f}, {4.0f, 4.0f}};
     LunaraEngine::Camera m_Camera = {{1280.0f, 720.0f}};
 
     float zoom{1.0f};

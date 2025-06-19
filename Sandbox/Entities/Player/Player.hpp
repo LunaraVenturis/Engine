@@ -1,5 +1,6 @@
 #pragma once
 #include "Entities/Entity/Entity.hpp"
+#include "Math/Color.h"
 class Player: public Entity
 {
 public:
@@ -14,7 +15,8 @@ public:
 public:
     void Draw() override;
     void Move(f32 x, f32 y, f32 delta) override;
-
+    bool isColliding(Entity* Enemy);
+    void SetPlayerColor(LunaraEngine::Color4 color);
     [[nodiscard]] glm::vec2 GetPosition() const override { return m_Position; };
 
     [[nodiscard]] EntitySize GetSize() const override { return m_size; };
@@ -23,4 +25,5 @@ private:
     glm::vec2 m_Position;
     glm::vec2 m_Speed;
     EntitySize m_size;
+    LunaraEngine::Color4 m_PlayerColor;
 };

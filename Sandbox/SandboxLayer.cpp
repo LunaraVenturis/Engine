@@ -34,7 +34,9 @@ void SandboxLayer::OnUpdate(float dt)
     m_PlayerDt = dt;
 
     m_Player.Draw();
-
+    m_Enemy.Draw();
+    if (m_Player.isColliding(&m_Enemy)) { m_Player.SetPlayerColor({1.0f, 0.0f, 0.0f, 1.0f}); }
+    else { m_Player.SetPlayerColor({1.0f, 1.0f, 1.0f, 1.0f}); }
     auto shader = BatchRenderer::GetShader();
     if (!shader.expired())
     {
@@ -73,7 +75,18 @@ void SandboxLayer::OnUpdate(float dt)
         m_Camera.SetZoom(zoom);
         LOG_INFO("Zoom: %f", zoom);
     }
-    else if (m_PressedKeys[KEY_F]) { LOG_INFO("FPS: %f", 1.0f / dt); }
+    else if (m_PressedKeys[KEY_F])
+    {
+        LOG_INFO("FPS: %f", 1.0f / dt);
+        LOG_INFO("Position of Player x: %f ", m_Player.GetPosition().x);
+        LOG_INFO("Position of Player y: %f ", m_Player.GetPosition().y);
+        LOG_INFO("Position of Enemy x: %f ", m_Enemy.GetPosition().x);
+        LOG_INFO("Position of Enemy y: %f ", m_Enemy.GetPosition().y);
+        LOG_INFO("Width of Player: %f ", m_Player.GetSize().width);
+        LOG_INFO("Height of Player: %f ", m_Player.GetSize().height);
+        LOG_INFO("Width of Enemy: %f ", m_Enemy.GetSize().width);
+        LOG_INFO("Height of Enemy: %f ", m_Enemy.GetSize().height);
+    }
 }
 
 void SandboxLayer::OnMouseMoveEvent(uint32_t width, uint32_t height)

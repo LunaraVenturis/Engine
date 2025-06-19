@@ -1,5 +1,3 @@
-#include "Entities/Entity/Entity.hpp"
-
 #pragma once
 #include "Entities/Entity/Entity.hpp"
 class Enemy: public Entity
