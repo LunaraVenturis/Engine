@@ -56,13 +56,19 @@ void SandboxLayer::OnUpdate(float dt)
     {
         LunaraEngine::AudioManager::PlayAudio("AudioTest");
     }
+    if (m_Enemy.HasReachedPointX(m_Enemy.GetPosition().x, 128.0f))
+    {
+        m_goingRight = true;
+    }
+    if (m_Enemy.HasReachedPointX(m_Enemy.GetPosition().x, 0.0f)) { m_goingRight = false; }
+    if (m_goingRight) { m_Enemy.Move(-1.0f, 0.0f, 0.0f, dt); }
+    else { m_Enemy.Move(1.0f, 0.0f, 0.0f, dt); }
 
-
-    if (m_PressedKeys[KEY_W]) { m_Player.Move(0.0f, -1.0f, dt); }
-    if (m_PressedKeys[KEY_S]) { m_Player.Move(0.0f, 1.0f, dt); }
-    if (m_PressedKeys[KEY_A]) { m_Player.Move(-1.0f, 0.0f, dt); }
-    if (m_PressedKeys[KEY_D]) { m_Player.Move(1.0f, 0.0f, dt); }
-
+    if (m_PressedKeys[KEY_W]) { m_Player.Move(0.0f, -1.0f, 0.0f, dt); }
+    if (m_PressedKeys[KEY_S]) { m_Player.Move(0.0f, 1.0f, 0.0f, dt); }
+    if (m_PressedKeys[KEY_A]) { m_Player.Move(-1.0f, 0.0f, 0.0f, dt); }
+    if (m_PressedKeys[KEY_D]) { m_Player.Move(1.0f, 0.0f, 0.0f, dt); }
+    if (m_PressedKeys[KEY_SPACE]) { m_Player.Move(0.0f, 0.0f, 1.0f, dt); }
     if (m_PressedKeys[KEY_L])
     {
         zoom += dt;
@@ -80,8 +86,10 @@ void SandboxLayer::OnUpdate(float dt)
         LOG_INFO("FPS: %f", 1.0f / dt);
         LOG_INFO("Position of Player x: %f ", m_Player.GetPosition().x);
         LOG_INFO("Position of Player y: %f ", m_Player.GetPosition().y);
+        LOG_INFO("Position of Player z: %f ", m_Player.GetPosition().z);
         LOG_INFO("Position of Enemy x: %f ", m_Enemy.GetPosition().x);
         LOG_INFO("Position of Enemy y: %f ", m_Enemy.GetPosition().y);
+        LOG_INFO("Position of Enemy z: %f ", m_Enemy.GetPosition().z);
         LOG_INFO("Width of Player: %f ", m_Player.GetSize().width);
         LOG_INFO("Height of Player: %f ", m_Player.GetSize().height);
         LOG_INFO("Width of Enemy: %f ", m_Enemy.GetSize().width);

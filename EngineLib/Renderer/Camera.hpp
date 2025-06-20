@@ -8,7 +8,7 @@ namespace LunaraEngine
     class Camera
     {
     public:
-        Camera(glm::vec2 screen);
+        Camera(glm::vec3 screen);
         ~Camera() = default;
 
     public:
@@ -27,8 +27,8 @@ namespace LunaraEngine
         void Init();
         void OnUpdate(float dt);
         void OnResize(uint32_t width, uint32_t height);
-        void Move(glm::vec2 relativePosition);
-        void SetPosition(glm::vec2 position);
+        void Move(glm::vec3 relativePosition);
+        void SetPosition(glm::vec3 position);
         void SetZoom(f32 zoom);
         void Zoom(f32 zoom);
 
@@ -40,7 +40,7 @@ namespace LunaraEngine
         f32 m_AspectRatio;
         f32 m_Zoom;
         glm::vec2 m_ScreenSize;
-        glm::vec2 m_Position;
+        glm::vec3 m_Position;
         glm::mat4 m_Projection;
         glm::mat4 m_View;
         glm::mat4 m_Model;

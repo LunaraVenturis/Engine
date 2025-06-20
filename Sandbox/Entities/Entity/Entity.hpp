@@ -21,8 +21,8 @@ public:
 
 public:
    virtual void Draw() = 0;
-   virtual void Move(f32 x, f32 y, f32 delta) = 0;
-   [[nodiscard]] virtual glm::vec2 GetPosition() const = 0;
+   virtual void Move(f32 x, f32 y, f32 z, f32 delta) = 0;
+   [[nodiscard]] virtual glm::vec3 GetPosition() const = 0;
    [[nodiscard]] virtual EntitySize GetSize() const = 0;
 
 };

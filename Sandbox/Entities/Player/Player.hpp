@@ -5,7 +5,7 @@ class Player: public Entity
 {
 public:
     Player() = delete;
-    Player(glm::vec2 playerPosition, EntitySize playerSize);
+    Player(glm::vec3 playerPosition, EntitySize playerSize);
     Player(const Player& player) = delete;
     Player(Player&& player) = delete;
     Player& operator=(const Player&) = delete;
@@ -14,16 +14,16 @@ public:
 
 public:
     void Draw() override;
-    void Move(f32 x, f32 y, f32 delta) override;
+    void Move(f32 x, f32 y, f32 z, f32 delta) override;
     bool isColliding(Entity* Enemy);
     void SetPlayerColor(LunaraEngine::Color4 color);
-    [[nodiscard]] glm::vec2 GetPosition() const override { return m_Position; };
+    [[nodiscard]] glm::vec3 GetPosition() const override { return m_Position; };
 
     [[nodiscard]] EntitySize GetSize() const override { return m_size; };
 
 private:
-    glm::vec2 m_Position;
-    glm::vec2 m_Speed;
+    glm::vec3 m_Position;
+    glm::vec3 m_Speed;
     EntitySize m_size;
     LunaraEngine::Color4 m_PlayerColor;
 };

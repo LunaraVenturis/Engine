@@ -4,8 +4,7 @@
 
 namespace LunaraEngine
 {
-    //default zoom needed to have something on screen
-    Camera::Camera(glm::vec2 screen) : m_Zoom(0.3f), m_Position({0, 0})
+    Camera::Camera(glm::vec3 screen) : m_Zoom(0.10f), m_Position({0, 0, 0})
     {
         OnResize((u32) screen.x, (u32) screen.y);
         m_View = glm::mat4(1.0f);
@@ -26,15 +25,15 @@ namespace LunaraEngine
         m_Projection = glm::ortho(0.0f, m_ScreenSize.x * m_Zoom, 0.0f, m_ScreenSize.y * m_Zoom, -1.0f, 1.0f);
     }
 
-    void Camera::CalculateView() { m_View = glm::translate(glm::mat4(1.0f), -glm::vec3{m_Position, 0.0f}); }
+    void Camera::CalculateView() { m_View = glm::translate(glm::mat4(1.0f), -glm::vec3{m_Position}); }
 
-    void Camera::Move(glm::vec2 relativePosition)
+    void Camera::Move(glm::vec3 relativePosition)
     {
         m_Position += relativePosition;
         CalculateView();
     }
 
-    void Camera::SetPosition(glm::vec2 position)
+    void Camera::SetPosition(glm::vec3 position)
     {
         m_Position = position;
         CalculateView();
