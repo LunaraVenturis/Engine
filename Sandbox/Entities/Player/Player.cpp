@@ -2,13 +2,13 @@
 #include <Engine.hpp>
 
 Player::Player(glm::vec3 playerPosition, EntitySize playerSize)
-    : m_Position(playerPosition), m_Speed({100.0f, 100.0f, 100.0f}), m_size(playerSize),
+    : m_Position(playerPosition), m_Speed({100.0f, 100.0f, 100.0f}), m_Size(playerSize),
       m_PlayerColor({1.0f, 1.0f, 1.0f, 1.0f})
 {}
 
 void Player::Draw()
 {
-    auto rect = LunaraEngine::FRect{m_Position.x, m_Position.y, m_size.width, m_size.height};
+    auto rect = LunaraEngine::FRect{m_Position.x, m_Position.y, m_Size.width, m_Size.height};
     LunaraEngine::BatchRenderer::AddQuad(rect, m_PlayerColor);
 }
 
@@ -23,9 +23,9 @@ bool Player::isColliding(Entity* enemy)
 {
     const float Z_THRESHOLD = 0.1f;
     return (m_Position.x < enemy->GetPosition().x + enemy->GetSize().width &&
-            m_Position.x + m_size.width > enemy->GetPosition().x &&
+            m_Position.x + m_Size.width > enemy->GetPosition().x &&
             m_Position.y < enemy->GetPosition().y + enemy->GetSize().height &&
-            m_Position.y + m_size.height > enemy->GetPosition().y) &&
+            m_Position.y + m_Size.height > enemy->GetPosition().y) &&
             fabs(m_Position.z - enemy->GetPosition().z) < Z_THRESHOLD ;
 }
 

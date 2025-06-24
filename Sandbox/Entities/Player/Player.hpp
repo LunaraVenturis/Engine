@@ -19,11 +19,11 @@ public:
     void SetPlayerColor(LunaraEngine::Color4 color);
     [[nodiscard]] glm::vec3 GetPosition() const override { return m_Position; };
 
-    [[nodiscard]] EntitySize GetSize() const override { return m_size; };
+    [[nodiscard]] EntitySize GetSize() const override { return m_Size; };
 
 private:
     glm::vec3 m_Position;
     glm::vec3 m_Speed;
-    EntitySize m_size;
+    EntitySize m_Size;
     LunaraEngine::Color4 m_PlayerColor;
 };

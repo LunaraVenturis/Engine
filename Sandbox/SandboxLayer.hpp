@@ -2,7 +2,8 @@
 
 #include <Engine.hpp>
 #include <Entities/Player/Player.hpp>
-#include <Entities/Enemy/Enemy.hpp>
+#include <Entities/Enemies/Enemy.hpp>
+#include <StaticEntities/StaticEntity.hpp>
 #include "Renderer/Camera.hpp"
 
 
@@ -53,6 +54,7 @@ private:
 
     Player m_Player = {{0.0f, 0.0f, 0.0f}, {4.0f, 4.0f}};
     Enemy m_Enemy = {{1.0f, 1.0f, 0.0f}, {4.0f, 4.0f}};
+    //StaticEntity m_Wall = {{20.0f, 20.0f, 0.0f}, {4.0f, 4.0f}};
     LunaraEngine::Camera m_Camera = {{1280.0f, 720.0f, 0.0f}};
     float zoom{0.5f};
     std::map<uint32_t, uint8_t> m_PressedKeys{};
