@@ -7,6 +7,8 @@ option(ENABLE_DEBUG_LOG "Enable debug log" ON)
 option(ENABLE_MEMORY_DEBUG_LOG "Enable memory debug log" ON)
 option(ENG_VENDORED "Use vendored libraries" ON)
 option(SDLTTF_VENDORED "Use vendored SDL_ttf" ${ENG_VENDORED})
+option(ENABLE_COVERAGE "Enable LLVM code coverage" ON)
+option(ENABLE_TESTS "Enable tests" OFF)
 
 set(CMAKE_CXX_STANDARD 20)
 message("Compiler Version: ${CMAKE_CXX_COMPILER_VERSION}")
@@ -152,16 +154,8 @@ if(WIN32)
         COMMAND_EXPAND_LISTS
     )
 endif()
-function(target_add_flags target)
-    if(CMAKE_CXX_COMPILE_ID MATCHES "MSVC")
-    elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-        target_compile_options(${target} PRIVATE -Wall -Wconversion -Werror -Wextra -Wpedantic)
 
-    elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
-        target_compile_options(${target} PRIVATE -Wall -Wconversion -Werror -Wextra -Wpedantic)
-    endif()
-endfunction(target_add_flags)
-
+include(TargetHelpers.cmake)
 
 if(WIN32)
     set(SHELL_INTERPRETER "powershell")
@@ -179,5 +173,9 @@ add_custom_target(copy_assets COMMAND ${SHELL_INTERPRETER}
 add_dependencies(EngineLib copy_assets)
 add_dependencies(Sandbox copy_assets)
 
-target_add_flags(EngineLib)
-target_add_flags(Sandbox)
+target_add_pedantic_flags(EngineLib)
+target_add_pedantic_flags(Sandbox)
+
+include(tests/UnitTests.cmake)
+
+enable_tests(Sandbox TestTarget EngineLib copy_assets)

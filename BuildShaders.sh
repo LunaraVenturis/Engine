@@ -42,4 +42,5 @@ compile_shaders "$1"
 
 echo "📋 Copying assets"
 cp -r "$1/Assets" "$1/build/bin/"
+cp -r "$1/Assets" "$1/build/"
 echo "🎉 Done copying assets"
