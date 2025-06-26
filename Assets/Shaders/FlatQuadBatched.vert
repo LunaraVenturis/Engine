@@ -33,7 +33,7 @@ vec2 getVertex(uint vertexID, uint quadIndex)
                         vec2(pos.x, pos.y + size.y),
                         vec2(pos.x, pos.y)};
 
-    return vec2(vertices[vertexID] + pos);
+    return vec2(vertices[vertexID]);
 }
 
 void main()

@@ -99,7 +99,6 @@ namespace LunaraEngine
         std::array<VkDeviceSize, 1> offsets = {0};
         vkCmdBindVertexBuffers(buffer, 0, 1, vertexBuffers.data(), offsets.data());
         vkCmdBindIndexBuffer(buffer, indexBuffer->GetBuffer(), 0, VK_INDEX_TYPE_UINT16);
-
         VkViewport viewport{};
         viewport.x = 0.0f;
         viewport.y = 0.0f;

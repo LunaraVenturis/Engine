@@ -2,7 +2,7 @@
 #include <Engine.hpp>
 
 Player::Player(glm::vec2 playerPosition, PlayerSize playerSize)
-    : m_Position(playerPosition), m_Speed({2.0f, 2.0f}), m_size(playerSize)
+    : m_Position(playerPosition), m_Speed({50.0f, 50.0f}), m_size(playerSize)
 {}
 
 void Player::Init() {}
