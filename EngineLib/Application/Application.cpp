@@ -23,7 +23,7 @@ namespace LunaraEngine
     void Application::Run()
     {
         LayerStack::InitLayers(m_WorkingDirectory);
-        Event event;
+        Event event{};
         double dt = 0.0f;
         Timer timer;
         while (true)

@@ -156,6 +156,9 @@ namespace LunaraEngine
         delete m_RendererData->swapChain;
         VulkanInitializer::Goodbye(m_RendererData.get());
         SDL_DestroyWindow(static_cast<SDL_Window*>(m_RendererData->window->data));
+        delete m_RendererData->window;
+        SDL_QuitSubSystem(SDL_INIT_VIDEO);
+        SDL_Quit();
     }
 
 }// namespace LunaraEngine

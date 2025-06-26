@@ -1,6 +1,8 @@
 #pragma once
 #include <map>
 #include <functional>
+#include <string_view>
+#include <Core/Log.h>
 
 namespace LunaraEngine
 {
@@ -71,14 +73,18 @@ namespace LunaraEngine
 
         constexpr static void RegisterCommands();
 
-        template <typename T, std::enable_if_t<std::is_base_of<RendererCommand, T>::value>>
-        constexpr static void RegisterCommand(RendererCommandType type);
+        template <typename T,
+                  std::enable_if_t<std::is_base_of_v<RendererCommand, T> && !std::is_same_v<T, void>, int> = 0>
+        constexpr static void RegisterCommand(RendererCommandType type, std::string_view name);
 
-        template <typename T>
-        constexpr static void RegisterCommand(RendererCommandType type);
+        template <typename T, std::enable_if_t<std::is_same_v<void, T>, int> = 0>
+        constexpr static void RegisterCommand(RendererCommandType type, std::string_view name);
+
+        const char* GetName();
 
     private:
         inline static std::map<RendererCommandType, std::function<void(RendererCommand*)>> s_RegisteredCommands;
+        inline static std::map<RendererCommandType, const char*> s_RegisteredCommandNames;
     };
 
     class RendererCommandDrawQuad: public RendererCommand
@@ -254,32 +260,44 @@ namespace LunaraEngine
 
     constexpr void RendererCommand::RegisterCommands()
     {
-        auto commands = std::array<RendererCommandType, 10>{
-                RendererCommandType::BindTexture,     RendererCommandType::DrawTriangle,
-                RendererCommandType::BeginRenderPass, RendererCommandType::EndRenderPass,
-                RendererCommandType::Submit,          RendererCommandType::BeginFrame,
-                RendererCommandType::Present,         RendererCommandType::BindTexture,
-                RendererCommandType::DrawCircle,      RendererCommandType::DrawText};
+        auto commands = std::array<std::tuple<RendererCommandType, std::string_view>, 9>{
+                std::tuple<RendererCommandType, std::string_view>{RendererCommandType::BindTexture,
+                                                                  "RendererCommand::BindTexture"},
+                {RendererCommandType::DrawTriangle, "RendererCommand::DrawTriangle"},
+                {RendererCommandType::BeginRenderPass, "RendererCommand::BeginRenderPass"},
+                {RendererCommandType::EndRenderPass, "RendererCommand::EndRenderPass"},
+                {RendererCommandType::Submit, "RendererCommand::Submit"},
+                {RendererCommandType::BeginFrame, "RendererCommand::BeginFrame"},
+                {RendererCommandType::Present, "RendererCommand::Present"},
+                {RendererCommandType::DrawCircle, "RendererCommand::DrawCircle"},
+                {RendererCommandType::DrawText, "RendererCommand::DrawText"}};
 
-        for (const auto& command: commands) { RegisterCommand<void>(command); }
+        for (const auto& [command, commandName]: commands) { RegisterCommand<void>(command, commandName); }
 
-        RegisterCommand<RendererCommandBindShader>(RendererCommandType::BindShader);
-        RegisterCommand<RendererCommandClear>(RendererCommandType::Clear);
-        RegisterCommand<RendererCommandDrawText>(RendererCommandType::DrawText);
-        RegisterCommand<RendererCommandDrawIndexed>(RendererCommandType::DrawIndexed);
-        RegisterCommand<RendererCommandDrawInstanced>(RendererCommandType::DrawInstanced);
+        RegisterCommand<RendererCommandBindShader>(RendererCommandType::BindShader, "RendererCommand::BindShader");
+        RegisterCommand<RendererCommandClear>(RendererCommandType::Clear, "RendererCommand::Clear");
+        RegisterCommand<RendererCommandDrawText>(RendererCommandType::DrawText, "RendererCommand::DrawText");
+        RegisterCommand<RendererCommandDrawIndexed>(RendererCommandType::DrawIndexed, "RendererCommand::DrawIndexed");
+        RegisterCommand<RendererCommandDrawInstanced>(RendererCommandType::DrawInstanced,
+                                                      "RendererCommand::DrawInstanced");
+        RegisterCommand<RendererCommandDrawInstanced>(RendererCommandType::DrawQuadBatch,
+                                                      "RendererCommand::DrawQuadBatch");
     }
 
-    template <typename T, std::enable_if_t<std::is_base_of<RendererCommand, T>::value>>
-    constexpr void RendererCommand::RegisterCommand(RendererCommandType type)
+    template <typename T, std::enable_if_t<std::is_base_of_v<RendererCommand, T> && !std::is_same_v<T, void>, int>>
+    constexpr void RendererCommand::RegisterCommand(RendererCommandType type, std::string_view name)
     {
+        LOG_INFO("Registering command: %s", name.data());
         RendererCommand::s_RegisteredCommands.emplace(type, [](RendererCommand* command) { delete (T*) (command); });
+        RendererCommand::s_RegisteredCommandNames.emplace(type, name.data());
     }
 
-    template <typename T>
-    constexpr void RendererCommand::RegisterCommand(RendererCommandType type)
+    template <typename T, std::enable_if_t<std::is_same_v<void, T>, int>>
+    constexpr void RendererCommand::RegisterCommand(RendererCommandType type, std::string_view name)
     {
+        LOG_INFO("Registering command: %s", name.data());
         RendererCommand::s_RegisteredCommands.emplace(type, nullptr);
+        RendererCommand::s_RegisteredCommandNames.emplace(type, name.data());
     }
 
 }// namespace LunaraEngine

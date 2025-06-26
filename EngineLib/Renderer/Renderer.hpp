@@ -40,6 +40,7 @@
 Includes
 ***********************************************************************************************************************/
 #include "Core/STDTypes.h"
+#include "Core/Log.h"
 #include "Window.hpp"
 #include "Math/Rect.h"
 #include "Math/Color.h"
@@ -101,6 +102,7 @@ namespace LunaraEngine
     private:
         inline static void PushCommand(RendererCommand* command)
         {
+            LOG_INFO("Pushing command: %s", command->GetName());
             GetInstance()->m_CommandStack.push_back(std::variant<RendererCommandType, RendererCommand*>(command));
         }
 
