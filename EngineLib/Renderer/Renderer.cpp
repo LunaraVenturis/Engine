@@ -43,11 +43,13 @@ Includes
 #include "RendererAPI.hpp"
 #include "Texture.hpp"
 #include "Fonts.hpp"
+#include <Renderer/RendererCommands.hpp>
 #include <Core/Log.h>
 #include <string_view>
 
 namespace LunaraEngine
 {
+    const char* RendererCommand::GetName() { return s_RegisteredCommandNames.at(GetType()); }
 
     RendererResultType Renderer::Init(std::string_view window_name, uint32_t width, uint32_t height)
     {
@@ -79,7 +81,14 @@ namespace LunaraEngine
         return RendererResultType::Renderer_Result_Not_Done;
     }
 
-    void Renderer::Destroy() { RendererAPI::GetInstance()->Destroy(); }
+    void Renderer::Destroy()
+    {
+        RendererAPI::GetInstance()->Destroy();
+        RendererAPI::DestroyRendererAPI();
+
+        delete s_Instance;
+        s_Instance = nullptr;
+    }
 
     void Renderer::BeginFrame() { PushCommand(RendererCommandType::BeginFrame); }
 
@@ -132,19 +141,19 @@ namespace LunaraEngine
     {
         for (const auto& cmd: Renderer::GetInstance()->m_CommandStack)
         {
-            std::visit(
-                    [](auto&& arg) {
-                        if constexpr (std::is_enum_v<std::decay_t<decltype(arg)>>)
-                        {
-                            RendererAPI::GetInstance()->HandleCommand(nullptr, arg);
-                        }
-                        else
-                        {
-                            RendererAPI::GetInstance()->HandleCommand(arg, arg->GetType());
-                            RendererCommand::FreeCommand(arg);
-                        }
-                    },
-                    cmd);
+            if (!std::holds_alternative<RendererCommand*>(cmd))
+            {
+                RendererAPI::GetInstance()->HandleCommand(nullptr, std::get<RendererCommandType>(cmd));
+                continue;
+            }
+            else
+            {
+                LOG_INFO("Handling: %s", std::get<RendererCommand*>(cmd)->GetName());
+                RendererAPI::GetInstance()->HandleCommand(std::get<RendererCommand*>(cmd),
+                                                          std::get<RendererCommand*>(cmd)->GetType());
+                LOG_INFO("Freeing: %s", std::get<RendererCommand*>(cmd)->GetName());
+                RendererCommand::FreeCommand(std::get<RendererCommand*>(cmd));
+            }
         }
 
         Renderer::GetInstance()->m_CommandStack.clear();

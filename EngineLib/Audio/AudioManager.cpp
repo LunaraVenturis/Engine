@@ -97,7 +97,11 @@ namespace LunaraEngine
         audio.sound = (ma_sound*) malloc(sizeof(ma_sound));
         auto result = ma_sound_init_from_file(&g_AudioManagerData.engine, path.data(), soundFlags, NULL,
                                               &g_AudioManagerData.done_fence, audio.sound);
-        if (result != MA_SUCCESS) { return AudioManager_Result_Fail; }
+        if (result != MA_SUCCESS)
+        {
+            free(audio.sound);
+            return AudioManager_Result_Fail;
+        }
 
         //Wait for the sound to load
         ma_fence_wait(&g_AudioManagerData.done_fence);
