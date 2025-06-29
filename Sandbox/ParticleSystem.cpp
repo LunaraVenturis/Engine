@@ -100,7 +100,6 @@ namespace LunaraEngine
         constexpr float windResistance = 0.001f;
         constexpr glm::vec2 windDir = {0.2f, -0.08f};
 
-        glm::vec2 currDir = glm::vec2{glm::sin(m_PassedTime) * 100, 1.0f};
         for (size_t id = 0; id < m_Capacity; ++id)
         {
             auto& particleLife = m_Lifes[id];
@@ -111,7 +110,7 @@ namespace LunaraEngine
             }
 
             m_Positions[id] += m_Velocities[id] * speed * dt;
-            m_Velocities[id] += currDir * windSpeed * dt;
+            m_Velocities[id] += windDir * windSpeed * dt;
             m_Velocities[id] *= 1.0f - windResistance;
             particleLife -= dt;
         }
