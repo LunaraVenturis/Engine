@@ -4,8 +4,6 @@
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/ext/matrix_clip_space.hpp>
 
-#include "ParticleSystem.hpp"
-
 void SandboxLayer::Init(std::filesystem::path workingDirectory)
 {
     using namespace LunaraEngine;

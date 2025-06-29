@@ -51,6 +51,7 @@ Includes
 #include "VertexBuffer.hpp"
 #include "Shader.hpp"
 #include "BatchRenderer.hpp"
+#include "ParticleSystem.hpp"
 
 #include <SDL3/SDL_render.h>
 
