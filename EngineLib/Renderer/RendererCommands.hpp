@@ -2,6 +2,7 @@
 #include <map>
 #include <functional>
 #include <string_view>
+#include <span>
 #include <Core/Log.h>
 
 namespace LunaraEngine
@@ -196,17 +197,19 @@ namespace LunaraEngine
     class RendererCommandDrawBatch: public RendererCommand
     {
     public:
+        using BufferUpload = std::tuple<StorageBuffer<uint8_t>*, std::span<uint8_t>>;
+        using BufferUploadList = std::vector<BufferUpload>;
+
         RendererCommandDrawBatch() = default;
 
-        RendererCommandDrawBatch(uint8_t* data, StorageBuffer<uint8_t>* batchStorage, size_t count, size_t offset = 0)
-            : data(data), batchStorage(batchStorage), count(count), offset(offset)
+        RendererCommandDrawBatch(BufferUploadList& uploadList, size_t count, size_t offset = 0)
+            : uploadList(uploadList), count(count), offset(offset)
         {}
 
         virtual RendererCommandType GetType() const override { return RendererCommandType::DrawQuadBatch; }
 
     public:
-        uint8_t* data{};
-        StorageBuffer<uint8_t>* batchStorage{};
+        BufferUploadList uploadList;
         size_t count{};
         size_t offset{};
     };

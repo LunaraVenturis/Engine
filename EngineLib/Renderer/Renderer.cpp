@@ -133,7 +133,7 @@ namespace LunaraEngine
 
     void Renderer::DrawQuadBatch()
     {
-        PushCommand(BatchRenderer::GetDrawCommand());
+        PushCommand(BatchRenderer::CreateDrawCommand());
         BatchRenderer::Flush();
     }
 
@@ -148,10 +148,8 @@ namespace LunaraEngine
             }
             else
             {
-                LOG_INFO("Handling: %s", std::get<RendererCommand*>(cmd)->GetName());
                 RendererAPI::GetInstance()->HandleCommand(std::get<RendererCommand*>(cmd),
                                                           std::get<RendererCommand*>(cmd)->GetType());
-                LOG_INFO("Freeing: %s", std::get<RendererCommand*>(cmd)->GetName());
                 RendererCommand::FreeCommand(std::get<RendererCommand*>(cmd));
             }
         }

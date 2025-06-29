@@ -61,7 +61,7 @@ namespace LunaraEngine
                 if (apiInstance.expired()) { return; }
                 auto buffer = new VulkanStorageBuffer();
                 auto apiInstancePtr = apiInstance.lock();
-                buffer->Create(apiInstancePtr.get(), apiInstancePtr->gfxQueue, (uint8_t*) data, length, stride);
+                buffer->Create(apiInstancePtr.get(), (uint8_t*) data, length, stride);
                 m_Handle = (StorageBuffer*) buffer;
                 break;
             }

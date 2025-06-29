@@ -171,7 +171,6 @@ namespace LunaraEngine
 
             const auto& type = resource.type;
             const auto& name = resource.name;
-            size_t size = resource.size;
             ShaderBindingT binding = resource.layout.binding;
             ShaderResourceMemoryLayout layout = resource.layout.layoutType;
 
@@ -198,7 +197,6 @@ namespace LunaraEngine
             descriptorSetLayoutBindings.push_back(descriptorSetLayoutBinding);
 
             (void) name;
-            (void) size;
             (void) layout;
         }
 
@@ -272,7 +270,7 @@ namespace LunaraEngine
             {
                 VkPushConstantRange range{};
                 range.offset = 0;
-                range.size = (uint32_t) resource.size;
+                range.size = (uint32_t) resource.length * (uint32_t) resource.stride;
                 range.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
                 ranges.push_back(range);
             }

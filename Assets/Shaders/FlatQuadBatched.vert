@@ -7,7 +7,10 @@ layout(binding = 0) uniform UniformBuffer
     mat4 model;
     mat4 view;
     mat4 projection;
-}ubo;
+    float zoom;
+}
+
+ubo;
 
 struct Quad {
     vec4 position;

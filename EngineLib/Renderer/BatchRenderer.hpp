@@ -36,7 +36,7 @@ namespace LunaraEngine
 
     public:
         static void AddQuad(const FRect& rect, const Color4& color);
-        static RendererCommandDrawBatch* GetDrawCommand();
+        static RendererCommandDrawBatch* CreateDrawCommand();
         static void Flush();
         static std::weak_ptr<Shader> GetShader();
 

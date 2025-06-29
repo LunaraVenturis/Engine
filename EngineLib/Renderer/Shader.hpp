@@ -26,6 +26,7 @@ namespace LunaraEngine
         virtual void SetUniform(std::string_view name, const glm::vec4& value) = 0;
         virtual void SetUniform(std::string_view name, const glm::mat3& value) = 0;
         virtual void SetUniform(std::string_view name, const glm::mat4& value) = 0;
+        virtual void SetUniform(std::string_view name, const uint32_t& value) = 0;
         virtual void SetUniform(std::string_view name, const int& value) = 0;
         virtual void SetUniform(std::string_view name, const glm::ivec2& value) = 0;
         virtual void SetUniform(std::string_view name, const glm::ivec3& value) = 0;

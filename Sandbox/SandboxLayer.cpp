@@ -17,18 +17,23 @@ void SandboxLayer::Init(std::filesystem::path workingDirectory)
     m_Player.Init();
 
     BatchRenderer::Create(assetsDirectory / "Shaders/output");
+    ParticleSystem::Create(assetsDirectory / "Shaders/output");
 }
 
 void SandboxLayer::Destroy()
 {
     using namespace LunaraEngine;
+    ParticleSystem::Destroy();
     BatchRenderer::Destroy();
 }
 
 void SandboxLayer::OnUpdate(float dt)
 {
     using namespace LunaraEngine;
-    Renderer::Clear(Color4{0.0f, 0.0f, 0.0f, 1.0f});
+
+    ParticleSystem::GetInstance()->Update(dt);
+
+    Renderer::Clear(Color4{1.0f, 1.0f, 1.0f, 1.0f});
 
     Renderer::BeginRenderPass();
     elapsedTime += dt;
@@ -44,6 +49,16 @@ void SandboxLayer::OnUpdate(float dt)
         m_Camera.Upload(shaderPtr);
 
         Renderer::DrawQuadBatch();
+    }
+
+    auto particleShader = ParticleSystem::GetShader();
+    if (!particleShader.expired())
+    {
+        auto shaderPtr = particleShader.lock().get();
+        Renderer::BindShader(shaderPtr, (void*) nullptr);
+        m_Camera.Upload(shaderPtr);
+
+        Renderer::PushCommand(ParticleSystem::CreateDrawCommand());
     }
 
     Renderer::EndRenderPass();

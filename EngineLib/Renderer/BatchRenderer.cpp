@@ -4,6 +4,7 @@
 #include <Renderer/StorageBuffer.hpp>
 #include <Renderer/RendererCommands.hpp>
 #include <glm/glm.hpp>
+#include <span>
 
 namespace LunaraEngine
 {
@@ -31,17 +32,20 @@ namespace LunaraEngine
         basicShaderResources.bufferResources.push_back(ShaderResource{
                 .type = ShaderResourceType::UniformBuffer,
                 .name = "UniformBuffer",
-                .size = sizeof(glm::mat4) * 3,
+                .length = 1,
+                .stride = sizeof(glm::mat4) * 3 + sizeof(float),
                 .layout = ShaderResourceLayout{.binding = 0, .layoutType = ShaderResourceMemoryLayout::STD430},
                 .attributes = {
                         ShaderResourceAttribute{.name = "model", .type = ShaderResourceAttributeType::Mat4},
                         ShaderResourceAttribute{.name = "view", .type = ShaderResourceAttributeType::Mat4},
                         ShaderResourceAttribute{.name = "projection", .type = ShaderResourceAttributeType::Mat4},
+                        ShaderResourceAttribute{.name = "zoom", .type = ShaderResourceAttributeType::Float},
                 }});
         basicShaderResources.bufferResources.push_back(ShaderResource{
                 .type = ShaderResourceType::StorageBuffer,
                 .name = "StorageBuffer",
-                .size = sizeof(glm::vec4) + sizeof(glm::vec3) * MAX_QUADS,
+                .length = MAX_QUADS,
+                .stride = sizeof(glm::vec4) + sizeof(glm::vec3),
                 .layout = ShaderResourceLayout{.binding = 1, .layoutType = ShaderResourceMemoryLayout::STD430},
                 .attributes = {
                         ShaderResourceAttribute{.name = "quad", .type = ShaderResourceAttributeType::Vec4},
@@ -61,7 +65,6 @@ namespace LunaraEngine
 
     BatchRenderer* BatchRenderer::GetInstance() { return s_BatchRenderer; }
 
-
     void BatchRenderer::AddQuad(const FRect& rect, const Color4& color)
     {
         auto instance = GetInstance();
@@ -71,13 +74,18 @@ namespace LunaraEngine
         ++instance->m_QuadCount;
     }
 
-    RendererCommandDrawBatch* BatchRenderer::GetDrawCommand()
+    RendererCommandDrawBatch* BatchRenderer::CreateDrawCommand()
     {
         auto instance = GetInstance();
         auto shader = instance->m_Shader;
-        auto buffer = (StorageBuffer<uint8_t>*) shader->GetBuffer(1);
-        RendererCommandDrawBatch* command = new RendererCommandDrawBatch((uint8_t*) (instance->m_Quads.data()), buffer,
-                                                                         instance->m_QuadCount, instance->m_Offset);
+
+        RendererCommandDrawBatch::BufferUploadList uploadList{
+                {(StorageBuffer<uint8_t>*) shader->GetBuffer(1),
+                 std::span<uint8_t>{(uint8_t*) (instance->m_Quads.data()),
+                                    instance->m_QuadCount * sizeof(QuadBufferElement)}}};
+
+        RendererCommandDrawBatch* command =
+                new RendererCommandDrawBatch(uploadList, instance->m_QuadCount, instance->m_Offset);
 
         return command;
     }
