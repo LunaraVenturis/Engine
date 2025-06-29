@@ -70,6 +70,7 @@ namespace LunaraEngine
         Vec2,
         Vec3,
         Vec4,
+        UInt,
         Int,
         IVec2,
         IVec3,
@@ -109,7 +110,8 @@ namespace LunaraEngine
     struct ShaderResource {
         ShaderResourceType type{ShaderResourceType::None};
         std::string_view name{"UNKNOWN_RESOURCE"};
-        size_t size{};
+        size_t length{};
+        size_t stride{};
         ShaderResourceLayout layout{
                 ShaderResourceLayout{.binding = 0, .layoutType = ShaderResourceMemoryLayout::STD430}};
         std::vector<ShaderResourceAttribute> attributes;

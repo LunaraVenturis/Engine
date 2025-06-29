@@ -14,12 +14,14 @@ namespace LunaraEngine
             basicShaderResources.bufferResources.push_back(ShaderResource{
                     .type = ShaderResourceType::UniformBuffer,
                     .name = "UniformBuffer",
-                    .size = sizeof(glm::mat4) * 3,
+                    .length = 1,
+                    .stride = sizeof(glm::mat4) * 3 + sizeof(float),
                     .layout = ShaderResourceLayout{.binding = 0, .layoutType = ShaderResourceMemoryLayout::STD140},
                     .attributes = {
                             ShaderResourceAttribute{.name = "model", .type = ShaderResourceAttributeType::Mat4},
                             ShaderResourceAttribute{.name = "view", .type = ShaderResourceAttributeType::Mat4},
                             ShaderResourceAttribute{.name = "projection", .type = ShaderResourceAttributeType::Mat4},
+                            ShaderResourceAttribute{.name = "zoom", .type = ShaderResourceAttributeType::Float},
                     }});
 
             ShaderInfo basicShaderInfo;
@@ -55,12 +57,14 @@ namespace LunaraEngine
             basicShaderResources.bufferResources.push_back(ShaderResource{
                     .type = ShaderResourceType::UniformBuffer,
                     .name = "UniformBuffer",
-                    .size = sizeof(glm::mat4) * 3,
+                    .length = 1,
+                    .stride = sizeof(glm::mat4) * 3 + sizeof(float),
                     .layout = ShaderResourceLayout{.binding = 0, .layoutType = ShaderResourceMemoryLayout::STD140},
                     .attributes = {
                             ShaderResourceAttribute{.name = "model", .type = ShaderResourceAttributeType::Mat4},
                             ShaderResourceAttribute{.name = "view", .type = ShaderResourceAttributeType::Mat4},
                             ShaderResourceAttribute{.name = "projection", .type = ShaderResourceAttributeType::Mat4},
+                            ShaderResourceAttribute{.name = "zoom", .type = ShaderResourceAttributeType::Float},
                     }});
 
             ShaderInfo basicShaderInfo;

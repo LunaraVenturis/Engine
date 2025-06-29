@@ -31,6 +31,7 @@ namespace LunaraEngine
         virtual void SetUniform(std::string_view name, const glm::vec4& value) override;
         virtual void SetUniform(std::string_view name, const glm::mat3& value) override;
         virtual void SetUniform(std::string_view name, const glm::mat4& value) override;
+        virtual void SetUniform(std::string_view name, const uint32_t& value) override;
         virtual void SetUniform(std::string_view name, const int& value) override;
         virtual void SetUniform(std::string_view name, const glm::ivec2& value) override;
         virtual void SetUniform(std::string_view name, const glm::ivec3& value) override;

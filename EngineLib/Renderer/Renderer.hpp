@@ -99,10 +99,8 @@ namespace LunaraEngine
 
         inline static Renderer* GetInstance() { return s_Instance; }
 
-    private:
         inline static void PushCommand(RendererCommand* command)
         {
-            LOG_INFO("Pushing command: %s", command->GetName());
             GetInstance()->m_CommandStack.push_back(std::variant<RendererCommandType, RendererCommand*>(command));
         }
 

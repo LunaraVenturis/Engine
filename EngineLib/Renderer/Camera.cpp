@@ -57,5 +57,6 @@ namespace LunaraEngine
         shader->SetUniform("projection", m_Projection);
         shader->SetUniform("view", m_View);
         shader->SetUniform("model", m_Model);
+        shader->SetUniform("zoom", m_Zoom);
     }
 }// namespace LunaraEngine

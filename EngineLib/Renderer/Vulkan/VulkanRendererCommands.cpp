@@ -147,9 +147,16 @@ namespace LunaraEngine
     void VulkanRendererCommand::DrawQuadBatch(RendererDataType* rendererData, const RendererCommand* command)
     {
         auto arg = static_cast<const RendererCommandDrawBatch*>(command);
-        VulkanStorageBuffer* batchStorage = (VulkanStorageBuffer*) (arg->batchStorage);
-        batchStorage->Upload(rendererData, rendererData->gfxQueue, arg->data, batchStorage->GetLength(),
-                             batchStorage->GetStride());
+
+
+        for (auto& upload: arg->uploadList)
+        {
+            auto& [storageBuffer, data] = upload;
+            VulkanStorageBuffer* batchStorage = (VulkanStorageBuffer*) (storageBuffer);
+            batchStorage->Upload(rendererData, rendererData->gfxQueue, data.data(), data.size(),
+                                 batchStorage->GetStride());
+        }
+
         const auto& buffer = rendererData->commandPool->GetBuffer(rendererData->currentFrame);
 
         VkViewport viewport{};
