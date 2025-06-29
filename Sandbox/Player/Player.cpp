@@ -10,7 +10,7 @@ void Player::Init() {}
 void Player::Draw()
 {
     auto rect = LunaraEngine::FRect{m_Position.x, m_Position.y, m_size.width, m_size.height};
-    auto color = LunaraEngine::Color4{1.0f, 1.0f, 1.0f, 1.0f};
+    auto color = LunaraEngine::Color4{0.2f, 0.3f, 0.5f, 1.0f};
     LunaraEngine::BatchRenderer::AddQuad(rect, color);
 }
 

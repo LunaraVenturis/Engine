@@ -153,8 +153,7 @@ namespace LunaraEngine
         {
             auto& [storageBuffer, data] = upload;
             VulkanStorageBuffer* batchStorage = (VulkanStorageBuffer*) (storageBuffer);
-            batchStorage->Upload(rendererData, rendererData->gfxQueue, data.data(), data.size(),
-                                 batchStorage->GetStride());
+            batchStorage->Upload(data.data(), data.size(), batchStorage->GetStride());
         }
 
         const auto& buffer = rendererData->commandPool->GetBuffer(rendererData->currentFrame);

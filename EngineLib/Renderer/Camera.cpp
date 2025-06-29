@@ -54,9 +54,9 @@ namespace LunaraEngine
 
     void Camera::Upload(Shader* shader)
     {
-        shader->SetUniform("projection", m_Projection);
-        shader->SetUniform("view", m_View);
         shader->SetUniform("model", m_Model);
+        shader->SetUniform("view", m_View);
+        shader->SetUniform("projection", m_Projection);
         shader->SetUniform("zoom", m_Zoom);
     }
 }// namespace LunaraEngine

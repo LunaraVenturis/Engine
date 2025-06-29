@@ -2,6 +2,8 @@
 #include <stdexcept>
 #include <Renderer/Vulkan/Common.hpp>
 #include <Renderer/Vulkan/CommandPool.hpp>
+#include <Renderer/Vulkan/Synchronization.hpp>
+#include <cassert>
 
 namespace LunaraEngine
 {
@@ -13,10 +15,8 @@ namespace LunaraEngine
         bufferInfo.usage = usage;
         bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-        if (vkCreateBuffer(m_Device, &bufferInfo, nullptr, &m_Buffer) != VK_SUCCESS)
-        {
-            throw std::runtime_error("failed to create buffer!");
-        }
+        auto result = vkCreateBuffer(m_Device, &bufferInfo, nullptr, &m_Buffer);
+        assert(result == VK_SUCCESS);
     }
 
     void Buffer::BindBufferToDevMemory(VkMemoryPropertyFlags properties, VkPhysicalDevice physicalDevice)
@@ -29,19 +29,25 @@ namespace LunaraEngine
         allocInfo.allocationSize = memRequirements.size;
         allocInfo.memoryTypeIndex = FindMemoryType(memRequirements.memoryTypeBits, properties, physicalDevice);
 
-        if (vkAllocateMemory(m_Device, &allocInfo, nullptr, &m_BufferMemory) != VK_SUCCESS)
-        {
-            throw std::runtime_error("failed to allocate buffer memory!");
-        }
+        auto result = vkAllocateMemory(m_Device, &allocInfo, nullptr, &m_BufferMemory);
+        assert(result == VK_SUCCESS);
 
-        vkBindBufferMemory(m_Device, m_Buffer, m_BufferMemory, 0);
+        result = vkBindBufferMemory(m_Device, m_Buffer, m_BufferMemory, 0);
+        assert(result == VK_SUCCESS);
+
+        result = vkMapMemory(m_Device, m_BufferMemory, 0, m_Size, 0, (void**) &m_MappedDataPtr);
+        assert(result == VK_SUCCESS);
     }
 
     void Buffer::Destroy()
     {
         if (m_BufferMemory != VK_NULL_HANDLE)
         {
-            vkDeviceWaitIdle(m_Device);
+            auto result = vkDeviceWaitIdle(m_Device);
+            assert(result == VK_SUCCESS);
+
+            if (m_MappedDataPtr != nullptr) { vkUnmapMemory(m_Device, m_BufferMemory); }
+
             if (m_Buffer != VK_NULL_HANDLE) { vkDestroyBuffer(m_Device, m_Buffer, nullptr); }
             vkFreeMemory(m_Device, m_BufferMemory, nullptr);
             m_Device = VK_NULL_HANDLE;
@@ -55,24 +61,22 @@ namespace LunaraEngine
 
     Buffer::~Buffer() { Destroy(); }
 
-    void Buffer::Upload(uint8_t* data, size_t length, size_t stride)
+    void Buffer::Upload(size_t offset, uint8_t* data, size_t length, size_t stride)
     {
-        if (m_Size == 0)
-        {
-            m_Size = length * stride;
-            m_Stride = stride;
-        }
-        void* mappedMemory;
-        vkMapMemory(m_Device, m_BufferMemory, 0, m_Size, 0, &mappedMemory);
-        memcpy(mappedMemory, data, m_Size);
-        vkUnmapMemory(m_Device, m_BufferMemory);
+        assert(offset + length * stride <= m_Size);
+        assert(m_MappedDataPtr != nullptr);
+        uint8_t* newPtr = m_MappedDataPtr + offset;
+        size_t size = length * stride;
+        memcpy(newPtr, data, size);
     }
+
+    void Buffer::Upload(uint8_t* data, size_t length, size_t stride) { Upload(0, data, length, stride); }
 
     void Buffer::CopyTo(CommandPool* commandPool, VkQueue executeQueue, Buffer* buffer)
     {
+        VulkanFence fence(m_Device);
         auto cmdBuffer = commandPool->CreateImmediateCommandBuffer();
         cmdBuffer->BeginRecording();
-
         VkBufferCopy copyRegion{};
         copyRegion.srcOffset = 0;
         copyRegion.dstOffset = 0;
@@ -86,7 +90,8 @@ namespace LunaraEngine
         submitInfo.commandBufferCount = 1;
         VkCommandBuffer buffers[] = {*cmdBuffer};
         submitInfo.pCommandBuffers = buffers;
-        vkQueueSubmit(executeQueue, 1, &submitInfo, VK_NULL_HANDLE);
-        vkQueueWaitIdle(executeQueue);
+        vkQueueSubmit(executeQueue, 1, &submitInfo, fence);
+        fence.Wait();
+        fence.Destroy();
     }
 }// namespace LunaraEngine
