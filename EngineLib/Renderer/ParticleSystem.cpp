@@ -85,8 +85,64 @@ namespace LunaraEngine
         basicShaderInfo.path = shaderPath;
         basicShaderInfo.resources = basicShaderResources;
 
-
         s_ParticleSystem->m_Shader = Shader::Create(basicShaderInfo);
+
+        ShaderResources computeShaderResources;
+        computeShaderResources.bufferResources.push_back(ShaderResource{
+                .type = ShaderResourceType::UniformBuffer,
+                .name = "UniformBuffer",
+                .length = 1,
+                .stride = sizeof(glm::mat4) * 3 + sizeof(float),
+                .layout = ShaderResourceLayout{.binding = 0, .layoutType = ShaderResourceMemoryLayout::STD430},
+                .attributes = {
+                        ShaderResourceAttribute{.name = "model", .type = ShaderResourceAttributeType::Mat4},
+                        ShaderResourceAttribute{.name = "view", .type = ShaderResourceAttributeType::Mat4},
+                        ShaderResourceAttribute{.name = "projection", .type = ShaderResourceAttributeType::Mat4},
+                        ShaderResourceAttribute{.name = "zoom", .type = ShaderResourceAttributeType::Float},
+                }});
+        computeShaderResources.bufferResources.push_back(ShaderResource{
+                .type = ShaderResourceType::StorageBuffer,
+                .name = "ParticlePositions",
+                .length = MAX_PARTICLES,
+                .stride = sizeof(glm::vec2),
+                .layout = ShaderResourceLayout{.binding = 1, .layoutType = ShaderResourceMemoryLayout::STD430},
+                .attributes = {
+                        ShaderResourceAttribute{.name = "Position", .type = ShaderResourceAttributeType::Vec2},
+                }});
+        computeShaderResources.bufferResources.push_back(ShaderResource{
+                .type = ShaderResourceType::StorageBuffer,
+                .name = "ParticleVelocities",
+                .length = MAX_PARTICLES,
+                .stride = sizeof(glm::vec2),
+                .layout = ShaderResourceLayout{.binding = 2, .layoutType = ShaderResourceMemoryLayout::STD430},
+                .attributes = {
+                        ShaderResourceAttribute{.name = "Velocity", .type = ShaderResourceAttributeType::Vec2},
+                }});
+        computeShaderResources.bufferResources.push_back(ShaderResource{
+                .type = ShaderResourceType::StorageBuffer,
+                .name = "ParticleLifes",
+                .length = MAX_PARTICLES,
+                .stride = sizeof(float),
+                .layout = ShaderResourceLayout{.binding = 3, .layoutType = ShaderResourceMemoryLayout::STD430},
+                .attributes = {
+                        ShaderResourceAttribute{.name = "Life", .type = ShaderResourceAttributeType::Float},
+                }});
+        computeShaderResources.bufferResources.push_back(ShaderResource{
+                .type = ShaderResourceType::StorageBuffer,
+                .name = "AliveParticles",
+                .length = MAX_PARTICLES,
+                .stride = sizeof(uint32_t),
+                .layout = ShaderResourceLayout{.binding = 4, .layoutType = ShaderResourceMemoryLayout::STD430},
+                .attributes = {
+                        ShaderResourceAttribute{.name = "Index", .type = ShaderResourceAttributeType::UInt},
+                }});
+        ShaderInfo computeShaderInfo;
+        computeShaderInfo.isComputeShader = true;
+        computeShaderInfo.name = L"ParticleComputeShader";
+        computeShaderInfo.path = shaderPath;
+        computeShaderInfo.resources = computeShaderResources;
+
+        s_ParticleSystem->m_ComputeShader = Shader::Create(computeShaderInfo);
     }
 
     void ParticleSystem::Destroy() { delete s_ParticleSystem; }

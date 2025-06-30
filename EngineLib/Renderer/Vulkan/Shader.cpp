@@ -3,6 +3,7 @@
 #include <Renderer/Vulkan/VulkanDataTypes.hpp>
 #include <Renderer/Vulkan/Shader.hpp>
 #include <Renderer/Vulkan/GraphicsPipeline.hpp>
+#include <Renderer/Vulkan/ComputePipeline.hpp>
 #include <Renderer/Vulkan/UniformBuffer.hpp>
 #include <Renderer/Vulkan/StorageBuffer.hpp>
 #include <Renderer/Vulkan/Buffer.hpp>
@@ -16,7 +17,6 @@ namespace LunaraEngine
     void VulkanShader::Init(RendererDataType* rendererData, const ShaderInfo& info)
     {
         p_Info = info;
-        if (info.isComputeShader) { throw std::runtime_error("Compute shaders are not supported"); }
 
         PrintShaderResource(info);
 
@@ -25,7 +25,8 @@ namespace LunaraEngine
         std::map<size_t, std::vector<uint32_t>> shaderSource;
         ReadShaderSource(info, shaderSource);
 
-        m_Pipeline = new GraphicsPipeline(rendererData, &info, shaderSource);
+        if (info.isComputeShader) { m_Pipeline = new ComputePipeline(rendererData, &info, shaderSource); }
+        else { m_Pipeline = new GraphicsPipeline(rendererData, &info, shaderSource); }
 
         CreateUniformBuffers(info);
         CreateStorageBuffers(info);
@@ -34,10 +35,18 @@ namespace LunaraEngine
 
     void VulkanShader::ReadShaderSource(const ShaderInfo& info, std::map<size_t, std::vector<uint32_t>>& shaderSource)
     {
-        shaderSource[VK_SHADER_STAGE_VERTEX_BIT] =
-                ReadFile(info.path / std::filesystem::path(info.name + L".vert.spv"));
-        shaderSource[VK_SHADER_STAGE_FRAGMENT_BIT] =
-                ReadFile(info.path / std::filesystem::path(info.name + L".frag.spv"));
+        if (info.isComputeShader)
+        {
+            shaderSource[VK_SHADER_STAGE_COMPUTE_BIT] =
+                    ReadFile(info.path / std::filesystem::path(info.name + L".comp.spv"));
+        }
+        else
+        {
+            shaderSource[VK_SHADER_STAGE_VERTEX_BIT] =
+                    ReadFile(info.path / std::filesystem::path(info.name + L".vert.spv"));
+            shaderSource[VK_SHADER_STAGE_FRAGMENT_BIT] =
+                    ReadFile(info.path / std::filesystem::path(info.name + L".frag.spv"));
+        }
     }
 
     VulkanShader::~VulkanShader() { Destroy(); }

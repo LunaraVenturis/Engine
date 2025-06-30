@@ -59,5 +59,6 @@ namespace LunaraEngine
         std::vector<float> m_Lifes;
         std::vector<uint32_t> m_LifeIndices;
         std::shared_ptr<Shader> m_Shader;
+        std::shared_ptr<Shader> m_ComputeShader;
     };
 }// namespace LunaraEngine
