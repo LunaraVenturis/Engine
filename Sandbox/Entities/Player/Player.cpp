@@ -2,8 +2,8 @@
 #include <Engine.hpp>
 
 Player::Player(glm::vec3 playerPosition, EntitySize playerSize)
-    : m_Position(playerPosition), m_Speed({100.0f, 100.0f, 100.0f}), m_Size(playerSize),
-      m_PlayerColor({255.0f, 0.0f, 0.0f, 1.0f})
+    : m_Position(playerPosition), m_Speed({1000.0f, 1000.0f, 1000.0f}), m_Size(playerSize),
+      m_PlayerColor({1.0f, 1.0f, 1.0f, 1.0f})
 {}
 
 void Player::Draw()

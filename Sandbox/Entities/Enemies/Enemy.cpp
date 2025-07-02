@@ -1,7 +1,7 @@
 #include "Enemy.hpp"
 #include "Engine.hpp"
 Enemy::Enemy(glm::vec3 enemyPosition, EntitySize enemySize)
-    : m_Position(enemyPosition), m_Speed({100.0f, 100.0f, 100.0f}), m_size(enemySize)
+    : m_Position(enemyPosition), m_Speed({1000.0f, 1000.0f, 1000.0f}), m_size(enemySize)
 {
 
 }

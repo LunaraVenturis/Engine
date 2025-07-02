@@ -32,13 +32,26 @@ void SandboxLayer::OnUpdate(float dt)
 
     ParticleSystem::GetInstance()->Update(dt);
 
-    Renderer::Clear(Color4{1.0f, 1.0f, 1.0f, 1.0f});
+    Renderer::Clear(Color4{0.0f, 0.0f, 0.0f, 1.0f});
 
     Renderer::BeginRenderPass();
     elapsedTime += dt;
     m_PlayerDt = dt;
 
     m_Player.Draw();
+    m_Enemy.Draw();
+
+    if (m_Player.isColliding(&m_Enemy)) {
+        m_Player.SetPlayerColor({1.0f, 0.0f, 0.0f, 1.0f});
+    }
+    else
+    {
+        m_Player.SetPlayerColor({1.0f, 1.0f, 1.0f, 1.0f});
+    }
+
+    if (m_Enemy.HasReachedPointX(m_Enemy.GetPosition().x, 200.0f)) { dir = -1.0f; }
+    if (m_Enemy.HasReachedPointX(m_Enemy.GetPosition().x, 0.0f)) { dir = 1.0f; }
+    m_Enemy.Move(dir * 1.0f, 0.0f, 0.0f, dt);
 
     auto shader = BatchRenderer::GetShader();
     if (!shader.expired())
@@ -102,5 +115,8 @@ void SandboxLayer::OnWindowResizeEvent(uint32_t width, uint32_t height) { m_Came
 void SandboxLayer::OnKeyboardEvent(uint32_t key, KeyEventType type)
 {
     if (type == KEY_PRESSED) { m_PressedKeys[key] = true; }
-    else { m_PressedKeys[key] = false; }
+    else
+    {
+        m_PressedKeys[key] = false;
+    }
 }
