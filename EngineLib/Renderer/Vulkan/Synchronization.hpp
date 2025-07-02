@@ -25,7 +25,8 @@ namespace LunaraEngine
         VkFence GetFence() const { return m_Fence; }
 
         operator VkFence() const { return m_Fence; }
-
+        
+        FenceState GetFenceState() const { return m_State; }
     private:
         static VkFenceCreateFlagBits GetFenceState(FenceState state);
 
