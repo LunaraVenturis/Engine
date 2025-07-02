@@ -41,9 +41,7 @@ void SandboxLayer::OnUpdate(float dt)
     m_Player.Draw();
     m_Enemy.Draw();
 
-    if (m_Player.isColliding(&m_Enemy)) {
-        m_Player.SetPlayerColor({1.0f, 0.0f, 0.0f, 1.0f});
-    }
+    if (m_Player.isColliding(&m_Enemy)) { m_Player.SetPlayerColor({1.0f, 0.0f, 0.0f, 1.0f}); }
     else
     {
         m_Player.SetPlayerColor({1.0f, 1.0f, 1.0f, 1.0f});

@@ -26,7 +26,7 @@ bool Player::isColliding(Entity* enemy)
             m_Position.x + m_Size.width > enemy->GetPosition().x &&
             m_Position.y < enemy->GetPosition().y + enemy->GetSize().height &&
             m_Position.y + m_Size.height > enemy->GetPosition().y) &&
-            fabs(m_Position.z - enemy->GetPosition().z) < Z_THRESHOLD ;
+           fabs(m_Position.z - enemy->GetPosition().z) < Z_THRESHOLD;
 }
 
 void Player::SetPlayerColor(LunaraEngine::Color4 color) { m_PlayerColor = color; }
