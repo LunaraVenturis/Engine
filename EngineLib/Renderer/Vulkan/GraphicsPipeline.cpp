@@ -171,7 +171,7 @@ namespace LunaraEngine
 
             const auto& type = resource.type;
             const auto& name = resource.name;
-            ShaderBindingT binding = resource.layout.binding;
+            ShaderBinding binding = resource.layout.binding;
             ShaderResourceMemoryLayout layout = resource.layout.layoutType;
 
             //If memory model layout is missing put default
@@ -182,7 +182,7 @@ namespace LunaraEngine
 
 
             VkDescriptorSetLayoutBinding descriptorSetLayoutBinding{};
-            descriptorSetLayoutBinding.binding = binding;
+            descriptorSetLayoutBinding.binding = (uint32_t) binding;
             descriptorSetLayoutBinding.descriptorType = GraphicsPipeline::GetDescriptorType(type);
 
             //For now resources are availeble in all stages
@@ -233,7 +233,7 @@ namespace LunaraEngine
 
         if (stride > 0)
         {
-            bindingDescription.binding = info.resources.inputResources[0].binding;
+            bindingDescription.binding = (uint32_t) info.resources.inputResources[0].binding;
             bindingDescription.stride = (uint32_t) stride;
             bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
             vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
@@ -243,7 +243,7 @@ namespace LunaraEngine
         for (const ShaderInputResource& resource: info.resources.inputResources)
         {
             VkVertexInputAttributeDescription description{};
-            description.binding = resource.binding;
+            description.binding = (uint32_t) resource.binding;
             description.location = resource.location;
             description.format = VulkanShader::GetShaderResourceFormat(resource.format, resource.type);
             description.offset = resource.offset;

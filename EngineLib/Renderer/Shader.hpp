@@ -31,7 +31,7 @@ namespace LunaraEngine
         virtual void SetUniform(std::string_view name, const glm::ivec2& value) = 0;
         virtual void SetUniform(std::string_view name, const glm::ivec3& value) = 0;
         virtual void SetUniform(std::string_view name, const glm::ivec4& value) = 0;
-        virtual void* GetBuffer(size_t binding) = 0;
+        virtual void* GetBuffer(ShaderBinding binding) = 0;
 
     public:
         static size_t GetInputResourceSize(const ShaderInputResource& resource);
@@ -62,7 +62,7 @@ namespace LunaraEngine
         ShaderResourceBuilder& AddAttribute(std::string_view name, ShaderResourceAttributeType type);
         ShaderResourceBuilder&
         AddAttributes(std::vector<std::pair<std::string_view, ShaderResourceAttributeType>>&& attributes);
-        ShaderResourceBuilder& SetBinding(uint32_t binding);
+        ShaderResourceBuilder& SetBinding(ShaderBinding binding);
         ShaderResource Build();
 
     private:
@@ -72,18 +72,22 @@ namespace LunaraEngine
     class ShaderInfoBuilder
     {
     public:
-        ShaderInfoBuilder(ShaderInfo& result);
+        ShaderInfoBuilder(std::filesystem::path name, std::filesystem::path path, size_t numInstances = 1,
+                          bool isCompute = false);
 
     public:
-        void SetName(std::filesystem::path name);
-        void SetPath(std::filesystem::path path);
-        void UseAsComputeShader();
-        void AddVertexInputResource(std::vector<std::pair<std::string_view, ShaderResourceAttributeType>>&& resources);
-        void AddVertexInputResource(const ShaderInputResource& resource);
-        void SetNumInstances(uint32_t numInstances);
-        void AddResource(ShaderResource resource);
+        ShaderInfoBuilder& SetName(std::filesystem::path name);
+        ShaderInfoBuilder& SetPath(std::filesystem::path path);
+        ShaderInfoBuilder& UseAsComputeShader();
+        ShaderInfoBuilder&
+        AddVertexInputResource(std::vector<std::pair<std::string_view, ShaderResourceAttributeType>>&& resources);
+        ShaderInfoBuilder& AddVertexInputResource(const ShaderInputResource& resource);
+        ShaderInfoBuilder& SetNumInstances(uint32_t numInstances);
+        ShaderInfoBuilder& AddResource(ShaderResource resources);
+        ShaderInfoBuilder& AddResources(std::vector<ShaderResource>&& resources);
+        ShaderInfo Build();
 
     private:
-        ShaderInfo& m_Info;
+        ShaderInfo m_Info;
     };
 }// namespace LunaraEngine

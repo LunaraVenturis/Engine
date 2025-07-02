@@ -20,23 +20,20 @@ namespace LunaraEngine
     {
         s_BatchRenderer = new BatchRenderer();
 
-        ShaderInfo shaderInfo;
-        ShaderInfoBuilder shaderBuilder(shaderInfo);
-        shaderBuilder.SetName(L"FlatQuadBatched");
-        shaderBuilder.SetPath(shaderPath);
-
-        shaderBuilder.AddResource(ShaderResourceBuilder("UniformBuffer", ShaderResourceType::UniformBuffer)
-                                          .AddAttributes({{"model", ShaderResourceAttributeType::Mat4},
-                                                          {"view", ShaderResourceAttributeType::Mat4},
-                                                          {"projection", ShaderResourceAttributeType::Mat4},
-                                                          {"zoom", ShaderResourceAttributeType::Float}})
-                                          .Build());
-        shaderBuilder.AddResource(ShaderResourceBuilder("StorageBuffer", ShaderResourceType::StorageBuffer, MAX_QUADS)
-                                          .AddAttributes({{"quad", ShaderResourceAttributeType::Vec4},
-                                                          {"color", ShaderResourceAttributeType::Vec4}})
-                                          .Build());
-
-        s_BatchRenderer->m_Shader = Shader::Create(shaderInfo);
+        s_BatchRenderer->m_Shader = Shader::Create(
+                ShaderInfoBuilder("FlatQuadBatched", shaderPath)
+                        .AddResources(
+                                {ShaderResourceBuilder("UniformBuffer", ShaderResourceType::UniformBuffer)
+                                         .AddAttributes({{"model", ShaderResourceAttributeType::Mat4},
+                                                         {"view", ShaderResourceAttributeType::Mat4},
+                                                         {"projection", ShaderResourceAttributeType::Mat4},
+                                                         {"zoom", ShaderResourceAttributeType::Float}})
+                                         .Build(),
+                                 ShaderResourceBuilder("StorageBuffer", ShaderResourceType::StorageBuffer, MAX_QUADS)
+                                         .AddAttributes({{"quad", ShaderResourceAttributeType::Vec4},
+                                                         {"color", ShaderResourceAttributeType::Vec4}})
+                                         .Build()})
+                        .Build());
     }
 
     void BatchRenderer::Destroy() { delete s_BatchRenderer; }
@@ -58,7 +55,7 @@ namespace LunaraEngine
         auto shader = instance->m_Shader;
 
         RendererCommandDrawBatch::BufferUploadList uploadList{
-                {(StorageBuffer<uint8_t>*) shader->GetBuffer(1),
+                {(StorageBuffer<uint8_t>*) shader->GetBuffer(ShaderBinding::_1),
                  std::span<uint8_t>{(uint8_t*) (instance->m_Quads.data()),
                                     instance->m_QuadCount * sizeof(QuadBufferElement)}}};
 

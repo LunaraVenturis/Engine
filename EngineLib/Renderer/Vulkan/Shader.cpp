@@ -167,7 +167,10 @@ namespace LunaraEngine
         GetUniformBuffer(m_RendererData->currentFrame)->Upload(offset, (uint8_t*) &value, 1, sizeof(glm::ivec4));
     }
 
-    void* VulkanShader::GetBuffer(size_t binding) { return m_Resources[binding][m_RendererData->currentFrame]; }
+    void* VulkanShader::GetBuffer(ShaderBinding binding)
+    {
+        return m_Resources[(size_t) binding][m_RendererData->currentFrame];
+    }
 
     VkPipeline VulkanShader::GetPipeline() const { return m_Pipeline->GetPipeline(); }
 
@@ -183,7 +186,7 @@ namespace LunaraEngine
                 auto stride = resource.stride;
                 for (size_t i = 0; i < m_RendererData->maxFramesInFlight; i++)
                 {
-                    m_Resources[resource.layout.binding].push_back(
+                    m_Resources[(size_t) resource.layout.binding].push_back(
                             new VulkanUniformBuffer(m_RendererData, nullptr, length, stride));
                 }
             }
@@ -200,7 +203,7 @@ namespace LunaraEngine
                 auto stride = resource.stride;
                 for (size_t i = 0; i < m_RendererData->maxFramesInFlight; i++)
                 {
-                    m_Resources[resource.layout.binding].push_back(
+                    m_Resources[(size_t) resource.layout.binding].push_back(
                             new VulkanStorageBuffer(m_RendererData, nullptr, length, stride));
                 }
             }
@@ -279,11 +282,11 @@ namespace LunaraEngine
         {
             if (resource.type == ShaderResourceType::PushConstant) { continue; }
             bufferInfos.push_back(VkDescriptorBufferInfo{
-                    .buffer = m_Resources[resource.layout.binding][frameIndex]->GetBuffer(),
+                    .buffer = m_Resources[(size_t) resource.layout.binding][frameIndex]->GetBuffer(),
                     .offset = 0,
                     .range = resource.length * resource.stride,
             });
-            descriptorBindings.push_back(resource.layout.binding);
+            descriptorBindings.push_back((uint32_t) resource.layout.binding);
             descriptorTypes.push_back(GraphicsPipeline::GetDescriptorType(resource.type));
         }
 
@@ -334,7 +337,7 @@ namespace LunaraEngine
         {
             LOG_INFO("%s", resource.name.data());
             LOG_INFO("\tType: %s", Shader::GetShaderResourceType(resource.format, resource.type).c_str());
-            LOG_INFO("\tBinding: %d", resource.binding);
+            LOG_INFO("\tBinding: %d", (uint32_t) resource.binding);
             LOG_INFO("\tLocation: %d", resource.location);
             LOG_INFO("\tFormat: %s", Shader::GetShaderResourceFormat(resource.format, resource.type).c_str());
         }
@@ -346,7 +349,7 @@ namespace LunaraEngine
             LOG_INFO("\tType: %s", GetShaderResourceType(resource.type).c_str());
             LOG_INFO("\tLength: %zu", resource.length);
             LOG_INFO("\tStride: %zu", resource.stride);
-            LOG_INFO("\tBinding: %d", resource.layout.binding);
+            LOG_INFO("\tBinding: %d", (uint32_t) resource.layout.binding);
             LOG_INFO("\tLayout: %s", GetShaderResourceLayoutType(resource.layout.layoutType).c_str());
         }
     }

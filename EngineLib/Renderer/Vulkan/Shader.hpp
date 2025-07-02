@@ -36,7 +36,7 @@ namespace LunaraEngine
         virtual void SetUniform(std::string_view name, const glm::ivec2& value) override;
         virtual void SetUniform(std::string_view name, const glm::ivec3& value) override;
         virtual void SetUniform(std::string_view name, const glm::ivec4& value) override;
-        virtual void* GetBuffer(size_t binding) override;
+        virtual void* GetBuffer(ShaderBinding binding) override;
 
         VkPipeline GetPipeline() const;
         VkPipelineLayout GetPipelineLayout() const;

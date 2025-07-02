@@ -10,63 +10,18 @@ namespace LunaraEngine
         inline static std::shared_ptr<Shader> Create(std::filesystem::path assetsDirectory,
                                                      FlatInstancedShaderInfo* info)
         {
-            ShaderResources basicShaderResources;
-            basicShaderResources.bufferResources.push_back(ShaderResource{
-                    .type = ShaderResourceType::UniformBuffer,
-                    .name = "UniformBuffer",
-                    .length = 1,
-                    .stride = sizeof(glm::mat4) * 3 + sizeof(float),
-                    .layout = ShaderResourceLayout{.binding = 0, .layoutType = ShaderResourceMemoryLayout::STD140},
-                    .attributes = {
-                            ShaderResourceAttribute{.name = "model", .type = ShaderResourceAttributeType::Mat4},
-                            ShaderResourceAttribute{.name = "view", .type = ShaderResourceAttributeType::Mat4},
-                            ShaderResourceAttribute{.name = "projection", .type = ShaderResourceAttributeType::Mat4},
-                            ShaderResourceAttribute{.name = "zoom", .type = ShaderResourceAttributeType::Float},
-                    }});
 
-            ShaderInfo basicShaderInfo;
-            basicShaderInfo.isComputeShader = false;
-            basicShaderInfo.name = L"FlatInstanced";
-            basicShaderInfo.path = assetsDirectory / "Shaders/output";
-            basicShaderInfo.resources = basicShaderResources;
-
-            basicShaderInfo.resources.inputResources.push_back(
-                    ShaderInputResource{.name = "Position",
-                                        .binding = 0,
-                                        .location = 0,
-                                        .format = ShaderResourceFormatT::R32G32,
-                                        .type = ShaderResourceDataTypeT::SFloat,
-                                        .offset = 0});
-            basicShaderInfo.resources.inputResources.push_back(
-                    ShaderInputResource{.name = "Color",
-                                        .binding = 0,
-                                        .location = 1,
-                                        .format = ShaderResourceFormatT::R32G32B32,
-                                        .type = ShaderResourceDataTypeT::SFloat,
-                                        .offset = 8});
-            basicShaderInfo.numInstances = (uint32_t) info->numInstances;
-
-
-            // ShaderInfo shaderInfo;
-            // ShaderInfoBuilder shaderBuilder(shaderInfo);
-            // shaderBuilder.SetName(L"FlatInstanced");
-            // shaderBuilder.SetPath(assetsDirectory / "Shaders/output");
-            // shaderBuilder.SetNumInstances(info->numInstances);
-            // shaderBuilder.AddVertexInputResource({
-            //         {"Position", ShaderResourceAttributeType::Vec2},
-            //         {"Color", ShaderResourceAttributeType::Vec3},
-            // });
-
-            // shaderBuilder.AddResource(ShaderResourceBuilder()
-            //                                   .SetName("UniformBuffer")
-            //                                   .SetType(ShaderResourceType::UniformBuffer)
-            //                                   .AddAttribute("model", ShaderResourceAttributeType::Mat4)
-            //                                   .AddAttribute("view", ShaderResourceAttributeType::Mat4)
-            //                                   .AddAttribute("projection", ShaderResourceAttributeType::Mat4)
-            //                                   .AddAttribute("zoom", ShaderResourceAttributeType::Float)
-            //                                   .Build());
-
-            return Shader::Create(basicShaderInfo);
+            return Shader::Create(
+                    ShaderInfoBuilder("FlatInstanced", assetsDirectory / "Shaders/output", info->numInstances)
+                            .AddVertexInputResource({{"Position", ShaderResourceAttributeType::Vec2},
+                                                     {"Color", ShaderResourceAttributeType::Vec3}})
+                            .AddResource(ShaderResourceBuilder("UniformBuffer", ShaderResourceType::UniformBuffer)
+                                                 .AddAttribute("model", ShaderResourceAttributeType::Mat4)
+                                                 .AddAttribute("view", ShaderResourceAttributeType::Mat4)
+                                                 .AddAttribute("projection", ShaderResourceAttributeType::Mat4)
+                                                 .AddAttribute("zoom", ShaderResourceAttributeType::Float)
+                                                 .Build())
+                            .Build());
         }
     }// namespace FlatInstancedShader
 
@@ -74,41 +29,17 @@ namespace LunaraEngine
     {
         inline static std::shared_ptr<Shader> Create(std::filesystem::path assetsDirectory)
         {
-            ShaderResources basicShaderResources;
-            basicShaderResources.bufferResources.push_back(ShaderResource{
-                    .type = ShaderResourceType::UniformBuffer,
-                    .name = "UniformBuffer",
-                    .length = 1,
-                    .stride = sizeof(glm::mat4) * 3 + sizeof(float),
-                    .layout = ShaderResourceLayout{.binding = 0, .layoutType = ShaderResourceMemoryLayout::STD140},
-                    .attributes = {
-                            ShaderResourceAttribute{.name = "model", .type = ShaderResourceAttributeType::Mat4},
-                            ShaderResourceAttribute{.name = "view", .type = ShaderResourceAttributeType::Mat4},
-                            ShaderResourceAttribute{.name = "projection", .type = ShaderResourceAttributeType::Mat4},
-                            ShaderResourceAttribute{.name = "zoom", .type = ShaderResourceAttributeType::Float},
-                    }});
-
-            ShaderInfo basicShaderInfo;
-            basicShaderInfo.isComputeShader = false;
-            basicShaderInfo.name = L"FlatQuad";
-            basicShaderInfo.path = assetsDirectory / "Shaders/output";
-            basicShaderInfo.resources = basicShaderResources;
-
-            basicShaderInfo.resources.inputResources.push_back(
-                    ShaderInputResource{.name = "Position",
-                                        .binding = 0,
-                                        .location = 0,
-                                        .format = ShaderResourceFormatT::R32G32,
-                                        .type = ShaderResourceDataTypeT::SFloat,
-                                        .offset = 0});
-            basicShaderInfo.resources.inputResources.push_back(
-                    ShaderInputResource{.name = "Color",
-                                        .binding = 0,
-                                        .location = 1,
-                                        .format = ShaderResourceFormatT::R32G32B32,
-                                        .type = ShaderResourceDataTypeT::SFloat,
-                                        .offset = 8});
-            return Shader::Create(basicShaderInfo);
+            return Shader::Create(
+                    ShaderInfoBuilder(L"FlatQuad", assetsDirectory / "Shaders/output")
+                            .AddVertexInputResource({{"Position", ShaderResourceAttributeType::Vec2},
+                                                     {"Color", ShaderResourceAttributeType::Vec3}})
+                            .AddResource(ShaderResourceBuilder("UniformBuffer", ShaderResourceType::UniformBuffer)
+                                                 .AddAttribute("model", ShaderResourceAttributeType::Mat4)
+                                                 .AddAttribute("view", ShaderResourceAttributeType::Mat4)
+                                                 .AddAttribute("projection", ShaderResourceAttributeType::Mat4)
+                                                 .AddAttribute("zoom", ShaderResourceAttributeType::Float)
+                                                 .Build())
+                            .Build());
         }
     }// namespace FlatShader
 
@@ -416,18 +347,37 @@ namespace LunaraEngine
         }
     }
 
-    ShaderInfoBuilder::ShaderInfoBuilder(ShaderInfo& result) : m_Info(result) {}
+    ShaderInfoBuilder::ShaderInfoBuilder(std::filesystem::path name, std::filesystem::path path, size_t numInstances,
+                                         bool isCompute)
+    {
+        m_Info.name = name.wstring();
+        m_Info.path = path;
+        m_Info.numInstances = (uint32_t) numInstances;
+        m_Info.isComputeShader = isCompute;
+    }
 
-    void ShaderInfoBuilder::SetName(std::filesystem::path name) { m_Info.name = name.wstring(); }
+    ShaderInfoBuilder& ShaderInfoBuilder::SetName(std::filesystem::path name)
+    {
+        m_Info.name = name.wstring();
+        return *this;
+    }
 
-    void ShaderInfoBuilder::SetPath(std::filesystem::path path) { m_Info.path = path; }
+    ShaderInfoBuilder& ShaderInfoBuilder::SetPath(std::filesystem::path path)
+    {
+        m_Info.path = path;
+        return *this;
+    }
 
-    void ShaderInfoBuilder::UseAsComputeShader() { m_Info.isComputeShader = true; }
+    ShaderInfoBuilder& ShaderInfoBuilder::UseAsComputeShader()
+    {
+        m_Info.isComputeShader = true;
+        return *this;
+    }
 
-    void ShaderInfoBuilder::AddVertexInputResource(
+    ShaderInfoBuilder& ShaderInfoBuilder::AddVertexInputResource(
             std::vector<std::pair<std::string_view, ShaderResourceAttributeType>>&& resources)
     {
-        const size_t binding{};
+        const ShaderBinding binding = ShaderBinding::_0;
         uint32_t location{};
         uint32_t offset{};
         for (auto& [name, type]: resources)
@@ -443,23 +393,38 @@ namespace LunaraEngine
             offset += Shader::GetFormatSize(shaderResourceFormat);
             ++location;
         }
+        return *this;
     }
 
-    void ShaderInfoBuilder::SetNumInstances(uint32_t numInstances) { m_Info.numInstances = numInstances; }
+    ShaderInfoBuilder& ShaderInfoBuilder::SetNumInstances(uint32_t numInstances)
+    {
+        m_Info.numInstances = numInstances;
+        return *this;
+    }
 
-    void ShaderInfoBuilder::AddVertexInputResource(const ShaderInputResource& resource)
+    ShaderInfoBuilder& ShaderInfoBuilder::AddVertexInputResource(const ShaderInputResource& resource)
     {
         m_Info.resources.inputResources.push_back(resource);
+        return *this;
     }
 
-    void ShaderInfoBuilder::AddResource(ShaderResource resource)
+    ShaderInfoBuilder& ShaderInfoBuilder::AddResource(ShaderResource resource)
     {
-        if (resource.layout.binding == SHADER_ALL_BINDINGS)
+        if (resource.layout.binding == ShaderBinding::ALL)
         {
-            resource.layout.binding = static_cast<uint32_t>(m_Info.resources.bufferResources.size());
+            resource.layout.binding = static_cast<ShaderBinding>(m_Info.resources.bufferResources.size());
         }
         m_Info.resources.bufferResources.push_back(resource);
+        return *this;
     }
+
+    ShaderInfoBuilder& ShaderInfoBuilder::AddResources(std::vector<ShaderResource>&& resource)
+    {
+        for (auto& resource: resource) { AddResource(resource); }
+        return *this;
+    }
+
+    ShaderInfo ShaderInfoBuilder::Build() { return m_Info; }
 
     ShaderResourceBuilder::ShaderResourceBuilder(std::string_view name, ShaderResourceType type, size_t length)
     {
@@ -467,7 +432,7 @@ namespace LunaraEngine
         m_Resource.type = type;
         m_Resource.length = length;
         m_Resource.layout.layoutType = ShaderResourceMemoryLayout::STD430;
-        m_Resource.layout.binding = SHADER_ALL_BINDINGS;
+        m_Resource.layout.binding = ShaderBinding::ALL;
     }
 
     ShaderResourceBuilder& ShaderResourceBuilder::SetName(std::string_view name)
@@ -500,7 +465,7 @@ namespace LunaraEngine
         return *this;
     }
 
-    ShaderResourceBuilder& ShaderResourceBuilder::SetBinding(uint32_t binding)
+    ShaderResourceBuilder& ShaderResourceBuilder::SetBinding(ShaderBinding binding)
     {
         m_Resource.layout.binding = binding;
         return *this;

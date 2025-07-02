@@ -8,9 +8,8 @@ option(ENABLE_MEMORY_DEBUG_LOG "Enable memory debug log" ON)
 option(ENG_VENDORED "Use vendored libraries" ON)
 option(SDLTTF_VENDORED "Use vendored SDL_ttf" ${ENG_VENDORED})
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 23)
 message("Compiler Version: ${CMAKE_CXX_COMPILER_VERSION}")
-
 
 if(WIN32)
     message(STATUS "${PROJECT_NAME}: Windows platform detected")

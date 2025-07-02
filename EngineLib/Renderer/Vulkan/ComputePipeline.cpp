@@ -102,7 +102,7 @@ namespace LunaraEngine
 
             const auto& type = resource.type;
             const auto& name = resource.name;
-            ShaderBindingT binding = resource.layout.binding;
+            ShaderBinding binding = resource.layout.binding;
             ShaderResourceMemoryLayout layout = resource.layout.layoutType;
 
             //If memory model layout is missing put default
@@ -113,7 +113,7 @@ namespace LunaraEngine
 
 
             VkDescriptorSetLayoutBinding descriptorSetLayoutBinding{};
-            descriptorSetLayoutBinding.binding = binding;
+            descriptorSetLayoutBinding.binding = (uint32_t) binding;
             descriptorSetLayoutBinding.descriptorType = ComputePipeline::GetDescriptorType(type);
 
             //For now resources are availeble in all stages

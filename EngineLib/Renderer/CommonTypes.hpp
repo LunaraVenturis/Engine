@@ -79,10 +79,34 @@ namespace LunaraEngine
         Mat3,
         Mat4
     };
-    using ShaderBindingT = uint32_t;
     using ShaderLocationT = uint32_t;
 
-    constexpr auto SHADER_ALL_BINDINGS = UINT32_MAX;
+    enum class ShaderBinding : size_t
+    {
+        _0 = 0,
+        _1,
+        _2,
+        _3,
+        _4,
+        _5,
+        _6,
+        _7,
+        _8,
+        _9,
+        _10,
+        _11,
+        _12,
+        _13,
+        _14,
+        _15,
+        _16,
+        _17,
+        _18,
+        _19,
+        _20,
+        ALL
+    };
+
     enum class ShaderResourceMemoryLayout
     {
         None = 0,
@@ -91,7 +115,7 @@ namespace LunaraEngine
     };
 
     struct ShaderResourceLayout {
-        ShaderBindingT binding;
+        ShaderBinding binding = ShaderBinding::_0;
         ShaderResourceMemoryLayout layoutType = ShaderResourceMemoryLayout::None;
     };
 
@@ -114,14 +138,14 @@ namespace LunaraEngine
         size_t length{};
         size_t stride{};
         ShaderResourceLayout layout{
-                ShaderResourceLayout{.binding = 0, .layoutType = ShaderResourceMemoryLayout::STD430}};
+                ShaderResourceLayout{.binding = ShaderBinding::_0, .layoutType = ShaderResourceMemoryLayout::STD430}};
         std::vector<ShaderResourceAttribute> attributes;
         ShaderResourceProperty property{ShaderResourceProperty::ReadWrite};
     };
 
     struct ShaderInputResource {
         std::string_view name;
-        ShaderBindingT binding;
+        ShaderBinding binding;
         ShaderLocationT location;
         ShaderResourceFormatT format;
         ShaderResourceDataTypeT type;

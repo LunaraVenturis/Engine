@@ -67,6 +67,9 @@ namespace LunaraEngine
                 static_cast<void*>(SDL_CreateWindow(m_RendererData->window->name, (int) m_Config.initialWidth,
                                                     (int) m_Config.initialHeight, SDL_WINDOW_VULKAN));
         if (m_RendererData->window->data == nullptr) { throw std::runtime_error("Couldn't create Window"); }
+
+        SDL_SetWindowPosition(static_cast<SDL_Window*>(m_RendererData->window->data), SDL_WINDOWPOS_CENTERED,
+                              SDL_WINDOWPOS_CENTERED);
     }
 
     constexpr auto VulkanRendererAPI::MakeDispatchableTable()

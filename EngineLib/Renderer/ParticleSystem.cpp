@@ -30,36 +30,31 @@ namespace LunaraEngine
     {
         s_ParticleSystem = new ParticleSystem();
 
-        ShaderResources shaderResources;
-        ShaderInfo shaderInfo;
-        ShaderInfoBuilder shaderBuilder(shaderInfo);
-
-        shaderBuilder.SetName(L"ParticleShader");
-        shaderBuilder.SetPath(shaderPath);
-        shaderBuilder.AddResource(ShaderResourceBuilder("UniformBuffer", ShaderResourceType::UniformBuffer)
-                                          .AddAttribute("model", ShaderResourceAttributeType::Mat4)
-                                          .AddAttribute("view", ShaderResourceAttributeType::Mat4)
-                                          .AddAttribute("projection", ShaderResourceAttributeType::Mat4)
-                                          .AddAttribute("zoom", ShaderResourceAttributeType::Float)
-                                          .Build());
-        shaderBuilder.AddResource(
-                ShaderResourceBuilder("ParticlePositions", ShaderResourceType::StorageBuffer, MAX_PARTICLES)
-                        .AddAttribute("Position", ShaderResourceAttributeType::Vec2)
+        s_ParticleSystem->m_Shader = Shader::Create(
+                ShaderInfoBuilder("ParticleShader", shaderPath)
+                        .AddResources({ShaderResourceBuilder("UniformBuffer", ShaderResourceType::UniformBuffer)
+                                               .AddAttribute("model", ShaderResourceAttributeType::Mat4)
+                                               .AddAttribute("view", ShaderResourceAttributeType::Mat4)
+                                               .AddAttribute("projection", ShaderResourceAttributeType::Mat4)
+                                               .AddAttribute("zoom", ShaderResourceAttributeType::Float)
+                                               .Build(),
+                                       ShaderResourceBuilder("ParticlePositions", ShaderResourceType::StorageBuffer,
+                                                             MAX_PARTICLES)
+                                               .AddAttribute("Position", ShaderResourceAttributeType::Vec2)
+                                               .Build(),
+                                       ShaderResourceBuilder("ParticleVelocities", ShaderResourceType::StorageBuffer,
+                                                             MAX_PARTICLES)
+                                               .AddAttribute("Velocity", ShaderResourceAttributeType::Vec2)
+                                               .Build(),
+                                       ShaderResourceBuilder("ParticleLifes", ShaderResourceType::StorageBuffer,
+                                                             MAX_PARTICLES)
+                                               .AddAttribute("Life", ShaderResourceAttributeType::Float)
+                                               .Build(),
+                                       ShaderResourceBuilder("AliveParticles", ShaderResourceType::StorageBuffer,
+                                                             MAX_PARTICLES)
+                                               .AddAttribute("Index", ShaderResourceAttributeType::UInt)
+                                               .Build()})
                         .Build());
-        shaderBuilder.AddResource(
-                ShaderResourceBuilder("ParticleVelocities", ShaderResourceType::StorageBuffer, MAX_PARTICLES)
-                        .AddAttribute("Velocity", ShaderResourceAttributeType::Vec2)
-                        .Build());
-        shaderBuilder.AddResource(
-                ShaderResourceBuilder("ParticleLifes", ShaderResourceType::StorageBuffer, MAX_PARTICLES)
-                        .AddAttribute("Life", ShaderResourceAttributeType::Float)
-                        .Build());
-        shaderBuilder.AddResource(
-                ShaderResourceBuilder("AliveParticles", ShaderResourceType::StorageBuffer, MAX_PARTICLES)
-                        .AddAttribute("Index", ShaderResourceAttributeType::UInt)
-                        .Build());
-
-        s_ParticleSystem->m_Shader = Shader::Create(shaderInfo);
     }
 
     void ParticleSystem::Destroy() { delete s_ParticleSystem; }
@@ -136,13 +131,13 @@ namespace LunaraEngine
         });
 
         RendererCommandDrawBatch::BufferUploadList uploadList{
-                {(StorageBuffer<uint8_t>*) shader->GetBuffer(1),
+                {(StorageBuffer<uint8_t>*) shader->GetBuffer(ShaderBinding::_1),
                  std::span<uint8_t>{(uint8_t*) (instance->m_Positions.data()), instance->m_Positions.size()}},
-                {(StorageBuffer<uint8_t>*) shader->GetBuffer(2),
+                {(StorageBuffer<uint8_t>*) shader->GetBuffer(ShaderBinding::_2),
                  std::span<uint8_t>{(uint8_t*) (instance->m_Velocities.data()), instance->m_Velocities.size()}},
-                {(StorageBuffer<uint8_t>*) shader->GetBuffer(3),
+                {(StorageBuffer<uint8_t>*) shader->GetBuffer(ShaderBinding::_3),
                  std::span<uint8_t>{(uint8_t*) (instance->m_Lifes.data()), instance->m_Lifes.size()}},
-                {(StorageBuffer<uint8_t>*) shader->GetBuffer(4),
+                {(StorageBuffer<uint8_t>*) shader->GetBuffer(ShaderBinding::_4),
                  std::span<uint8_t>{(uint8_t*) (instance->m_LifeIndices.data()), aliveParticleCount}},
         };
 
