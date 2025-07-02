@@ -2,8 +2,8 @@
 #include <Engine.hpp>
 
 Player::Player(glm::vec3 playerPosition, EntitySize playerSize)
-    : m_Position(playerPosition), m_Speed({100.0f, 100.0f, 100.0f}), m_Size(playerSize),
-      m_PlayerColor({255.0f, 0.0f, 0.0f, 1.0f})
+    : m_Position(playerPosition), m_Speed({1000.0f, 1000.0f, 1000.0f}), m_Size(playerSize),
+      m_PlayerColor({1.0f, 1.0f, 1.0f, 1.0f})
 {}
 
 void Player::Draw()
@@ -26,7 +26,7 @@ bool Player::isColliding(Entity* enemy)
             m_Position.x + m_Size.width > enemy->GetPosition().x &&
             m_Position.y < enemy->GetPosition().y + enemy->GetSize().height &&
             m_Position.y + m_Size.height > enemy->GetPosition().y) &&
-            fabs(m_Position.z - enemy->GetPosition().z) < Z_THRESHOLD ;
+           fabs(m_Position.z - enemy->GetPosition().z) < Z_THRESHOLD;
 }
 
 void Player::SetPlayerColor(LunaraEngine::Color4 color) { m_PlayerColor = color; }

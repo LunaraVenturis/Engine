@@ -2,6 +2,8 @@
 
 #include <Engine.hpp>
 #include <Entities/Player/Player.hpp>
+#include <Entities/Enemies/Enemy.hpp>
+#include <StaticEntities/Wall.hpp>
 #include "Renderer/Camera.hpp"
 
 class SandboxLayer: public LunaraEngine::Layer
@@ -49,8 +51,9 @@ private:
     LunaraEngine::Font m_Font;
     uint32_t x{}, y{};
 
-    Player m_Player = {{0.0f, 0.0f, 0.0f}, {100.0f, 100.0f}};
-    LunaraEngine::Camera m_Camera = {{1280.0f, 720.0f}};
+    Player m_Player = {{0.0f, 0.0f, 0.0f}, {50.0f, 50.0f}};
+    Enemy m_Enemy = {{0.0f, 0.0f, 0.0f}, {50.0f, 50.0f}};
+    LunaraEngine::Camera m_Camera = {{1280.0f, 720.0f, 0}};
 
     float zoom{1.0f};
     std::map<uint32_t, uint8_t> m_PressedKeys{};
@@ -58,4 +61,5 @@ private:
     std::shared_ptr<LunaraEngine::Shader> m_BatchQuadShader;
     float elapsedTime{};
     float m_PlayerDt{};
+    f32 dir = 1.0f;
 };
