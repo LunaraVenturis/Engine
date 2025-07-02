@@ -20,45 +20,23 @@ namespace LunaraEngine
     {
         s_BatchRenderer = new BatchRenderer();
 
-        ShaderResources basicShaderResources;
-        // basicShaderResources.bufferResources.push_back(ShaderResource{
-        //         .type = ShaderResourceType::UniformBuffer,
-        //         .name = "PushConstants",
-        //         .size = sizeof(glm::mat4) * 2,
-        //         .attributes = {
-        //                 ShaderResourceAttribute{.name = "view_model", .type = ShaderResourceAttributeType::Mat4},
-        //                 ShaderResourceAttribute{.name = "projection", .type = ShaderResourceAttributeType::Mat4},
-        //         }});
-        basicShaderResources.bufferResources.push_back(ShaderResource{
-                .type = ShaderResourceType::UniformBuffer,
-                .name = "UniformBuffer",
-                .length = 1,
-                .stride = sizeof(glm::mat4) * 3 + sizeof(float),
-                .layout = ShaderResourceLayout{.binding = 0, .layoutType = ShaderResourceMemoryLayout::STD430},
-                .attributes = {
-                        ShaderResourceAttribute{.name = "model", .type = ShaderResourceAttributeType::Mat4},
-                        ShaderResourceAttribute{.name = "view", .type = ShaderResourceAttributeType::Mat4},
-                        ShaderResourceAttribute{.name = "projection", .type = ShaderResourceAttributeType::Mat4},
-                        ShaderResourceAttribute{.name = "zoom", .type = ShaderResourceAttributeType::Float},
-                }});
-        basicShaderResources.bufferResources.push_back(ShaderResource{
-                .type = ShaderResourceType::StorageBuffer,
-                .name = "StorageBuffer",
-                .length = MAX_QUADS,
-                .stride = sizeof(glm::vec4) + sizeof(glm::vec3),
-                .layout = ShaderResourceLayout{.binding = 1, .layoutType = ShaderResourceMemoryLayout::STD430},
-                .attributes = {
-                        ShaderResourceAttribute{.name = "quad", .type = ShaderResourceAttributeType::Vec4},
-                        ShaderResourceAttribute{.name = "color", .type = ShaderResourceAttributeType::Vec4},
-                }});
-        ShaderInfo basicShaderInfo;
-        basicShaderInfo.isComputeShader = false;
-        basicShaderInfo.name = L"FlatQuadBatched";
-        basicShaderInfo.path = shaderPath;
-        basicShaderInfo.resources = basicShaderResources;
+        ShaderInfo shaderInfo;
+        ShaderInfoBuilder shaderBuilder(shaderInfo);
+        shaderBuilder.SetName(L"FlatQuadBatched");
+        shaderBuilder.SetPath(shaderPath);
 
+        shaderBuilder.AddResource(ShaderResourceBuilder("UniformBuffer", ShaderResourceType::UniformBuffer)
+                                          .AddAttributes({{"model", ShaderResourceAttributeType::Mat4},
+                                                          {"view", ShaderResourceAttributeType::Mat4},
+                                                          {"projection", ShaderResourceAttributeType::Mat4},
+                                                          {"zoom", ShaderResourceAttributeType::Float}})
+                                          .Build());
+        shaderBuilder.AddResource(ShaderResourceBuilder("StorageBuffer", ShaderResourceType::StorageBuffer, MAX_QUADS)
+                                          .AddAttributes({{"quad", ShaderResourceAttributeType::Vec4},
+                                                          {"color", ShaderResourceAttributeType::Vec4}})
+                                          .Build());
 
-        s_BatchRenderer->m_Shader = Shader::Create(basicShaderInfo);
+        s_BatchRenderer->m_Shader = Shader::Create(shaderInfo);
     }
 
     void BatchRenderer::Destroy() { delete s_BatchRenderer; }

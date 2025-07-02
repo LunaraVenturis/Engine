@@ -45,6 +45,27 @@ namespace LunaraEngine
                                         .type = ShaderResourceDataTypeT::SFloat,
                                         .offset = 8});
             basicShaderInfo.numInstances = (uint32_t) info->numInstances;
+
+
+            // ShaderInfo shaderInfo;
+            // ShaderInfoBuilder shaderBuilder(shaderInfo);
+            // shaderBuilder.SetName(L"FlatInstanced");
+            // shaderBuilder.SetPath(assetsDirectory / "Shaders/output");
+            // shaderBuilder.SetNumInstances(info->numInstances);
+            // shaderBuilder.AddVertexInputResource({
+            //         {"Position", ShaderResourceAttributeType::Vec2},
+            //         {"Color", ShaderResourceAttributeType::Vec3},
+            // });
+
+            // shaderBuilder.AddResource(ShaderResourceBuilder()
+            //                                   .SetName("UniformBuffer")
+            //                                   .SetType(ShaderResourceType::UniformBuffer)
+            //                                   .AddAttribute("model", ShaderResourceAttributeType::Mat4)
+            //                                   .AddAttribute("view", ShaderResourceAttributeType::Mat4)
+            //                                   .AddAttribute("projection", ShaderResourceAttributeType::Mat4)
+            //                                   .AddAttribute("zoom", ShaderResourceAttributeType::Float)
+            //                                   .Build());
+
             return Shader::Create(basicShaderInfo);
         }
     }// namespace FlatInstancedShader
@@ -192,6 +213,38 @@ namespace LunaraEngine
         }
     }
 
+    std::pair<ShaderResourceFormatT, ShaderResourceDataTypeT>
+    Shader::GetDefaultFormatType(ShaderResourceAttributeType type)
+    {
+        switch (type)
+        {
+            case ShaderResourceAttributeType::Float:
+                return std::make_pair(ShaderResourceFormatT::R32, ShaderResourceDataTypeT::SFloat);
+            case ShaderResourceAttributeType::Int:
+                return std::make_pair(ShaderResourceFormatT::R32, ShaderResourceDataTypeT::SInt);
+            case ShaderResourceAttributeType::UInt:
+                return std::make_pair(ShaderResourceFormatT::R32, ShaderResourceDataTypeT::UInt);
+            case ShaderResourceAttributeType::Vec2:
+                return std::make_pair(ShaderResourceFormatT::R32G32, ShaderResourceDataTypeT::SFloat);
+            case ShaderResourceAttributeType::Vec3:
+                return std::make_pair(ShaderResourceFormatT::R32G32B32, ShaderResourceDataTypeT::SFloat);
+            case ShaderResourceAttributeType::Vec4:
+                return std::make_pair(ShaderResourceFormatT::R32G32B32A32, ShaderResourceDataTypeT::SFloat);
+            case ShaderResourceAttributeType::IVec2:
+                return std::make_pair(ShaderResourceFormatT::R32G32, ShaderResourceDataTypeT::SInt);
+            case ShaderResourceAttributeType::IVec3:
+                return std::make_pair(ShaderResourceFormatT::R32G32B32, ShaderResourceDataTypeT::SInt);
+            case ShaderResourceAttributeType::Mat2:
+                return std::make_pair(ShaderResourceFormatT::R32G32B32A32, ShaderResourceDataTypeT::SFloat);
+            case ShaderResourceAttributeType::Mat3:
+                return std::make_pair(ShaderResourceFormatT::R32G32B32A32, ShaderResourceDataTypeT::SFloat);
+            case ShaderResourceAttributeType::Mat4:
+                return std::make_pair(ShaderResourceFormatT::R32G32B32A32, ShaderResourceDataTypeT::SFloat);
+            default:
+                return std::make_pair(ShaderResourceFormatT::R32, ShaderResourceDataTypeT::SFloat);
+        }
+    }
+
     size_t Shader::GetInputResourceSize(const ShaderInputResource& resource)
     {
         auto formatSize = GetFormatSize(resource.format);
@@ -328,6 +381,155 @@ namespace LunaraEngine
             default:
                 return "";
         }
+    }
+
+    size_t Shader::GetResourceAttributeTypeSize(ShaderResourceAttributeType type)
+    {
+        switch (type)
+        {
+            case ShaderResourceAttributeType::Float:
+                return sizeof(float);
+            case ShaderResourceAttributeType::Vec2:
+                return sizeof(float) * 2;
+            case ShaderResourceAttributeType::Vec3:
+                return sizeof(float) * 3;
+            case ShaderResourceAttributeType::Vec4:
+                return sizeof(float) * 4;
+            case ShaderResourceAttributeType::Mat2:
+                return sizeof(float) * 4;
+            case ShaderResourceAttributeType::Mat3:
+                return sizeof(float) * 9;
+            case ShaderResourceAttributeType::Mat4:
+                return sizeof(float) * 16;
+            case ShaderResourceAttributeType::UInt:
+                return sizeof(uint32_t);
+            case ShaderResourceAttributeType::Int:
+                return sizeof(int32_t);
+            case ShaderResourceAttributeType::IVec2:
+                return sizeof(int32_t) * 2;
+            case ShaderResourceAttributeType::IVec3:
+                return sizeof(int32_t) * 3;
+            case ShaderResourceAttributeType::IVec4:
+                return sizeof(int32_t) * 4;
+            default:
+                return 0;
+        }
+    }
+
+    ShaderInfoBuilder::ShaderInfoBuilder(ShaderInfo& result) : m_Info(result) {}
+
+    void ShaderInfoBuilder::SetName(std::filesystem::path name) { m_Info.name = name.wstring(); }
+
+    void ShaderInfoBuilder::SetPath(std::filesystem::path path) { m_Info.path = path; }
+
+    void ShaderInfoBuilder::UseAsComputeShader() { m_Info.isComputeShader = true; }
+
+    void ShaderInfoBuilder::AddVertexInputResource(
+            std::vector<std::pair<std::string_view, ShaderResourceAttributeType>>&& resources)
+    {
+        const size_t binding{};
+        uint32_t location{};
+        uint32_t offset{};
+        for (auto& [name, type]: resources)
+        {
+            auto [shaderResourceFormat, shaderResourceType] = Shader::GetDefaultFormatType(type);
+
+            m_Info.resources.inputResources.push_back(ShaderInputResource{.name = name,
+                                                                          .binding = binding,
+                                                                          .location = location,
+                                                                          .format = shaderResourceFormat,
+                                                                          .type = shaderResourceType,
+                                                                          .offset = offset});
+            offset += Shader::GetFormatSize(shaderResourceFormat);
+            ++location;
+        }
+    }
+
+    void ShaderInfoBuilder::SetNumInstances(uint32_t numInstances) { m_Info.numInstances = numInstances; }
+
+    void ShaderInfoBuilder::AddVertexInputResource(const ShaderInputResource& resource)
+    {
+        m_Info.resources.inputResources.push_back(resource);
+    }
+
+    void ShaderInfoBuilder::AddResource(ShaderResource resource)
+    {
+        if (resource.layout.binding == SHADER_ALL_BINDINGS)
+        {
+            resource.layout.binding = static_cast<uint32_t>(m_Info.resources.bufferResources.size());
+        }
+        m_Info.resources.bufferResources.push_back(resource);
+    }
+
+    ShaderResourceBuilder::ShaderResourceBuilder(std::string_view name, ShaderResourceType type, size_t length)
+    {
+        m_Resource.name = name;
+        m_Resource.type = type;
+        m_Resource.length = length;
+        m_Resource.layout.layoutType = ShaderResourceMemoryLayout::STD430;
+        m_Resource.layout.binding = SHADER_ALL_BINDINGS;
+    }
+
+    ShaderResourceBuilder& ShaderResourceBuilder::SetName(std::string_view name)
+    {
+        m_Resource.name = name;
+        return *this;
+    }
+
+    ShaderResourceBuilder& ShaderResourceBuilder::SetType(ShaderResourceType type)
+    {
+        m_Resource.type = type;
+        return *this;
+    }
+
+    ShaderResourceBuilder& ShaderResourceBuilder::SetLength(size_t length)
+    {
+        m_Resource.length = length;
+        return *this;
+    }
+
+    ShaderResourceBuilder& ShaderResourceBuilder::SetLayoutType(ShaderResourceMemoryLayout layout)
+    {
+        m_Resource.layout.layoutType = layout;
+        return *this;
+    }
+
+    ShaderResourceBuilder& ShaderResourceBuilder::SetStride(size_t stride)
+    {
+        m_Resource.stride = stride;
+        return *this;
+    }
+
+    ShaderResourceBuilder& ShaderResourceBuilder::SetBinding(uint32_t binding)
+    {
+        m_Resource.layout.binding = binding;
+        return *this;
+    }
+
+    ShaderResourceBuilder& ShaderResourceBuilder::AddAttribute(std::string_view name, ShaderResourceAttributeType type)
+    {
+        m_Resource.attributes.push_back(ShaderResourceAttribute{.name = name, .type = type});
+        m_Resource.stride += Shader::GetResourceAttributeTypeSize(type);
+
+        return *this;
+    }
+
+    ShaderResourceBuilder& ShaderResourceBuilder::AddAttributes(
+            std::vector<std::pair<std::string_view, ShaderResourceAttributeType>>&& attributes)
+    {
+        for (auto& [name, type]: attributes) { AddAttribute(name, type); }
+        return *this;
+    }
+
+    ShaderResource ShaderResourceBuilder::Build()
+    {
+        if (m_Resource.length == 0) { m_Resource.length = 1; }
+        if (m_Resource.layout.layoutType == ShaderResourceMemoryLayout::None)
+        {
+            m_Resource.layout.layoutType = ShaderResourceMemoryLayout::STD430;
+        }
+
+        return m_Resource;
     }
 
 }// namespace LunaraEngine

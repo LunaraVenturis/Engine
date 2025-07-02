@@ -36,7 +36,6 @@ namespace LunaraEngine
             shaderStages[i].pName = "main";
         }
 
-        VkVertexInputBindingDescription bindingDescription;
         std::vector<VkVertexInputAttributeDescription> attributeDescriptions;
 
         VkPipelineColorBlendAttachmentState colorBlendAttachment{};

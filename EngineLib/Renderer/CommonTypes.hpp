@@ -63,7 +63,7 @@ namespace LunaraEngine
         UNorm
     };
 
-    enum class ShaderResourceAttributeType
+    enum class ShaderResourceAttributeType : size_t
     {
         None = 0,
         Float,
@@ -82,6 +82,7 @@ namespace LunaraEngine
     using ShaderBindingT = uint32_t;
     using ShaderLocationT = uint32_t;
 
+    constexpr auto SHADER_ALL_BINDINGS = UINT32_MAX;
     enum class ShaderResourceMemoryLayout
     {
         None = 0,
