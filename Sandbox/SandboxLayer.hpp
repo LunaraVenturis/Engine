@@ -50,7 +50,7 @@ private:
     uint32_t x{}, y{};
 
     Player m_Player = {{0.0f, 0.0f, 0.0f}, {100.0f, 100.0f}};
-    LunaraEngine::Camera m_Camera = {{1280.0f, 720.0f}};
+    LunaraEngine::Camera m_Camera = {{1280.0f, 720.0f, 0}};
 
     float zoom{1.0f};
     std::map<uint32_t, uint8_t> m_PressedKeys{};
