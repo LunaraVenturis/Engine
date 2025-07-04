@@ -30,3 +30,7 @@ bool Player::isColliding(Entity* enemy)
 }
 
 void Player::SetPlayerColor(LunaraEngine::Color4 color) { m_PlayerColor = color; }
+void Player::SetPosition(const glm::vec3& position)
+{
+    m_Position = position;
+}

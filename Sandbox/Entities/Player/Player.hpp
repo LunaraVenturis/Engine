@@ -17,8 +17,8 @@ public:
     void Move(f32 x, f32 y, f32 z, f32 delta) override;
     bool isColliding(Entity* Enemy);
     void SetPlayerColor(LunaraEngine::Color4 color);
+    void SetPosition(const glm::vec3& position);
     [[nodiscard]] glm::vec3 GetPosition() const override { return m_Position; };
-
     [[nodiscard]] EntitySize GetSize() const override { return m_Size; };
 
 private:
