@@ -104,7 +104,7 @@ namespace LunaraEngine
         _18,
         _19,
         _20,
-        ALL
+        ALL = 0xFFFFFFFF
     };
 
     enum class ShaderResourceMemoryLayout

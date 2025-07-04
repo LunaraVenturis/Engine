@@ -17,6 +17,7 @@ namespace LunaraEngine
 
         auto result = vkCreateBuffer(m_Device, &bufferInfo, nullptr, &m_Buffer);
         assert(result == VK_SUCCESS);
+        (void) result;
     }
 
     void Buffer::BindBufferToDevMemory(VkMemoryPropertyFlags properties, VkPhysicalDevice physicalDevice)
@@ -31,6 +32,7 @@ namespace LunaraEngine
 
         auto result = vkAllocateMemory(m_Device, &allocInfo, nullptr, &m_BufferMemory);
         assert(result == VK_SUCCESS);
+        (void) result;
 
         result = vkBindBufferMemory(m_Device, m_Buffer, m_BufferMemory, 0);
         assert(result == VK_SUCCESS);
@@ -45,6 +47,7 @@ namespace LunaraEngine
         {
             auto result = vkDeviceWaitIdle(m_Device);
             assert(result == VK_SUCCESS);
+            (void) result;
 
             if (m_MappedDataPtr != nullptr) { vkUnmapMemory(m_Device, m_BufferMemory); }
 

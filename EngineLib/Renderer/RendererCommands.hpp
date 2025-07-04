@@ -3,7 +3,12 @@
 #include <functional>
 #include <string_view>
 #include <span>
+#include <memory>
+#include <utility>
 #include <Core/Log.h>
+#include <Renderer/Shader.hpp>
+
+#include <Renderer/Vulkan/Buffer.hpp>
 
 namespace LunaraEngine
 {
@@ -193,23 +198,132 @@ namespace LunaraEngine
 
     template <typename T>
     class StorageBuffer;
+    enum class ShaderBinding : size_t;
+
+    template <typename T = uint8_t>
+    class BaseBufferUploadList
+    {
+
+    public:
+        template <typename Ty = uint8_t>
+        using BufferView = std::span<Ty>;
+
+        template <typename Ty = uint8_t>
+        using BufferUpload = std::tuple<StorageBuffer<Ty>*, BufferView<Ty>>;
+
+
+        BaseBufferUploadList() = default;
+        ~BaseBufferUploadList() = default;
+
+        explicit BaseBufferUploadList(std::vector<BufferUpload<T>>&& list) { this->list = std::move(list); }
+
+    public:
+        template <std::ranges::range Container, typename V = void>
+        BaseBufferUploadList& Add(V* dstBuffer, const Container& srcBuffer)
+        {
+            using U = std::ranges::range_value_t<Container>;
+            static_assert(std::is_trivially_copyable_v<U>);
+
+            list.emplace_back((StorageBuffer<T>*) dstBuffer, BufferView<T>((T*) srcBuffer.data(), srcBuffer.size()));
+            return *this;
+        }
+
+        template <typename U, typename V = void>
+
+        requires std::is_trivially_copyable_v<U> BaseBufferUploadList& Add(V* dstBuffer, U* srcBuffer, size_t length)
+        {
+            list.emplace_back((StorageBuffer<T>*) dstBuffer, BufferView<T>((T*) srcBuffer, length));
+            return *this;
+        }
+
+    public:
+        auto begin() { return list.begin(); }
+
+        auto begin() const { return list.begin(); }
+
+        auto end() { return list.end(); }
+
+        auto end() const { return list.end(); }
+
+    protected:
+        std::vector<BufferUpload<T>> list;
+    };
+
+    template <typename T = uint8_t>
+    class BaseBufferUploadListBuilder
+    {
+    public:
+        BaseBufferUploadListBuilder(std::weak_ptr<Shader> shader) : m_Shader(shader) {}
+
+        ~BaseBufferUploadListBuilder() = default;
+
+    public:
+        BaseBufferUploadList<T>& Get() { return m_List; }
+
+    public:
+        template <std::ranges::range Container>
+
+        requires(std::is_trivially_copyable_v<std::ranges::range_value_t<Container>>)
+                BaseBufferUploadListBuilder& Add(const Container& srcBuffer)
+        {
+            if (m_Shader.expired())
+            {
+                LOG_ERROR("Shader is expired");
+                return *this;
+            }
+
+            auto shader = m_Shader.lock();
+
+            auto* buffer = shader->GetBuffer(m_LastBinding);
+            m_List.template Add<Container>(buffer, srcBuffer);
+            m_LastBinding = (ShaderBinding) ((size_t) m_LastBinding + 1);
+            return *this;
+        }
+
+        template <std::ranges::range... Containers>
+
+        requires((std::is_trivially_copyable_v<std::ranges::range_value_t<Containers>> &&
+                  ...)) BaseBufferUploadListBuilder& Add(const Containers&... srcBuffers)
+        {
+            (Add(srcBuffers), ...);
+            return *this;
+        }
+
+        template <typename U>
+
+        requires(std::is_trivially_copyable_v<U>)
+                [[nodiscard]] BaseBufferUploadListBuilder& Add(U* srcBuffer, size_t length)
+        {
+            Add(std::span{std::in_place_t{}, srcBuffer, length});
+            return *this;
+        }
+
+    private:
+        ShaderBinding m_LastBinding{ShaderBinding::_1};
+        std::weak_ptr<Shader> m_Shader;
+        BaseBufferUploadList<T> m_List;
+    };
+
+    using BufferUploadList = BaseBufferUploadList<>;
+    using BufferUploadListBuilder = BaseBufferUploadListBuilder<>;
 
     class RendererCommandDrawBatch: public RendererCommand
     {
     public:
-        using BufferUpload = std::tuple<StorageBuffer<uint8_t>*, std::span<uint8_t>>;
-        using BufferUploadList = std::vector<BufferUpload>;
-
         RendererCommandDrawBatch() = default;
 
-        RendererCommandDrawBatch(BufferUploadList& uploadList, size_t count, size_t offset = 0)
+        RendererCommandDrawBatch(BaseBufferUploadList<>&& uploadList, size_t count, size_t offset = 0)
+            : uploadList(std::move(uploadList)), count(count), offset(offset)
+        {}
+
+        RendererCommandDrawBatch(const BaseBufferUploadList<>& uploadList, size_t count, size_t offset = 0)
             : uploadList(uploadList), count(count), offset(offset)
         {}
 
         virtual RendererCommandType GetType() const override { return RendererCommandType::DrawQuadBatch; }
 
     public:
-        BufferUploadList uploadList;
+        BaseBufferUploadList<> uploadList;
         size_t count{};
         size_t offset{};
     };

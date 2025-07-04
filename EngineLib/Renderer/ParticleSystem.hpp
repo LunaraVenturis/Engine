@@ -46,7 +46,7 @@ namespace LunaraEngine
     private:
         inline static ParticleSystem* s_ParticleSystem = nullptr;
 
-        static constexpr size_t MAX_PARTICLES = 100000;
+        static constexpr size_t MAX_PARTICLES = 1000;
 
     private:
         size_t m_Offset{};

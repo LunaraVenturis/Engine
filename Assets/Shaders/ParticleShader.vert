@@ -15,11 +15,11 @@ ubo;
 
 layout(binding = 1) readonly buffer positionBuffer { vec2 positions[]; };
 
-layout(binding = 2) readonly buffer velocityBuffer { vec2 velocities[]; };
+// layout(binding = 2) readonly buffer velocityBuffer { vec2 velocities[]; };
 
-layout(binding = 3) readonly buffer lifeBuffer { float lifes[]; };
+layout(binding = 2) readonly buffer lifeBuffer { float lifes[]; };
 
-layout(binding = 4) readonly buffer aliveParticles { uint aliveParticlesID[]; };
+layout(binding = 3) readonly buffer aliveParticles { uint aliveParticlesID[]; };
 
 uint getVertexID() { return gl_VertexIndex % 6u; }
 

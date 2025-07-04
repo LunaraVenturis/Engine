@@ -149,11 +149,13 @@ namespace LunaraEngine
         auto arg = static_cast<const RendererCommandDrawBatch*>(command);
 
 
-        for (auto& upload: arg->uploadList)
+        for (const auto& upload: arg->uploadList)
         {
-            auto& [storageBuffer, data] = upload;
+            const auto& [storageBuffer, data] = upload;
             VulkanStorageBuffer* batchStorage = (VulkanStorageBuffer*) (storageBuffer);
-            batchStorage->Upload(data.data(), data.size(), batchStorage->GetStride());
+            auto size = data.size();
+            auto stride = batchStorage->GetStride();
+            batchStorage->Upload(data.data(), size, stride);
         }
 
         const auto& buffer = rendererData->commandPool->GetBuffer(rendererData->currentFrame);

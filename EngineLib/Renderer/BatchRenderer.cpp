@@ -52,15 +52,12 @@ namespace LunaraEngine
     RendererCommandDrawBatch* BatchRenderer::CreateDrawCommand()
     {
         auto instance = GetInstance();
-        auto shader = instance->m_Shader;
 
-        RendererCommandDrawBatch::BufferUploadList uploadList{
-                {(StorageBuffer<uint8_t>*) shader->GetBuffer(ShaderBinding::_1),
-                 std::span<uint8_t>{(uint8_t*) (instance->m_Quads.data()),
-                                    instance->m_QuadCount * sizeof(QuadBufferElement)}}};
+        BufferUploadListBuilder uploadListBuilder(std::weak_ptr<Shader>(instance->m_Shader));
+        uploadListBuilder.Add(instance->m_Quads);
 
         RendererCommandDrawBatch* command =
-                new RendererCommandDrawBatch(uploadList, instance->m_QuadCount, instance->m_Offset);
+                new RendererCommandDrawBatch(uploadListBuilder.Get(), instance->m_QuadCount, instance->m_Offset);
 
         return command;
     }

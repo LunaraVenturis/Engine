@@ -42,10 +42,6 @@ namespace LunaraEngine
                                                              MAX_PARTICLES)
                                                .AddAttribute("Position", ShaderResourceAttributeType::Vec2)
                                                .Build(),
-                                       ShaderResourceBuilder("ParticleVelocities", ShaderResourceType::StorageBuffer,
-                                                             MAX_PARTICLES)
-                                               .AddAttribute("Velocity", ShaderResourceAttributeType::Vec2)
-                                               .Build(),
                                        ShaderResourceBuilder("ParticleLifes", ShaderResourceType::StorageBuffer,
                                                              MAX_PARTICLES)
                                                .AddAttribute("Life", ShaderResourceAttributeType::Float)
@@ -61,12 +57,12 @@ namespace LunaraEngine
 
     void ParticleSystem::Update(float dt)
     {
-        constexpr float emitPerSecond = 150.0f;
+        constexpr float emitPerSecond = 200.0f;
         constexpr float emitInterval = 1.0f / emitPerSecond;
-        constexpr float speed = 300.0f;
+        constexpr float speed = 350.0f;
         constexpr float windSpeed = 5.0f;
-        constexpr float windResistance = 0.001f;
-        constexpr glm::vec2 windDir = {0.2f, -0.08f};
+        constexpr float windResistance = 0.0004f;
+        constexpr glm::vec2 windDir = {0.3f, -0.2f};
 
         for (size_t id = 0; id < m_Capacity; ++id)
         {
@@ -97,7 +93,7 @@ namespace LunaraEngine
                 glm::vec2 velocity = {glm::linearRand(-0.04f, 0.04f), -1.0f};
                 glm::vec2 position = origin + glm::vec2{glm::linearRand(-0.5f, 0.5f), 0.0f} * speed;
 
-                Emit(1, position, velocity, 2.0f, 1.0f);
+                Emit(1, position, velocity, 1.5, 1.0f);
             }
         }
     }
@@ -121,8 +117,6 @@ namespace LunaraEngine
     RendererCommandDrawBatch* ParticleSystem::CreateDrawCommand()
     {
         auto instance = GetInstance();
-        auto shader = instance->m_Shader;
-
         size_t aliveParticleCount = 0;
 
         std::ranges::for_each(instance->m_Lifes, [&](const auto& life) {
@@ -130,18 +124,11 @@ namespace LunaraEngine
             instance->m_LifeIndices[aliveParticleCount++] = (uint32_t) (&life - &instance->m_Lifes[0]);
         });
 
-        RendererCommandDrawBatch::BufferUploadList uploadList{
-                {(StorageBuffer<uint8_t>*) shader->GetBuffer(ShaderBinding::_1),
-                 std::span<uint8_t>{(uint8_t*) (instance->m_Positions.data()), instance->m_Positions.size()}},
-                {(StorageBuffer<uint8_t>*) shader->GetBuffer(ShaderBinding::_2),
-                 std::span<uint8_t>{(uint8_t*) (instance->m_Velocities.data()), instance->m_Velocities.size()}},
-                {(StorageBuffer<uint8_t>*) shader->GetBuffer(ShaderBinding::_3),
-                 std::span<uint8_t>{(uint8_t*) (instance->m_Lifes.data()), instance->m_Lifes.size()}},
-                {(StorageBuffer<uint8_t>*) shader->GetBuffer(ShaderBinding::_4),
-                 std::span<uint8_t>{(uint8_t*) (instance->m_LifeIndices.data()), aliveParticleCount}},
-        };
+        BufferUploadListBuilder uploadListBuilder(std::weak_ptr<Shader>(instance->m_Shader));
+        uploadListBuilder.Add(instance->m_Positions, instance->m_Lifes, instance->m_LifeIndices);
 
-        RendererCommandDrawBatch* command = new RendererCommandDrawBatch(uploadList, aliveParticleCount, 0);
+        RendererCommandDrawBatch* command =
+                new RendererCommandDrawBatch(uploadListBuilder.Get(), aliveParticleCount, 0);
         return command;
     }
 

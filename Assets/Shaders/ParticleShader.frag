@@ -12,7 +12,7 @@ void main()
 
     float dist = length(fragUV - circleCenter);
     float mask = 1 - smoothstep(0, inData.z, dist);
-    float normalizedLife = clamp(life / 2.01, 0.0, 1.0);
+    float normalizedLife = clamp(life / 1.51, 0.0, 1.0);
 
     const float power = 2;
 
