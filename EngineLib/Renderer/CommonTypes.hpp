@@ -29,10 +29,10 @@ namespace LunaraEngine
     {
         None = 0,
         Texture,
-        Sampler,
         PushConstant,
         UniformBuffer,
         StorageBuffer,
+        Buffer
     };
 
 

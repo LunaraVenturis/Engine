@@ -1,4 +1,5 @@
 #include <Renderer/Vulkan/Common.hpp>
+#include <Renderer/Vulkan/VulkanDataTypes.hpp>
 #include <Core/Log.h>
 
 namespace LunaraEngine

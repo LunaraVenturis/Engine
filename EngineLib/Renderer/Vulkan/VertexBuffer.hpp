@@ -44,7 +44,7 @@ namespace LunaraEngine
     class CommandPool;
     struct RendererDataType;
 
-    class VulkanVertexBuffer: public Buffer
+    class VulkanVertexBuffer: public Buffer<ShaderResourceType::Buffer>
     {
     public:
         VulkanVertexBuffer() = default;

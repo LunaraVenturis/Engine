@@ -26,6 +26,8 @@ namespace LunaraEngine
 {
     const std::array<const char*, 1> g_SwapChainExtensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
 
+    class SwapChain;
+
     struct RendererDataType {
         LunaraEngine::Window* window;
         SDL_Renderer* renderer;

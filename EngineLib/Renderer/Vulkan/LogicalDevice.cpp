@@ -1,5 +1,6 @@
 #include "LogicalDevice.hpp"
 #include <Renderer/Vulkan/Common.hpp>
+#include <Renderer/Vulkan/VulkanDataTypes.hpp>
 
 namespace LunaraEngine
 {

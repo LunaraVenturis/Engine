@@ -282,7 +282,7 @@ namespace LunaraEngine
         {
             if (resource.type == ShaderResourceType::PushConstant) { continue; }
             bufferInfos.push_back(VkDescriptorBufferInfo{
-                    .buffer = m_Resources[(size_t) resource.layout.binding][frameIndex]->GetBuffer(),
+                    .buffer = m_Resources[(size_t) resource.layout.binding][frameIndex]->GetHandle(),
                     .offset = 0,
                     .range = resource.length * resource.stride,
             });
@@ -360,8 +360,6 @@ namespace LunaraEngine
         {
             case ShaderResourceType::Texture:
                 return "Texture";
-            case ShaderResourceType::Sampler:
-                return "Sampler";
             case ShaderResourceType::PushConstant:
                 return "PushConstant";
             case ShaderResourceType::UniformBuffer:

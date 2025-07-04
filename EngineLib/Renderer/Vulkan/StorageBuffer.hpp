@@ -12,7 +12,7 @@ namespace LunaraEngine
     class CommandPool;
     struct RendererDataType;
 
-    class VulkanStorageBuffer: public Buffer
+    class VulkanStorageBuffer: public Buffer<ShaderResourceType::Buffer>
     {
     public:
         VulkanStorageBuffer() = default;

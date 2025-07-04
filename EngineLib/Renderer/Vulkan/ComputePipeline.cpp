@@ -81,8 +81,6 @@ namespace LunaraEngine
         {
             case ShaderResourceType::Texture:
                 return VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-            case ShaderResourceType::Sampler:
-                return VK_DESCRIPTOR_TYPE_SAMPLER;
             case ShaderResourceType::UniformBuffer:
                 return VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
             case ShaderResourceType::StorageBuffer:

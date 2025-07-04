@@ -11,6 +11,7 @@ namespace LunaraEngine
     struct RendererDataType;
     class VulkanUniformBuffer;
     class VulkanStorageBuffer;
+    template <ShaderResourceType type>
     class Buffer;
 
     class VulkanShader: public Shader
@@ -67,7 +68,7 @@ namespace LunaraEngine
 
     private:
         RendererDataType* m_RendererData{};
-        std::map<size_t, std::vector<Buffer*>> m_Resources{};
+        std::map < size_t, std::vector<Buffer<ShaderResourceType::Buffer>* >> m_Resources{};
         std::vector<VkDescriptorSet> m_DescriptorSets;
         VkDescriptorPool m_DescriptorPool{};
         Pipeline* m_Pipeline{};

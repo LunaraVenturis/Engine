@@ -11,7 +11,7 @@ namespace LunaraEngine
     class CommandPool;
     struct RendererDataType;
 
-    class VulkanIndexBuffer: public Buffer
+    class VulkanIndexBuffer: public Buffer<ShaderResourceType::Buffer>
     {
     public:
         VulkanIndexBuffer() = default;

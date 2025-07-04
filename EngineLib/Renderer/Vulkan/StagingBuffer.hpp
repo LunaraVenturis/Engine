@@ -4,7 +4,7 @@
 
 namespace LunaraEngine
 {
-    class StagingBuffer: public Buffer
+    class StagingBuffer: public Buffer<ShaderResourceType::Buffer>
     {
     public:
         StagingBuffer() = default;

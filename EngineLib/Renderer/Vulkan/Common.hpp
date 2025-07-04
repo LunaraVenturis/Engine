@@ -1,9 +1,10 @@
 #pragma once
 #include <cstdint>
-#include "VulkanDataTypes.hpp"
+#include <vulkan/vulkan.h>
 
 namespace LunaraEngine
 {
+    struct QueueFamilyIndices;
     QueueFamilyIndices FindQueueFamilies(VkPhysicalDevice device, VkSurfaceKHR surface);
 
     bool CheckDeviceExtensionSupport(VkPhysicalDevice device);
