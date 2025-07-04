@@ -44,9 +44,9 @@ void SandboxLayer::OnUpdate(float dt)
     if (m_Player.isColliding(&m_Enemy)) { m_Player.SetPlayerColor({1.0f, 0.0f, 0.0f, 1.0f}); }
     else { m_Player.SetPlayerColor({1.0f, 1.0f, 1.0f, 1.0f}); }
 
-    // if (m_Enemy.HasReachedPointX(m_Enemy.GetPosition().x, 200.0f)) { dir = -1.0f; }
-    // if (m_Enemy.HasReachedPointX(m_Enemy.GetPosition().x, 0.0f)) { dir = 1.0f; }
-    // m_Enemy.Move(dir * 1.0f, 0.0f, 0.0f, dt);
+    if (m_Enemy.HasReachedPointX(m_Enemy.GetPosition().x, 200.0f)) { dir = -1.0f; }
+    if (m_Enemy.HasReachedPointX(m_Enemy.GetPosition().x, 0.0f)) { dir = 1.0f; }
+    m_Enemy.Move(dir * 1.0f, 0.0f, 0.0f, dt);
 
     auto shader = BatchRenderer::GetShader();
     if (!shader.expired())

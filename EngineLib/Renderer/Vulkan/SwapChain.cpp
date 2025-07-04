@@ -24,8 +24,8 @@ namespace LunaraEngine
         if (presentModeCount != 0)
         {
             details.presentModes.resize(presentModeCount);
-            vkGetPhysicalDeviceSurfacePresentModesKHR(physicaldevice, surface, &presentModeCount,
-                                                      details.presentModes.data());
+            vkGetPhysicalDeviceSurfacePresentModesKHR(
+                    physicaldevice, surface, &presentModeCount, details.presentModes.data());
         }
 
         return details;
@@ -64,10 +64,10 @@ namespace LunaraEngine
         {
             VkExtent2D actualExtent = extent;
 
-            actualExtent.width = std::clamp(actualExtent.width, capabilities.minImageExtent.width,
-                                            capabilities.maxImageExtent.width);
-            actualExtent.height = std::clamp(actualExtent.height, capabilities.minImageExtent.height,
-                                             capabilities.maxImageExtent.height);
+            actualExtent.width = std::clamp(
+                    actualExtent.width, capabilities.minImageExtent.width, capabilities.maxImageExtent.width);
+            actualExtent.height = std::clamp(
+                    actualExtent.height, capabilities.minImageExtent.height, capabilities.maxImageExtent.height);
 
             return actualExtent;
         }

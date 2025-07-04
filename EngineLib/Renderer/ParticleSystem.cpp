@@ -38,16 +38,16 @@ namespace LunaraEngine
                                                .AddAttribute("projection", ShaderResourceAttributeType::Mat4)
                                                .AddAttribute("zoom", ShaderResourceAttributeType::Float)
                                                .Build(),
-                                       ShaderResourceBuilder("ParticlePositions", ShaderResourceType::StorageBuffer,
-                                                             MAX_PARTICLES)
+                                       ShaderResourceBuilder(
+                                               "ParticlePositions", ShaderResourceType::StorageBuffer, MAX_PARTICLES)
                                                .AddAttribute("Position", ShaderResourceAttributeType::Vec2)
                                                .Build(),
-                                       ShaderResourceBuilder("ParticleLifes", ShaderResourceType::StorageBuffer,
-                                                             MAX_PARTICLES)
+                                       ShaderResourceBuilder(
+                                               "ParticleLifes", ShaderResourceType::StorageBuffer, MAX_PARTICLES)
                                                .AddAttribute("Life", ShaderResourceAttributeType::Float)
                                                .Build(),
-                                       ShaderResourceBuilder("AliveParticles", ShaderResourceType::StorageBuffer,
-                                                             MAX_PARTICLES)
+                                       ShaderResourceBuilder(
+                                               "AliveParticles", ShaderResourceType::StorageBuffer, MAX_PARTICLES)
                                                .AddAttribute("Index", ShaderResourceAttributeType::UInt)
                                                .Build()})
                         .Build());

@@ -61,5 +61,5 @@ private:
     std::shared_ptr<LunaraEngine::Shader> m_BatchQuadShader;
     float elapsedTime{};
     float m_PlayerDt{};
-    // f32 dir = 1.0f;
+    f32 dir = 1.0f;
 };

@@ -10,8 +10,8 @@ namespace LunaraEngine
         QueueFamilyIndices indices = FindQueueFamilies(physicalDevice, surface);
 
         std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
-        std::set<uint32_t> uniqueQueueFamilies = {indices.graphicsFamily.value(), indices.presentFamily.value(),
-                                                  indices.computeFamily.value()};
+        std::set<uint32_t> uniqueQueueFamilies = {
+                indices.graphicsFamily.value(), indices.presentFamily.value(), indices.computeFamily.value()};
         float queuePriority = 1.0f;
 
         for (uint32_t queueFamily: uniqueQueueFamilies)

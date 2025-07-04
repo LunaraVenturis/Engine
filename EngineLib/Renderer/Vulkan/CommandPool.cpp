@@ -34,10 +34,7 @@ namespace LunaraEngine
         for (uint32_t i = 0; i < count; i++) { m_commandBuffers.emplace_back(m_device, m_commandPool); }
     }
 
-    void CommandPool::DestroyCommandBuffers()
-    {
-        m_commandBuffers.clear();
-    }
+    void CommandPool::DestroyCommandBuffers() { m_commandBuffers.clear(); }
 
     std::unique_ptr<CommandBuffer> CommandPool::CreateImmediateCommandBuffer()
     {

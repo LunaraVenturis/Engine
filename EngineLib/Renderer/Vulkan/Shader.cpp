@@ -239,8 +239,8 @@ namespace LunaraEngine
             throw std::runtime_error("failed to create descriptor pool!");
         }
 
-        std::vector<VkDescriptorSetLayout> layouts(m_RendererData->maxFramesInFlight,
-                                                   ((GraphicsPipeline*) m_Pipeline)->GetDescriptorLayout());
+        std::vector<VkDescriptorSetLayout> layouts(
+                m_RendererData->maxFramesInFlight, ((GraphicsPipeline*) m_Pipeline)->GetDescriptorLayout());
         VkDescriptorSetAllocateInfo allocateInfo{};
         allocateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
         allocateInfo.descriptorPool = m_DescriptorPool;

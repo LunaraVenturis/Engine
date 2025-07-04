@@ -1,6 +1,7 @@
 #include "CommandBuffer.hpp"
 #include <stdexcept>
 #include <Core/Log.h>
+
 namespace LunaraEngine
 {
     CommandBuffer::CommandBuffer(VkDevice device, VkCommandPool cmdPool) : m_device(device), m_cmdPool(cmdPool)
@@ -35,6 +36,7 @@ namespace LunaraEngine
     CommandBuffer::~CommandBuffer() { Destroy(); }
 
     void CommandBuffer::Destroy() { vkFreeCommandBuffers(m_device, m_cmdPool, 1, &m_cmdBuffer); }
+
     void CommandBuffer::BeginRecording() const
     {
 
