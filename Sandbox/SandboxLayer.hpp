@@ -59,7 +59,6 @@ private:
 
     LunaraEngine::AABB m_PlayerCollider;
     LunaraEngine::Camera m_Camera = {{1280.0f, 720.0f, 0}};
-
     float zoom{1.0f};
     std::map<uint32_t, uint8_t> m_PressedKeys{};
 
