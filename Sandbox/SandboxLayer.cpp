@@ -41,7 +41,9 @@ void SandboxLayer::OnUpdate(float dt)
     m_Player.Draw();
     m_Enemy.Draw();
     m_Wall.Draw();
-    if (m_Player.isColliding(&m_Enemy)) { m_Player.SetPlayerColor({1.0f, 0.0f, 0.0f, 1.0f}); }
+    m_PlayerCollider.Init(m_Player.GetPosition(), m_Player.GetSize().width, m_Player.GetSize().height, m_Enemy.GetPosition(), m_Enemy.GetSize().width, m_Enemy.GetSize().height);
+
+    if (m_PlayerCollider.Intersection()) { m_Player.SetPlayerColor({1.0f, 0.0f, 0.0f, 1.0f}); }
     else
     {
         m_Player.SetPlayerColor({1.0f, 1.0f, 1.0f, 1.0f});
