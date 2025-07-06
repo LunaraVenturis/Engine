@@ -95,8 +95,8 @@ namespace LunaraEngine
         soundFlags |= MA_SOUND_FLAG_DECODE;// Decode in the beginning
 
         audio.sound = (ma_sound*) malloc(sizeof(ma_sound));
-        auto result = ma_sound_init_from_file(&g_AudioManagerData.engine, path.data(), soundFlags, NULL,
-                                              &g_AudioManagerData.done_fence, audio.sound);
+        auto result = ma_sound_init_from_file(
+                &g_AudioManagerData.engine, path.data(), soundFlags, NULL, &g_AudioManagerData.done_fence, audio.sound);
         if (result != MA_SUCCESS)
         {
             free(audio.sound);

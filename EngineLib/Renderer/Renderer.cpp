@@ -148,8 +148,8 @@ namespace LunaraEngine
             }
             else
             {
-                RendererAPI::GetInstance()->HandleCommand(std::get<RendererCommand*>(cmd),
-                                                          std::get<RendererCommand*>(cmd)->GetType());
+                RendererAPI::GetInstance()->HandleCommand(
+                        std::get<RendererCommand*>(cmd), std::get<RendererCommand*>(cmd)->GetType());
                 RendererCommand::FreeCommand(std::get<RendererCommand*>(cmd));
             }
         }

@@ -16,8 +16,8 @@ namespace LunaraEngine
         m_Device = device;
         m_Stride = stride;
         CreateBuffer(VK_BUFFER_USAGE_TRANSFER_SRC_BIT);
-        BindBufferToDevMemory(VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-                              physicalDevice);
+        BindBufferToDevMemory(
+                VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, physicalDevice);
         if (data != nullptr) { Upload(data, length, stride); }
     }
 

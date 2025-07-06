@@ -13,7 +13,9 @@ AllowShortIfStatementsOnASingleLine: Always
 AllowShortLambdasOnASingleLine: All
 AllowShortLoopsOnASingleLine: true
 AlwaysBreakAfterReturnType: None
-AlwaysBreakTemplateDeclarations: true
+BreakTemplateDeclarations: Yes
+RequiresClausePosition: WithPreceding
+PenaltyBreakBeforeFirstCallParameter: 0
 BreakBeforeBraces: Custom
 BraceWrapping:
   AfterCaseLabel: false

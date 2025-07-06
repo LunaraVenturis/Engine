@@ -13,14 +13,14 @@ const char* LUNARA_INSTANCE_EXTENSIONS[] = {VK_KHR_XLIB_SURFACE_EXTENSION_NAME, 
 #elif defined(_LUNARA_ENGINE_WAYLAND)
 #include <wayland-client.h>
 #include <vulkan/vulkan_wayland.h>
-const char* LUNARA_INSTANCE_EXTENSIONS[] = {VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME, VK_KHR_SURFACE_EXTENSION_NAME,
-                                            nullptr};
+const char* LUNARA_INSTANCE_EXTENSIONS[] = {
+        VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME, VK_KHR_SURFACE_EXTENSION_NAME, nullptr};
 #elif defined(_LUNARA_ENGINE_WINDOWS)
 #include <vulkan/vulkan_win32.h>
 #include <Windows.h>
 
-const char* LUNARA_INSTANCE_EXTENSIONS[] = {VK_KHR_WIN32_SURFACE_EXTENSION_NAME, VK_KHR_SWAPCHAIN_EXTENSION_NAME,
-                                            VK_KHR_SURFACE_EXTENSION_NAME, nullptr};
+const char* LUNARA_INSTANCE_EXTENSIONS[] = {
+        VK_KHR_WIN32_SURFACE_EXTENSION_NAME, VK_KHR_SWAPCHAIN_EXTENSION_NAME, VK_KHR_SURFACE_EXTENSION_NAME, nullptr};
 #else
 #error "Unsupported platform"
 #endif
@@ -104,8 +104,8 @@ namespace LunaraEngine
         QueueFamilyIndices indices = FindQueueFamilies(m_RendererData->physicalDevice, m_RendererData->vkSurface);
 
         std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
-        std::set<uint32_t> uniqueQueueFamilies = {indices.graphicsFamily.value(), indices.presentFamily.value(),
-                                                  indices.computeFamily.value()};
+        std::set<uint32_t> uniqueQueueFamilies = {
+                indices.graphicsFamily.value(), indices.presentFamily.value(), indices.computeFamily.value()};
         float queuePriority = 1.0f;
 
         for (uint32_t queueFamily: uniqueQueueFamilies)

@@ -17,8 +17,8 @@ namespace LunaraEngine
     {
 
         std::array<VkShaderModule, 2> shaderModules = {};
-        std::array<VkShaderStageFlagBits, 2> shaderStageFlags = {VK_SHADER_STAGE_VERTEX_BIT,
-                                                                 VK_SHADER_STAGE_FRAGMENT_BIT};
+        std::array<VkShaderStageFlagBits, 2> shaderStageFlags = {
+                VK_SHADER_STAGE_VERTEX_BIT, VK_SHADER_STAGE_FRAGMENT_BIT};
         std::array<VkPipelineShaderStageCreateInfo, 2> shaderStages = {};
 
         CreateDescriptorLayout(rendererData, *info);
@@ -100,8 +100,8 @@ namespace LunaraEngine
         colorBlending.blendConstants[3] = 0.0f;// Optional
 
 
-        std::array<VkDynamicState, 2> dynamicStates = {VK_DYNAMIC_STATE_VIEWPORT_WITH_COUNT,
-                                                       VK_DYNAMIC_STATE_SCISSOR_WITH_COUNT};
+        std::array<VkDynamicState, 2> dynamicStates = {
+                VK_DYNAMIC_STATE_VIEWPORT_WITH_COUNT, VK_DYNAMIC_STATE_SCISSOR_WITH_COUNT};
         VkPipelineDynamicStateCreateInfo dynamicState{};
         dynamicState.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
         dynamicState.dynamicStateCount = static_cast<uint32_t>(dynamicStates.size());

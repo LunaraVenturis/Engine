@@ -68,8 +68,8 @@ namespace LunaraEngine
                                                     (int) m_Config.initialHeight, SDL_WINDOW_VULKAN));
         if (m_RendererData->window->data == nullptr) { throw std::runtime_error("Couldn't create Window"); }
 
-        SDL_SetWindowPosition(static_cast<SDL_Window*>(m_RendererData->window->data), SDL_WINDOWPOS_CENTERED,
-                              SDL_WINDOWPOS_CENTERED);
+        SDL_SetWindowPosition(
+                static_cast<SDL_Window*>(m_RendererData->window->data), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED);
     }
 
     constexpr auto VulkanRendererAPI::MakeDispatchableTable()
@@ -147,8 +147,8 @@ namespace LunaraEngine
 
         m_RendererData->maxFramesInFlight = static_cast<uint32_t>(m_RendererData->swapChain->GetImages().size());
 
-        m_RendererData->commandPool = new CommandPool(m_RendererData->device, m_RendererData->gfxQueue.GetIndex(),
-                                                      m_RendererData->maxFramesInFlight);
+        m_RendererData->commandPool = new CommandPool(
+                m_RendererData->device, m_RendererData->gfxQueue.GetIndex(), m_RendererData->maxFramesInFlight);
         VulkanInitializer::CreateSyncObjects(m_RendererData.get());
     }
 

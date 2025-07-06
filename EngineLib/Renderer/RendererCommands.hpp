@@ -228,7 +228,8 @@ namespace LunaraEngine
 
         template <typename U, typename V = void>
 
-        requires std::is_trivially_copyable_v<U> BaseBufferUploadList& Add(V* dstBuffer, U* srcBuffer, size_t length)
+        requires std::is_trivially_copyable_v<U>
+        BaseBufferUploadList& Add(V* dstBuffer, U* srcBuffer, size_t length)
         {
             list.emplace_back((StorageBuffer<T>*) dstBuffer, BufferView<T>((T*) srcBuffer, length));
             return *this;
@@ -260,9 +261,8 @@ namespace LunaraEngine
 
     public:
         template <std::ranges::range Container>
-
         requires(std::is_trivially_copyable_v<std::ranges::range_value_t<Container>>)
-                BaseBufferUploadListBuilder& Add(const Container& srcBuffer)
+        BaseBufferUploadListBuilder& Add(const Container& srcBuffer)
         {
             if (m_Shader.expired())
             {
@@ -279,20 +279,10 @@ namespace LunaraEngine
         }
 
         template <std::ranges::range... Containers>
-
-        requires((std::is_trivially_copyable_v<std::ranges::range_value_t<Containers>> &&
-                  ...)) BaseBufferUploadListBuilder& Add(const Containers&... srcBuffers)
+        requires((std::is_trivially_copyable_v<std::ranges::range_value_t<Containers>> && ...))
+        BaseBufferUploadListBuilder& Add(const Containers&... srcBuffers)
         {
             (Add(srcBuffers), ...);
-            return *this;
-        }
-
-        template <typename U>
-
-        requires(std::is_trivially_copyable_v<U>)
-                [[nodiscard]] BaseBufferUploadListBuilder& Add(U* srcBuffer, size_t length)
-        {
-            Add(std::span{std::in_place_t{}, srcBuffer, length});
             return *this;
         }
 
@@ -376,8 +366,8 @@ namespace LunaraEngine
     constexpr void RendererCommand::RegisterCommands()
     {
         auto commands = std::array<std::tuple<RendererCommandType, std::string_view>, 9>{
-                std::tuple<RendererCommandType, std::string_view>{RendererCommandType::BindTexture,
-                                                                  "RendererCommand::BindTexture"},
+                std::tuple<RendererCommandType, std::string_view>{
+                        RendererCommandType::BindTexture, "RendererCommand::BindTexture"},
                 {RendererCommandType::DrawTriangle, "RendererCommand::DrawTriangle"},
                 {RendererCommandType::BeginRenderPass, "RendererCommand::BeginRenderPass"},
                 {RendererCommandType::EndRenderPass, "RendererCommand::EndRenderPass"},
@@ -393,10 +383,10 @@ namespace LunaraEngine
         RegisterCommand<RendererCommandClear>(RendererCommandType::Clear, "RendererCommand::Clear");
         RegisterCommand<RendererCommandDrawText>(RendererCommandType::DrawText, "RendererCommand::DrawText");
         RegisterCommand<RendererCommandDrawIndexed>(RendererCommandType::DrawIndexed, "RendererCommand::DrawIndexed");
-        RegisterCommand<RendererCommandDrawInstanced>(RendererCommandType::DrawInstanced,
-                                                      "RendererCommand::DrawInstanced");
-        RegisterCommand<RendererCommandDrawInstanced>(RendererCommandType::DrawQuadBatch,
-                                                      "RendererCommand::DrawQuadBatch");
+        RegisterCommand<RendererCommandDrawInstanced>(
+                RendererCommandType::DrawInstanced, "RendererCommand::DrawInstanced");
+        RegisterCommand<RendererCommandDrawInstanced>(
+                RendererCommandType::DrawQuadBatch, "RendererCommand::DrawQuadBatch");
     }
 
     template <typename T, std::enable_if_t<std::is_base_of_v<RendererCommand, T> && !std::is_same_v<T, void>, int>>

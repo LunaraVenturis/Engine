@@ -204,8 +204,8 @@ namespace LunaraEngine
     void VulkanRendererCommand::BeginFrame(RendererDataType* rendererData, const RendererCommand* command)
     {
         (void) command;
-        vkWaitForFences(rendererData->device, 1, &rendererData->inFlightFence[rendererData->currentFrame], VK_TRUE,
-                        UINT64_MAX);
+        vkWaitForFences(
+                rendererData->device, 1, &rendererData->inFlightFence[rendererData->currentFrame], VK_TRUE, UINT64_MAX);
         vkAcquireNextImageKHR(rendererData->device, rendererData->swapChain->GetSwapChain(), UINT64_MAX,
                               rendererData->imageAvailableSemaphore[rendererData->currentFrame], VK_NULL_HANDLE,
                               &(rendererData->imageIndex));
