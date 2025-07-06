@@ -40,14 +40,23 @@ void SandboxLayer::OnUpdate(float dt)
 
     m_Player.Draw();
     m_Enemy.Draw();
+    m_Wall.Draw();
+    m_PlayerCollider.Init(m_Player.GetPosition(), m_Player.GetSize().width, m_Player.GetSize().height, m_Enemy.GetPosition(), m_Enemy.GetSize().width, m_Enemy.GetSize().height);
 
-    if (m_Player.isColliding(&m_Enemy)) { m_Player.SetPlayerColor({1.0f, 0.0f, 0.0f, 1.0f}); }
-    else { m_Player.SetPlayerColor({1.0f, 1.0f, 1.0f, 1.0f}); }
 
+    if (m_PlayerCollider.Intersection()) { m_Player.SetPlayerColor({1.0f, 0.0f, 0.0f, 1.0f}); }
+    else
+    {
+        m_Player.SetPlayerColor({1.0f, 1.0f, 1.0f, 1.0f});
+    }   
+    if(m_Wall.isColliding(&m_Player))
+    {
+        m_Player.SetPosition({m_Player.GetPosition().x - 20, m_Player.GetPosition().y - 20, 0.0f});
+    }
     if (m_Enemy.HasReachedPointX(m_Enemy.GetPosition().x, 200.0f)) { dir = -1.0f; }
     if (m_Enemy.HasReachedPointX(m_Enemy.GetPosition().x, 0.0f)) { dir = 1.0f; }
     m_Enemy.Move(dir * 1.0f, 0.0f, 0.0f, dt);
-
+  
     auto shader = BatchRenderer::GetShader();
     if (!shader.expired())
     {
@@ -110,5 +119,8 @@ void SandboxLayer::OnWindowResizeEvent(uint32_t width, uint32_t height) { m_Came
 void SandboxLayer::OnKeyboardEvent(uint32_t key, KeyEventType type)
 {
     if (type == KEY_PRESSED) { m_PressedKeys[key] = true; }
-    else { m_PressedKeys[key] = false; }
+    else
+    {
+        m_PressedKeys[key] = false;
+    }
 }

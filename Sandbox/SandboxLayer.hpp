@@ -5,6 +5,7 @@
 #include <Entities/Enemies/Enemy.hpp>
 #include <StaticEntities/Wall.hpp>
 #include "Renderer/Camera.hpp"
+#include <vector>
 
 class SandboxLayer: public LunaraEngine::Layer
 {
@@ -53,6 +54,8 @@ private:
 
     Player m_Player = {{0.0f, 0.0f, 0.0f}, {50.0f, 50.0f}};
     Enemy m_Enemy = {{0.0f, 0.0f, 0.0f}, {50.0f, 50.0f}};
+    Wall m_Wall = {{250.0f, 250.0f, 0.0f}, {100.0f, 50.0f}};
+    LunaraEngine::AABB m_PlayerCollider;
     LunaraEngine::Camera m_Camera = {{1280.0f, 720.0f, 0}};
 
     float zoom{1.0f};

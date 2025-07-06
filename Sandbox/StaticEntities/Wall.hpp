@@ -1,6 +1,7 @@
 #pragma once
 #include "glm/glm.hpp"
 #include "UserTypes/UserTypes.hpp"
+#include "Entities/Entity/Entity.hpp"
 
 struct WallSize {
     f32 width;
@@ -17,7 +18,9 @@ public:
     Wall& operator=(const Wall& other) = delete;
     Wall& operator=(Wall&& other) = delete;
     ~Wall() = default;
-
+    bool isColliding(Entity* entity);
+    [[nodiscard]] glm::vec3 GetPosition() const { return m_Position;}
+    [[nodiscard]] WallSize GetWallSize() const { return m_Size; }
 public:
     void Draw();
 
