@@ -6,6 +6,8 @@
 namespace LunaraEngine
 {
     class CommandPool;
+    class CommandBuffer;
+    class VulkanFence;
 
     template <ShaderResourceType type = ShaderResourceType::None>
     class Buffer
@@ -23,13 +25,27 @@ namespace LunaraEngine
 
         [[nodiscard]] size_t GetLength() const { return m_Size / m_Stride; }
 
+        [[nodiscard]] size_t GetWidth() const { return m_Dimensions.width; }
+
+        [[nodiscard]] size_t GetHeight() const { return m_Dimensions.height; }
+
         [[nodiscard]] size_t GetStride() const { return m_Stride; }
 
         [[nodiscard]] bool IsValid() const { return m_Buffer != VK_NULL_HANDLE; }
 
         void Upload(size_t offset, uint8_t* data, size_t length, size_t stride = 1);
         void Upload(uint8_t* data, size_t length, size_t stride = 1);
-        void CopyTo(CommandPool* commandPool, VkQueue executeQueue, Buffer* buffer);
+        std::shared_ptr<CommandBuffer> BeginRecording(CommandPool* commandPool);
+        void Submit(CommandBuffer* cmdBuffer, VkQueue executeQueue, VulkanFence* fence);
+
+        template <ShaderResourceType U>
+        void CopyTo(CommandPool* commandPool, VkQueue executeQueue, Buffer<U>* buffer);
+        template <ShaderResourceType U>
+        void CopyTo(CommandBuffer* cmdBuffer, Buffer<U>* buffer);
+
+        void TransitionLayout(CommandBuffer* cmdBuffer, VkFormat format, VkImageLayout oldLayout,
+                              VkImageLayout newLayout) const requires(type == ShaderResourceType::Texture);
+
         void Destroy();
 
         ShaderResourceType GetResourceType() const;
@@ -86,13 +102,23 @@ namespace LunaraEngine
             VkImage m_Image;
         };
 
-        VkDeviceMemory m_BufferMemory{};
+        union
+        {
+            size_t m_Size;
 
-        size_t m_Size{};
+            struct {
+                uint32_t width;
+                uint32_t height;
+            } m_Dimensions;
+        };
+
         size_t m_Stride{};
+        VkDeviceMemory m_BufferMemory{};
         uint8_t* m_MappedDataPtr{};
-        ShaderResourceType m_ResourceType;
+        ShaderResourceType m_ResourceType{};
     };
+
+
 }// namespace LunaraEngine
 
 #include "Buffer.inl"
