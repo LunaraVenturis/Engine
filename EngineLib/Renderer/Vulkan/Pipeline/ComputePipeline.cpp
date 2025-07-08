@@ -1,9 +1,9 @@
 #include <Renderer/Shader.hpp>
-#include <Renderer/VertexBuffer.hpp>
-#include <Renderer/Vulkan/ComputePipeline.hpp>
+#include <Renderer/Buffer/VertexBuffer.hpp>
+#include <Renderer/Vulkan/Pipeline/ComputePipeline.hpp>
 #include <Renderer/Vulkan/Shader.hpp>
 #include <Renderer/Vulkan/SwapChain.hpp>
-#include <Renderer/Vulkan/VertexBuffer.hpp>
+#include <Renderer/Vulkan/Buffer/VertexBuffer.hpp>
 #include <Renderer/Vulkan/VulkanDataTypes.hpp>
 #include <array>
 #include <stdexcept>

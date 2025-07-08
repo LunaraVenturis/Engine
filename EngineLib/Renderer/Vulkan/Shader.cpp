@@ -2,11 +2,11 @@
 #include <Renderer/Shader.hpp>
 #include <Renderer/Vulkan/VulkanDataTypes.hpp>
 #include <Renderer/Vulkan/Shader.hpp>
-#include <Renderer/Vulkan/GraphicsPipeline.hpp>
-#include <Renderer/Vulkan/ComputePipeline.hpp>
-#include <Renderer/Vulkan/UniformBuffer.hpp>
-#include <Renderer/Vulkan/StorageBuffer.hpp>
-#include <Renderer/Vulkan/Buffer.hpp>
+#include <Renderer/Vulkan/Pipeline/GraphicsPipeline.hpp>
+#include <Renderer/Vulkan/Pipeline/ComputePipeline.hpp>
+#include <Renderer/Vulkan/Buffer/UniformBuffer.hpp>
+#include <Renderer/Vulkan/Buffer/StorageBuffer.hpp>
+#include <Renderer/Vulkan/Buffer/Buffer.hpp>
 #include <Core/Log.h>
 #include "Shader.hpp"
 

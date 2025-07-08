@@ -1,7 +1,7 @@
 #include "ParticleSystem.hpp"
-#include <Renderer/IndexBuffer.hpp>
+#include <Renderer/Buffer/IndexBuffer.hpp>
 #include <Renderer/Shader.hpp>
-#include <Renderer/StorageBuffer.hpp>
+#include <Renderer/Buffer/StorageBuffer.hpp>
 #include <Renderer/RendererCommands.hpp>
 #include <glm/glm.hpp>
 #include <glm/gtc/random.hpp>

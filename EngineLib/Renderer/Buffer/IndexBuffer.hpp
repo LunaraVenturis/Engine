@@ -36,4 +36,4 @@ namespace LunaraEngine
     };
 }// namespace LunaraEngine
 
-#include <Renderer/IndexBuffer.inl>
+#include <Renderer/Buffer/IndexBuffer.inl>

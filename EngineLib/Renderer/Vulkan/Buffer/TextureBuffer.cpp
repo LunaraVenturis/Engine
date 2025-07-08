@@ -1,4 +1,4 @@
-#include <Renderer/Vulkan/TextureBuffer.hpp>
+#include <Renderer/Vulkan/Buffer/TextureBuffer.hpp>
 #include <Renderer/Vulkan/VulkanDataTypes.hpp>
 #include "TextureBuffer.hpp"
 

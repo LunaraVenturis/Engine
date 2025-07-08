@@ -1,6 +1,6 @@
 #pragma once
 #include "StorageBuffer.hpp"
-#include <Renderer/Vulkan/StorageBuffer.hpp>
+#include <Renderer/Vulkan/Buffer/StorageBuffer.hpp>
 #include <Renderer/Vulkan/VulkanRendererAPI.hpp>
 
 namespace LunaraEngine

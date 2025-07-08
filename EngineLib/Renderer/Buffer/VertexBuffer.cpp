@@ -1,5 +1,5 @@
 #include "VertexBuffer.hpp"
-#include <Renderer/Vulkan/VertexBuffer.hpp>
+#include <Renderer/Vulkan/Buffer/VertexBuffer.hpp>
 #include <Renderer/Vulkan/VulkanRendererAPI.hpp>
 
 namespace LunaraEngine

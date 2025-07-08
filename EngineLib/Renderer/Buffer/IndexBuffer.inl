@@ -1,6 +1,6 @@
 #pragma once
 #include "IndexBuffer.hpp"
-#include <Renderer/Vulkan/IndexBuffer.hpp>
+#include <Renderer/Vulkan/Buffer/IndexBuffer.hpp>
 #include <Renderer/Vulkan/VulkanRendererAPI.hpp>
 
 namespace LunaraEngine

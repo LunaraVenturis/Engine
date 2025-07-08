@@ -1,6 +1,6 @@
 #include "VertexBuffer.hpp"
-#include "CommandPool.hpp"
-#include "VulkanDataTypes.hpp"
+#include <Renderer/BatchRenderer.hpp>
+#include <Renderer/Vulkan/VulkanDataTypes.hpp>
 #include <cstring>
 
 namespace LunaraEngine

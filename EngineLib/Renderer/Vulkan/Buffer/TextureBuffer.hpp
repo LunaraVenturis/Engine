@@ -3,8 +3,8 @@
 #include <vector>
 #include <vulkan/vulkan.h>
 #include <Renderer/Vulkan/VulkanDataTypes.hpp>
-#include <Renderer/Vulkan/Buffer.hpp>
-#include <Renderer/Vulkan/StagingBuffer.hpp>
+#include <Renderer/Vulkan/Buffer/Buffer.hpp>
+#include <Renderer/Vulkan/Buffer/StagingBuffer.hpp>
 
 namespace LunaraEngine
 {

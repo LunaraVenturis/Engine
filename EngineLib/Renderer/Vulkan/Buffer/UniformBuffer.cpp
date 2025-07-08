@@ -1,28 +1,25 @@
-#include "StorageBuffer.hpp"
-#include "CommandPool.hpp"
-#include "VulkanDataTypes.hpp"
-#include <cstring>
+#include <Renderer/Vulkan/Buffer/UniformBuffer.hpp>
+#include <Renderer/Vulkan/VulkanDataTypes.hpp>
 
 namespace LunaraEngine
 {
-    VulkanStorageBuffer::VulkanStorageBuffer(RendererDataType* rendererData, uint8_t* data, size_t length,
+    VulkanUniformBuffer::VulkanUniformBuffer(RendererDataType* rendererData, uint8_t* data, size_t length,
                                              size_t stride)
     {
         Create(rendererData, data, length, stride);
     }
 
-    void VulkanStorageBuffer::Create(RendererDataType* rendererData, uint8_t* data, size_t length, size_t stride)
+    void VulkanUniformBuffer::Create(RendererDataType* rendererData, uint8_t* data, size_t length, size_t stride)
     {
-        m_ResourceType = ShaderResourceType::StorageBuffer;
+        m_ResourceType = ShaderResourceType::UniformBuffer;
         m_Device = rendererData->device;
         m_Size = length * stride;
         m_Stride = stride;
 
-        CreateBuffer(VK_BUFFER_USAGE_STORAGE_BUFFER_BIT);
+        CreateBuffer(VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT);
         BindBufferToDevMemory(VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
                               rendererData->physicalDevice);
         if (data != nullptr) { Upload(data, length, stride); }
     }
-
 
 }// namespace LunaraEngine

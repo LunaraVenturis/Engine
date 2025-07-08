@@ -40,7 +40,7 @@ Includes
 ***********************************************************************************************************************/
 #include "Renderer.hpp"
 #include "RendererAPI.hpp"
-#include "Texture.hpp"
+#include "Buffer/Texture.hpp"
 #include "Fonts.hpp"
 #include <Core/Log.h>
 #include <string_view>
