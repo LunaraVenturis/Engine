@@ -49,31 +49,11 @@ namespace LunaraEngine
     /***********************************************************************************************************************
     Type definitions
     ***********************************************************************************************************************/
-    typedef struct {
-        float width;
-        float height;
-        uint32_t channels;
-    } TextureInfo;
 
-    typedef enum
-    {
-        TextureResult_None = 0,
-        TextureResult_Success,
-        TextureResult_Error
-    } TextureResultType;
-
-    struct Texture {
-        TextureInfo info;
-        void* data;
-    };
 
     /***********************************************************************************************************************
     Functions declarations
     ************************************************************************************************************************/
 
-    extern TextureResultType Texture_Init(Texture* texture, uint32_t width, uint32_t height, uint32_t channels);
-    extern TextureResultType Texture_SetData(Texture* texture, void* data);
-    extern TextureResultType Texture_GetInfo(Texture* texture, TextureInfo** info);
-    extern TextureResultType Texture_Destroy(Texture* texture);
 
 }// namespace LunaraEngine

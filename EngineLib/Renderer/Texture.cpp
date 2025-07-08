@@ -41,39 +41,5 @@ Includes
 
 namespace LunaraEngine
 {
-    /***********************************************************************************************************************
-    Macro definitions
-    ***********************************************************************************************************************/
 
-    /***********************************************************************************************************************
-    Functions declarations
-    ************************************************************************************************************************/
-
-    TextureResultType Texture_Init(Texture* texture, uint32_t width, uint32_t height, uint32_t channels)
-    {
-        texture->info.width = (float) width;
-        texture->info.height = (float) height;
-        texture->info.channels = channels;
-        texture->data = NULL;
-
-        return TextureResult_Success;
-    }
-
-    TextureResultType Texture_SetData(Texture* texture, void* data)
-    {
-        texture->data = data;
-        return TextureResult_Success;
-    }
-
-    TextureResultType Texture_GetInfo(Texture* texture, TextureInfo** info)
-    {
-        *info = &texture->info;
-        return TextureResult_Success;
-    }
-
-    TextureResultType Texture_Destroy(Texture* texture)
-    {
-        texture->data = NULL;
-        return TextureResult_Success;
-    }
 }// namespace LunaraEngine
