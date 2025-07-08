@@ -32,7 +32,8 @@ namespace LunaraEngine
 
         s_ParticleSystem->m_Shader = Shader::Create(
                 ShaderInfoBuilder("ParticleShader", shaderPath)
-                        .AddResources({ShaderResourceBuilder("UniformBuffer", ShaderResourceType::UniformBuffer)
+                        .AddResources({ShaderResourceBuilder("Texture", ShaderResourceType::Texture2D).Build(),
+                                       ShaderResourceBuilder("UniformBuffer", ShaderResourceType::UniformBuffer)
                                                .AddAttribute("model", ShaderResourceAttributeType::Mat4)
                                                .AddAttribute("view", ShaderResourceAttributeType::Mat4)
                                                .AddAttribute("projection", ShaderResourceAttributeType::Mat4)
