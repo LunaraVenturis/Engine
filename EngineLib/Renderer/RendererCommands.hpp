@@ -317,7 +317,6 @@ namespace LunaraEngine
     };
 
     class RendererCommandDrawTexture: public RendererCommand
-
     {
     public:
         RendererCommandDrawTexture() = default;
