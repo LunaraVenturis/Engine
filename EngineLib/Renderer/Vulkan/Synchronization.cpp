@@ -5,6 +5,14 @@ namespace LunaraEngine
 {
     VulkanFence::VulkanFence(VkDevice device, FenceState state) : m_Device(device), m_State(state)
     {
+        Init(device, state);
+    }
+
+    void VulkanFence::Init(VkDevice device, FenceState state)
+    {
+        m_Device = device;
+        m_State = state;
+
         VkFenceCreateInfo fenceInfo{};
         fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
         fenceInfo.flags = GetFenceState(state);
