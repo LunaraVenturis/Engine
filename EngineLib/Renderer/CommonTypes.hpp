@@ -29,6 +29,9 @@ namespace LunaraEngine
     {
         None = 0,
         Texture,
+        Texture2D,
+        Texture2DArray,
+        Texture3D,
         PushConstant,
         UniformBuffer,
         StorageBuffer,
@@ -163,6 +166,49 @@ namespace LunaraEngine
         bool isComputeShader = false;
         ShaderResources resources;
         uint32_t numInstances{};
+    };
+
+    enum class TextureDataFormat : size_t
+    {
+        None = 0,
+        R8,
+        R16,
+        R32,
+        R8G8,
+        R16G16,
+        R32G32,
+        R8G8B8,
+        R16G16B16,
+        R32G32B32,
+        R8G8B8A8,
+        R16G16B16A16,
+        R32G32B32A32
+    };
+
+    enum class TextureDataType : size_t
+    {
+        None = 0,
+        Int,
+        Float
+    };
+
+    enum class TextureFormat : size_t
+    {
+        None = 0,
+        R,
+        RG,
+        RGB,
+        RGBA
+    };
+
+    struct TextureInfo {
+        std::filesystem::path path;
+        std::wstring name;
+        uint32_t width;
+        uint32_t height;
+        TextureFormat format = TextureFormat::None;
+        TextureDataType type = TextureDataType::None;
+        uint32_t channelDepth = 8;
     };
 
     struct RendererDataType;
