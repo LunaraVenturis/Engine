@@ -5,6 +5,7 @@
 #include <Renderer/Vulkan/SwapChain.hpp>
 #include <Renderer/Vulkan/Buffer/VertexBuffer.hpp>
 #include <Renderer/Vulkan/VulkanDataTypes.hpp>
+#include <Renderer/Vulkan/Pipeline/PipelineBuilder.hpp>
 #include <array>
 #include <stdexcept>
 #include "GraphicsPipeline.hpp"
@@ -16,65 +17,16 @@ namespace LunaraEngine
         : Pipeline(rendererData->device)
     {
 
-        std::array<VkShaderModule, 2> shaderModules = {};
-        std::array<VkShaderStageFlagBits, 2> shaderStageFlags = {
-                VK_SHADER_STAGE_VERTEX_BIT, VK_SHADER_STAGE_FRAGMENT_BIT};
-        std::array<VkPipelineShaderStageCreateInfo, 2> shaderStages = {};
-
+        PipelineBuilder builder(rendererData, info);
+        builder.SetPipelineType(PipelineType::Graphics);
+        builder.AddStage(ShaderStage::Vertex, shaderSources.at(VK_SHADER_STAGE_VERTEX_BIT));
+        builder.AddStage(ShaderStage::Vertex, shaderSources.at(VK_SHADER_STAGE_FRAGMENT_BIT));
         CreateDescriptorLayout(rendererData, *info);
-        std::vector<VkDescriptorSetLayout> descriptorSetLayouts = {m_DescriptorLayout};
-        auto pushConstantRanges = CreatePushConstantRanges(*info);
-
-        CreatePipelineLayout(descriptorSetLayouts, pushConstantRanges);
-
-        for (size_t i = 0; i < shaderStages.size(); ++i)
-        {
-            const std::vector<uint32_t>& shaderSource = shaderSources.at(shaderStageFlags[i]);
-            shaderModules[i] = CreateShaderModule(shaderSource);
-            shaderStages[i].sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-            shaderStages[i].stage = shaderStageFlags[i];
-            shaderStages[i].module = shaderModules[i];
-            shaderStages[i].pName = "main";
-        }
-
-        VkVertexInputBindingDescription bindingDescription;
-        std::vector<VkVertexInputAttributeDescription> attributeDescriptions;
-        VkPipelineVertexInputStateCreateInfo vertexInputInfo =
-                CreateVertexInputInfo(*info, bindingDescription, attributeDescriptions);
-
-        VkPipelineInputAssemblyStateCreateInfo inputAssembly{};
-        inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
-        inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
-        inputAssembly.primitiveRestartEnable = VK_FALSE;
-
-        VkPipelineViewportStateCreateInfo viewportState{};
-        viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
-        viewportState.viewportCount = 0;
-        viewportState.pViewports = nullptr;
-        viewportState.scissorCount = 0;
-        viewportState.pScissors = nullptr;
-
-        VkPipelineRasterizationStateCreateInfo rasterizer{};
-        rasterizer.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
-        rasterizer.depthClampEnable = VK_FALSE;
-        rasterizer.rasterizerDiscardEnable = VK_FALSE;
-        rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
-        rasterizer.lineWidth = 1.0f;
-        rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
-        rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE;
-        rasterizer.depthBiasEnable = VK_FALSE;
-        rasterizer.depthBiasConstantFactor = 0.0f;// Optional
-        rasterizer.depthBiasClamp = 0.0f;         // Optional
-        rasterizer.depthBiasSlopeFactor = 0.0f;   // Optional
-
-        VkPipelineMultisampleStateCreateInfo multisampling{};
-        multisampling.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
-        multisampling.sampleShadingEnable = VK_FALSE;
-        multisampling.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
-        multisampling.minSampleShading = 1.0f;         // Optional
-        multisampling.pSampleMask = nullptr;           // Optional
-        multisampling.alphaToCoverageEnable = VK_FALSE;// Optional
-        multisampling.alphaToOneEnable = VK_FALSE;     // Optional
+        builder.AddDescriptorSetLayout(m_DescriptorLayout);
+        builder.AddVertexInputInfo();
+        builder.SetInputAssembly();
+        builder.SetViewportState();
+        builder.SetRasterization(PolygonMode::FILL);
 
         VkPipelineColorBlendAttachmentState colorBlendAttachment{};
         colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT |
@@ -98,8 +50,17 @@ namespace LunaraEngine
         colorBlending.blendConstants[1] = 0.0f;// Optional
         colorBlending.blendConstants[2] = 0.0f;// Optional
         colorBlending.blendConstants[3] = 0.0f;// Optional
+        builder.AddColorBlending(colorBlending);
 
+        std::array<VkShaderModule, 2> shaderModules = {};
+        std::array<VkShaderStageFlagBits, 2> shaderStageFlags = {
+                VK_SHADER_STAGE_VERTEX_BIT, VK_SHADER_STAGE_FRAGMENT_BIT};
+        std::array<VkPipelineShaderStageCreateInfo, 2> shaderStages = {};
 
+        std::vector<VkDescriptorSetLayout> descriptorSetLayouts = {m_DescriptorLayout};
+        auto pushConstantRanges = CreatePushConstantRanges(*info);
+
+        CreatePipelineLayout(descriptorSetLayouts, pushConstantRanges);
         std::array<VkDynamicState, 2> dynamicStates = {
                 VK_DYNAMIC_STATE_VIEWPORT_WITH_COUNT, VK_DYNAMIC_STATE_SCISSOR_WITH_COUNT};
         VkPipelineDynamicStateCreateInfo dynamicState{};

@@ -212,4 +212,28 @@ namespace LunaraEngine
     };
 
     struct RendererDataType;
+
+    enum class RenderingBasePrimitive : size_t
+    {
+        None = 0,
+        POINTS,
+        LINES,
+        LINE_STRIP,
+        TRIANGLES,
+        TRIANGLE_STRIP,
+        TRIANGLE_FAN,
+        LINES_WITH_ADJACENCY,
+        LINE_STRIP_WITH_ADJACENCY,
+        TRIANGLES_WITH_ADJACENCY,
+        TRIANGLE_STRIP_WITH_ADJACENCY,
+        PATCHES
+    };
+
+    enum class PolygonMode : size_t
+    {
+        None = 0,
+        FILL,
+        LINE,
+        POINT
+    };
 }// namespace LunaraEngine

@@ -69,5 +69,16 @@ namespace LunaraEngine
         std::vector<VkPresentModeKHR> presentModes;
         static SwapChainSupportDetails QuerySwapChainSupport(VkPhysicalDevice physicaldevice, VkSurfaceKHR surface);
     };
+    enum class PipelineType : uint32_t
+    {
+        Graphics = 0,
+        Compute
+    };
 
+    enum class ShaderStage : uint32_t
+    {
+        Vertex = 0,
+        Fragment,
+        Compute
+    };
 }// namespace LunaraEngine
