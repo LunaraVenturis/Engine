@@ -19,16 +19,6 @@ void Player::Move(f32 x, f32 y, f32 z, f32 delta)
     m_Position.z += (z * m_Speed.z * delta);
 }
 
-bool Player::isColliding(Entity* enemy)
-{
-    const float Z_THRESHOLD = 0.1f;
-    return (m_Position.x < enemy->GetPosition().x + enemy->GetSize().width &&
-            m_Position.x + m_Size.width > enemy->GetPosition().x &&
-            m_Position.y < enemy->GetPosition().y + enemy->GetSize().height &&
-            m_Position.y + m_Size.height > enemy->GetPosition().y) &&
-           fabs(m_Position.z - enemy->GetPosition().z) < Z_THRESHOLD;
-}
-
 void Player::SetPlayerColor(LunaraEngine::Color4 color) { m_PlayerColor = color; }
 void Player::SetPosition(const glm::vec3& position)
 {
