@@ -1,75 +1,50 @@
 #include "Pipeline.hpp"
+#include "PipelineBuilder.hpp"
 #include <stdexcept>
 
 namespace LunaraEngine
 {
     Pipeline::Pipeline(VkDevice device) : p_Device(device) {}
 
+    Pipeline::~Pipeline()
+    {
+        if (p_DescriptorLayouts.size() > 0 && p_DescriptorLayouts[0] != VK_NULL_HANDLE)
+        {
+            vkDestroyDescriptorSetLayout(p_Device, p_DescriptorLayouts[0], nullptr);
+        }
+        if (p_Layout != VK_NULL_HANDLE) { vkDestroyPipelineLayout(p_Device, p_Layout, nullptr); }
+        if (p_Pipeline != VK_NULL_HANDLE) { vkDestroyPipeline(p_Device, p_Pipeline, nullptr); }
+    }
+
     VkPipeline Pipeline::GetPipeline() const { return p_Pipeline; }
 
     VkPipelineLayout Pipeline::GetLayout() const { return p_Layout; }
 
-    void Pipeline::CreatePipelineLayout(const std::vector<VkDescriptorSetLayout>& descriptorSets,
-                                        const std::vector<VkPushConstantRange>& pushConstants)
+    VkDescriptorSetLayout Pipeline::GetDescriptorLayout() const { return p_DescriptorLayouts[0]; }
+
+    GraphicsPipeline::GraphicsPipeline(RendererDataType* rendererData, const ShaderInfo* info,
+                                       const std::map<size_t, std::vector<uint32_t>>& shaderSources)
+        : Pipeline(rendererData->device)
     {
-        p_DescriptorLayouts = descriptorSets;
-        VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
-        pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-        pipelineLayoutInfo.setLayoutCount = static_cast<uint32_t>(p_DescriptorLayouts.size());
-        pipelineLayoutInfo.pSetLayouts = p_DescriptorLayouts.data();
 
-        if (pushConstants.empty())
-        {
-            pipelineLayoutInfo.pushConstantRangeCount = 0;
-            pipelineLayoutInfo.pPushConstantRanges = nullptr;
-        }
-        else
-        {
-            pipelineLayoutInfo.pushConstantRangeCount = static_cast<uint32_t>(pushConstants.size());
-            pipelineLayoutInfo.pPushConstantRanges = pushConstants.data();
-        }
-        if (vkCreatePipelineLayout(p_Device, &pipelineLayoutInfo, nullptr, &p_Layout) != VK_SUCCESS)
-        {
-            throw std::runtime_error("failed to create pipeline layout!");
-        }
-    }
+        PipelineBuilder builder(rendererData, info);
+        builder.SetPipelineType(PipelineType::Graphics);
+        builder.AddStage(ShaderStage::Vertex, shaderSources.at(VK_SHADER_STAGE_VERTEX_BIT));
+        builder.AddStage(ShaderStage::Fragment, shaderSources.at(VK_SHADER_STAGE_FRAGMENT_BIT));
+        builder.AddVertexInputInfo();
+        builder.SetInputAssembly();
+        builder.SetViewportState();
+        builder.SetRasterization(PolygonMode::FILL);
+        builder.SetSampling();
+        builder.AddColorBlending();
+        builder.AddDynamicState(VK_DYNAMIC_STATE_VIEWPORT_WITH_COUNT);
+        builder.AddDynamicState(VK_DYNAMIC_STATE_SCISSOR_WITH_COUNT);
 
-    VkShaderModule Pipeline::CreateShaderModule(const std::vector<uint32_t>& spirvCode)
-    {
-        VkShaderModuleCreateInfo createInfo{};
-        createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-        createInfo.codeSize = spirvCode.size();
-        createInfo.pCode = spirvCode.data();
-        VkShaderModule shaderModule;
-        if (vkCreateShaderModule(p_Device, &createInfo, nullptr, &shaderModule) != VK_SUCCESS)
-        {
-            throw std::runtime_error("failed to create shader module!");
-        }
-        return shaderModule;
-    }
+        auto [pipeline, layout, descriptorLayout] = builder.CreatePipeline();
 
-    VkDescriptorType Pipeline::GetDescriptorType(ShaderResourceType type)
-    {
-        switch (type)
-        {
-            case ShaderResourceType::Texture:
-            case ShaderResourceType::Texture2D:
-            case ShaderResourceType::Texture2DArray:
-            case ShaderResourceType::Texture3D:
-                return VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-
-            case ShaderResourceType::UniformBuffer:
-                return VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-
-            case ShaderResourceType::StorageBuffer:
-            case ShaderResourceType::Buffer:
-                return VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-
-            case ShaderResourceType::PushConstant:
-            case ShaderResourceType::None:
-            default:
-                throw std::runtime_error("Invalid or unsupported ShaderResourceType");
-        }
+        p_Pipeline = pipeline;
+        p_Layout = layout;
+        p_DescriptorLayouts.push_back(descriptorLayout);
     }
 
 }// namespace LunaraEngine

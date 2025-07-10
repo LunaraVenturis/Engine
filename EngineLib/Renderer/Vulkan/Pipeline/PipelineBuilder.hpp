@@ -26,6 +26,7 @@ namespace LunaraEngine
         void AddColorBlending();
         void AddDynamicState(VkDynamicState state);
         std::tuple<VkPipeline, VkPipelineLayout, VkDescriptorSetLayout> CreatePipeline();
+        static VkDescriptorType GetDescriptorType(ShaderResourceType type);
 
     private:
         void CreateDescriptorSetLayout();
@@ -34,7 +35,6 @@ namespace LunaraEngine
         VkShaderModule CreateShaderModule(const std::vector<uint32_t>& spirvCode) const;
         VkPrimitiveTopology GetPrimitiveTopology(RenderingBasePrimitive primitive) const;
         VkPolygonMode GetPolygonMode(PolygonMode mode) const;
-        VkDescriptorType GetDescriptorType(ShaderResourceType type) const;
 
     private:
         RendererDataType* m_RendererData{};

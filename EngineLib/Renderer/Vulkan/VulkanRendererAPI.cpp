@@ -46,7 +46,6 @@ Includes
 #include <Renderer/Vulkan/VulkanRendererAPI.hpp>
 #include <Renderer/Window.hpp>
 #include <Renderer/Vulkan/VulkanInitialization.hpp>
-#include <Renderer/Vulkan/Pipeline/GraphicsPipeline.hpp>
 #include <Renderer/Vulkan/Buffer/IndexBuffer.hpp>
 #include <Renderer/Vulkan/Buffer/VertexBuffer.hpp>
 #include <Renderer/Vulkan/Shader.hpp>

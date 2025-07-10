@@ -2,6 +2,7 @@
 #include <vulkan/vulkan.h>
 #include <vector>
 #include <Renderer/CommonTypes.hpp>
+#include <Renderer/Vulkan/VulkanDataTypes.hpp>
 
 namespace LunaraEngine
 {
@@ -10,23 +11,34 @@ namespace LunaraEngine
     {
     public:
         Pipeline(VkDevice device);
-        virtual ~Pipeline() = default;
+        ~Pipeline();
 
     public:
         VkPipeline GetPipeline() const;
         VkPipelineLayout GetLayout() const;
 
-        static VkDescriptorType GetDescriptorType(ShaderResourceType type);
+        VkDescriptorSetLayout GetDescriptorLayout() const;
 
     protected:
         VkPipeline p_Pipeline = VK_NULL_HANDLE;
         VkPipelineLayout p_Layout = VK_NULL_HANDLE;
         VkDevice p_Device = VK_NULL_HANDLE;
         std::vector<VkDescriptorSetLayout> p_DescriptorLayouts;
+    };
 
-    protected:
-        void CreatePipelineLayout(const std::vector<VkDescriptorSetLayout>& descriptorSets,
-                                  const std::vector<VkPushConstantRange>& pushConstants);
-        VkShaderModule CreateShaderModule(const std::vector<uint32_t>& spirvCode);
+    class GraphicsPipeline: public Pipeline
+    {
+    public:
+        GraphicsPipeline(RendererDataType* rendererData, const ShaderInfo* info,
+                         const std::map<size_t, std::vector<uint32_t>>& shaderSources);
+        ~GraphicsPipeline() = default;
+    };
+
+    class ComputePipeline: public Pipeline
+    {
+    public:
+        ComputePipeline(RendererDataType* rendererData, const ShaderInfo* info,
+                        const std::map<size_t, std::vector<uint32_t>>& shaderSources);
+        ~ComputePipeline() = default;
     };
 }// namespace LunaraEngine

@@ -41,7 +41,7 @@ Includes
 #include <Core/Log.h>
 #include <vulkan/vulkan.h>
 #include <Renderer/Vulkan/VulkanRendererCommands.hpp>
-#include <Renderer/Vulkan/Pipeline/GraphicsPipeline.hpp>
+#include <Renderer/Vulkan/Pipeline/Pipeline.hpp>
 #include <Renderer/Vulkan/Buffer/IndexBuffer.hpp>
 #include <Renderer/Vulkan/Buffer/VertexBuffer.hpp>
 #include <Renderer/Vulkan/Buffer/StorageBuffer.hpp>

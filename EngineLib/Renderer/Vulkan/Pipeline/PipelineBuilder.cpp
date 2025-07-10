@@ -264,29 +264,51 @@ namespace LunaraEngine
         CreatePipelineLayout();
 
         VkPipeline pipeline;
-        VkGraphicsPipelineCreateInfo pipelineInfo{};
-        pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
-        pipelineInfo.stageCount = static_cast<uint32_t>(m_ShaderStages.size());
-        pipelineInfo.pStages = m_ShaderStages.data();
 
-        pipelineInfo.pVertexInputState = &m_VertexInputInfo;
-        pipelineInfo.pInputAssemblyState = &m_InputAssembly;
-        pipelineInfo.pViewportState = &m_ViewportState;
-        pipelineInfo.pRasterizationState = &m_Rasterizer;
-        pipelineInfo.pMultisampleState = &m_Multisampling;
-        pipelineInfo.pDepthStencilState = nullptr;
-        pipelineInfo.pColorBlendState = &m_ColorBlending;
-        pipelineInfo.pDynamicState = &m_DynamicState;
-        pipelineInfo.layout = m_Layout;
-        pipelineInfo.renderPass = m_RendererData->swapChain->GetRenderPass();
-        pipelineInfo.subpass = 0;
-        pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;// Optional
-        pipelineInfo.basePipelineIndex = -1;             // Optional
-
-        if (vkCreateGraphicsPipelines(m_RendererData->device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &pipeline) !=
-            VK_SUCCESS)
+        switch (m_PipelineType)
         {
-            throw std::runtime_error("failed to create graphics pipeline!");
+            case PipelineType::Graphics: {
+                VkGraphicsPipelineCreateInfo pipelineInfo{};
+                pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+                pipelineInfo.stageCount = static_cast<uint32_t>(m_ShaderStages.size());
+                pipelineInfo.pStages = m_ShaderStages.data();
+
+                pipelineInfo.pVertexInputState = &m_VertexInputInfo;
+                pipelineInfo.pInputAssemblyState = &m_InputAssembly;
+                pipelineInfo.pViewportState = &m_ViewportState;
+                pipelineInfo.pRasterizationState = &m_Rasterizer;
+                pipelineInfo.pMultisampleState = &m_Multisampling;
+                pipelineInfo.pDepthStencilState = nullptr;
+                pipelineInfo.pColorBlendState = &m_ColorBlending;
+                pipelineInfo.pDynamicState = &m_DynamicState;
+                pipelineInfo.layout = m_Layout;
+                pipelineInfo.renderPass = m_RendererData->swapChain->GetRenderPass();
+                pipelineInfo.subpass = 0;
+                pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;// Optional
+                pipelineInfo.basePipelineIndex = -1;             // Optional
+
+                if (vkCreateGraphicsPipelines(
+                            m_RendererData->device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &pipeline) != VK_SUCCESS)
+                {
+                    throw std::runtime_error("failed to create graphics pipeline!");
+                }
+                break;
+            }
+            case PipelineType::Compute: {
+                VkComputePipelineCreateInfo pipelineInfo{};
+                pipelineInfo.sType = VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO;
+                pipelineInfo.stage = m_ShaderStages[0];
+                pipelineInfo.layout = m_Layout;
+                pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;// Optional
+                pipelineInfo.basePipelineIndex = -1;             // Optional
+
+                if (vkCreateComputePipelines(
+                            m_RendererData->device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &pipeline) != VK_SUCCESS)
+                {
+                    throw std::runtime_error("failed to create graphics pipeline!");
+                }
+            }
+            break;
         }
 
         for (const auto shaderModule: m_ShaderModules)
@@ -357,7 +379,7 @@ namespace LunaraEngine
         return {};
     }
 
-    VkDescriptorType PipelineBuilder::GetDescriptorType(ShaderResourceType type) const
+    VkDescriptorType PipelineBuilder::GetDescriptorType(ShaderResourceType type)
     {
         switch (type)
         {
@@ -379,6 +401,22 @@ namespace LunaraEngine
             default:
                 throw std::runtime_error("Invalid or unsupported ShaderResourceType");
         }
+    }
+
+    ComputePipeline::ComputePipeline(RendererDataType* rendererData, const ShaderInfo* info,
+                                     const std::map<size_t, std::vector<uint32_t>>& shaderSources)
+        : Pipeline(rendererData->device)
+    {
+
+        PipelineBuilder builder(rendererData, info);
+        builder.SetPipelineType(PipelineType::Compute);
+        builder.AddStage(ShaderStage::Compute, shaderSources.at(VK_SHADER_STAGE_COMPUTE_BIT));
+
+        auto [pipeline, layout, descriptorLayout] = builder.CreatePipeline();
+
+        p_Pipeline = pipeline;
+        p_Layout = layout;
+        p_DescriptorLayouts.push_back(descriptorLayout);
     }
 
 }// namespace LunaraEngine
