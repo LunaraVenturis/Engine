@@ -47,4 +47,19 @@ namespace LunaraEngine
         p_DescriptorLayouts.push_back(descriptorLayout);
     }
 
+    ComputePipeline::ComputePipeline(RendererDataType* rendererData, const ShaderInfo* info,
+                                     const std::map<size_t, std::vector<uint32_t>>& shaderSources)
+        : Pipeline(rendererData->device)
+    {
+
+        PipelineBuilder builder(rendererData, info);
+        builder.SetPipelineType(PipelineType::Compute);
+        builder.AddStage(ShaderStage::Compute, shaderSources.at(VK_SHADER_STAGE_COMPUTE_BIT));
+
+        auto [pipeline, layout, descriptorLayout] = builder.CreatePipeline();
+
+        p_Pipeline = pipeline;
+        p_Layout = layout;
+        p_DescriptorLayouts.push_back(descriptorLayout);
+    }
 }// namespace LunaraEngine

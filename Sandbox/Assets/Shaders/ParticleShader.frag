@@ -1,9 +1,12 @@
 #version 450
 
 layout(location = 0) in vec3 inData;
-layout(location = 1) in flat float life;
+layout(location = 1) in vec3 inData2;
+layout(location = 2) in flat float life;
 
 layout(location = 0) out vec4 outColor;
+
+layout(set = 0, binding = 4) uniform sampler2D particleTexture;
 
 void main()
 {
@@ -22,5 +25,9 @@ void main()
     );
 
     float alpha = mask * pow(normalizedLife, 1.5);
-    outColor = vec4(fireColor, alpha);
+
+    vec3 textureColor = texture(particleTexture, inData2.xy).rgb;
+
+    vec3 finalColor = textureColor;
+    outColor = vec4(finalColor, alpha + 0.2);
 }

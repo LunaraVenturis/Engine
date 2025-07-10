@@ -1,6 +1,7 @@
 #version 450 core
 
 layout(location = 0) out vec3 fragColor;
+layout(location = 1) out vec3 outTexCoords;
 
 layout(binding = 0) uniform UniformBuffer
 {
@@ -39,10 +40,18 @@ vec2 getVertex(uint vertexID, uint quadIndex)
     return vec2(vertices[vertexID]);
 }
 
+vec2 getTextureCoord(uint vertexID)
+{
+    vec2 vertices[6] = {vec2(0, 0), vec2(1.0, 0), vec2(1.0, 1.0), vec2(1.0, 1.0), vec2(0, 1.0), vec2(0, 0)};
+
+    return vertices[vertexID];
+}
+
 void main()
 {
     uint index = getCurrentQuadIndex();
     vec4 outPosition = ubo.projection * ubo.view * ubo.model * vec4(getVertex(getVertexID(), index), 0.0, 1.0);
     gl_Position = outPosition;
     fragColor = vec3(quads[index].color.rgb);
+    outTexCoords = vec3(getTextureCoord(getVertexID()), 0);
 }

@@ -5,6 +5,7 @@
 #include <Renderer/Vulkan/Pipeline/PipelineBuilder.hpp>
 #include <Renderer/Vulkan/Buffer/UniformBuffer.hpp>
 #include <Renderer/Vulkan/Buffer/StorageBuffer.hpp>
+#include <Renderer/Vulkan/Buffer/TextureBuffer.hpp>
 #include <Renderer/Vulkan/Buffer/Buffer.hpp>
 #include <Core/Log.h>
 #include "Shader.hpp"
@@ -17,7 +18,7 @@ namespace LunaraEngine
     {
         p_Info = info;
 
-        PrintShaderResource(info);
+        PrintBufferResource(info);
 
         m_RendererData = rendererData;
 
@@ -29,6 +30,7 @@ namespace LunaraEngine
 
         CreateUniformBuffers(info);
         CreateStorageBuffers(info);
+        CreateTextures();
         CreateDescriptorSets();
     }
 
@@ -59,21 +61,27 @@ namespace LunaraEngine
             delete (GraphicsPipeline*) m_Pipeline;
             m_Pipeline = nullptr;
 
-            for (auto [binding, buffers]: m_Resources)
+            for (auto [binding, buffers]: m_BufferResources)
             {
                 for (auto buffer: buffers)
                 {
-                    if (buffer->GetResourceType() == ShaderResourceType::UniformBuffer)
+                    if (buffer->GetResourceType() == BufferResourceType::UniformBuffer)
                     {
                         delete (VulkanUniformBuffer*) buffer;
                     }
-                    else if (buffer->GetResourceType() == ShaderResourceType::StorageBuffer)
+                    else if (buffer->GetResourceType() == BufferResourceType::StorageBuffer)
                     {
                         delete (VulkanStorageBuffer*) buffer;
                     }
                 }
             }
-            m_Resources.clear();
+            m_BufferResources.clear();
+
+            for (auto [binding, textures]: m_TextureResources)
+            {
+                for (auto texture: textures) { delete (VulkanTextureBuffer*) texture; }
+            }
+            m_TextureResources.clear();
             LOG_DEBUG("VulkanShader destroyed");
         }
     }
@@ -83,7 +91,7 @@ namespace LunaraEngine
         size_t offset{};
         for (const auto& resource: p_Info.resources.bufferResources)
         {
-            if (resource.type == ShaderResourceType::UniformBuffer)
+            if (resource.type == BufferResourceType::UniformBuffer)
             {
                 for (const auto& attribute: resource.attributes)
                 {
@@ -97,7 +105,7 @@ namespace LunaraEngine
 
     VulkanUniformBuffer* VulkanShader::GetUniformBuffer(size_t frame)
     {
-        return static_cast<VulkanUniformBuffer*>(m_Resources[m_UniformBinding][frame]);
+        return static_cast<VulkanUniformBuffer*>(m_BufferResources[m_UniformBinding][frame]);
     }
 
     void VulkanShader::SetUniform(std::string_view name, const float& value)
@@ -168,7 +176,12 @@ namespace LunaraEngine
 
     void* VulkanShader::GetBuffer(ShaderBinding binding)
     {
-        return m_Resources[(size_t) binding][m_RendererData->currentFrame];
+        return m_BufferResources[(size_t) binding][m_RendererData->currentFrame];
+    }
+
+    void* VulkanShader::GetTexture(ShaderBinding binding)
+    {
+        return m_TextureResources[(size_t) binding][m_RendererData->currentFrame];
     }
 
     VkPipeline VulkanShader::GetPipeline() const { return m_Pipeline->GetPipeline(); }
@@ -179,13 +192,13 @@ namespace LunaraEngine
     {
         for (const auto& resource: info.resources.bufferResources)
         {
-            if (resource.type == ShaderResourceType::UniformBuffer)
+            if (resource.type == BufferResourceType::UniformBuffer)
             {
                 auto length = resource.length;
                 auto stride = resource.stride;
                 for (size_t i = 0; i < m_RendererData->maxFramesInFlight; i++)
                 {
-                    m_Resources[(size_t) resource.layout.binding].push_back(
+                    m_BufferResources[(size_t) resource.layout.binding].push_back(
                             new VulkanUniformBuffer(m_RendererData, nullptr, length, stride));
                 }
             }
@@ -196,16 +209,33 @@ namespace LunaraEngine
     {
         for (const auto& resource: info.resources.bufferResources)
         {
-            if (resource.type == ShaderResourceType::StorageBuffer)
+            if (resource.type == BufferResourceType::StorageBuffer)
             {
                 auto length = resource.length;
                 auto stride = resource.stride;
                 for (size_t i = 0; i < m_RendererData->maxFramesInFlight; i++)
                 {
-                    m_Resources[(size_t) resource.layout.binding].push_back(
+                    m_BufferResources[(size_t) resource.layout.binding].push_back(
                             new VulkanStorageBuffer(m_RendererData, nullptr, length, stride));
                 }
             }
+        }
+    }
+
+    void VulkanShader::CreateTextures()
+    {
+        for (auto& resource: p_Info.resources.textureResources)
+        {
+            TextureReader reader;
+            reader.Open(resource.info.path, resource.info.name);
+            resource.info = reader.GetInfo();
+            uint8_t* pixelData = reader.Read();
+            for (size_t i = 0; i < m_RendererData->maxFramesInFlight; i++)
+            {
+                m_TextureResources[(size_t) resource.layout.binding].push_back(
+                        new VulkanTextureBuffer(m_RendererData, m_RendererData->gfxQueue, reader.GetInfo(), pixelData));
+            }
+            reader.Close();
         }
     }
 
@@ -215,14 +245,22 @@ namespace LunaraEngine
 
         for (const auto& resource: p_Info.resources.bufferResources)
         {
-            if (resource.type == ShaderResourceType::UniformBuffer ||
-                resource.type == ShaderResourceType::StorageBuffer)
+            if (resource.type == BufferResourceType::UniformBuffer ||
+                resource.type == BufferResourceType::StorageBuffer)
             {
                 VkDescriptorPoolSize poolSize{};
                 poolSize.type = PipelineBuilder::GetDescriptorType(resource.type);
                 poolSize.descriptorCount = m_RendererData->maxFramesInFlight;
                 poolSizes.push_back(poolSize);
             }
+        }
+
+        for (const auto& resource: p_Info.resources.textureResources)
+        {
+            VkDescriptorPoolSize poolSize{};
+            poolSize.type = PipelineBuilder::GetDescriptorType(resource.type);
+            poolSize.descriptorCount = m_RendererData->maxFramesInFlight;
+            poolSizes.push_back(poolSize);
         }
 
         VkDescriptorPoolCreateInfo descriptorPoolInfo{};
@@ -253,15 +291,15 @@ namespace LunaraEngine
             throw std::runtime_error("failed to allocate descriptor sets!");
         }
 
-        const std::optional<std::reference_wrapper<const ShaderResource>> bufferResource =
-                [&]() -> const std::optional<std::reference_wrapper<const ShaderResource>> {
+        const std::optional<std::reference_wrapper<const BufferResource>> bufferResource =
+                [&]() -> const std::optional<std::reference_wrapper<const BufferResource>> {
             auto it = std::find_if(p_Info.resources.bufferResources.begin(), p_Info.resources.bufferResources.end(),
-                                   [](const ShaderResource& resource) {
-                                       return resource.type == ShaderResourceType::UniformBuffer ||
-                                              resource.type == ShaderResourceType::StorageBuffer;
+                                   [](const BufferResource& resource) {
+                                       return resource.type == BufferResourceType::UniformBuffer ||
+                                              resource.type == BufferResourceType::StorageBuffer;
                                    });
             return it != p_Info.resources.bufferResources.end()
-                           ? std::optional<std::reference_wrapper<const ShaderResource>>(*it)
+                           ? std::optional<std::reference_wrapper<const BufferResource>>(*it)
                            : std::nullopt;
         }();
 
@@ -272,33 +310,60 @@ namespace LunaraEngine
 
     void VulkanShader::UpdateDescriptorSets(uint32_t frameIndex)
     {
-
         std::vector<VkWriteDescriptorSet> descriptorWrites;
-        std::vector<VkDescriptorType> descriptorTypes;
-        std::vector<uint32_t> descriptorBindings;
+        std::vector<VkDescriptorType> bufferDescriptorTypes;
+        std::vector<VkDescriptorType> textureDescriptorTypes;
+        std::vector<uint32_t> bufferDescriptorBindings;
+        std::vector<uint32_t> textureDescriptorBindings;
         std::vector<VkDescriptorBufferInfo> bufferInfos;
+        std::vector<VkDescriptorImageInfo> textureInfos;
         for (auto& resource: p_Info.resources.bufferResources)
         {
-            if (resource.type == ShaderResourceType::PushConstant) { continue; }
+            if (resource.type == BufferResourceType::PushConstant) { continue; }
             bufferInfos.push_back(VkDescriptorBufferInfo{
-                    .buffer = m_Resources[(size_t) resource.layout.binding][frameIndex]->GetHandle(),
+                    .buffer = m_BufferResources[(size_t) resource.layout.binding][frameIndex]->GetHandle(),
                     .offset = 0,
                     .range = resource.length * resource.stride,
             });
-            descriptorBindings.push_back((uint32_t) resource.layout.binding);
-            descriptorTypes.push_back(PipelineBuilder::GetDescriptorType(resource.type));
+            bufferDescriptorBindings.push_back((uint32_t) resource.layout.binding);
+            bufferDescriptorTypes.push_back(PipelineBuilder::GetDescriptorType(resource.type));
+        }
+        for (auto& resource: p_Info.resources.textureResources)
+        {
+            if (resource.type == BufferResourceType::PushConstant) { continue; }
+
+            VulkanTextureBuffer* textureBuffer =
+                    static_cast<VulkanTextureBuffer*>(m_TextureResources[(size_t) resource.layout.binding][frameIndex]);
+
+            textureInfos.push_back(VkDescriptorImageInfo{.sampler = textureBuffer->GetSampler(),
+                                                         .imageView = textureBuffer->GetView(),
+                                                         .imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL});
+            textureDescriptorBindings.push_back((uint32_t) resource.layout.binding);
+            textureDescriptorTypes.push_back(PipelineBuilder::GetDescriptorType(resource.type));
         }
 
-        for (size_t j = 0; j < descriptorBindings.size(); j++)
+        for (size_t j = 0; j < bufferDescriptorBindings.size(); j++)
         {
             VkWriteDescriptorSet descriptorWrite{};
             descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
             descriptorWrite.dstSet = m_DescriptorSets[frameIndex];
-            descriptorWrite.dstBinding = descriptorBindings[j];
+            descriptorWrite.dstBinding = bufferDescriptorBindings[j];
             descriptorWrite.dstArrayElement = 0;
-            descriptorWrite.descriptorType = descriptorTypes[j];
+            descriptorWrite.descriptorType = bufferDescriptorTypes[j];
             descriptorWrite.descriptorCount = 1;
             descriptorWrite.pBufferInfo = &bufferInfos[j];
+            descriptorWrites.push_back(descriptorWrite);
+        }
+        for (size_t j = 0; j < textureDescriptorBindings.size(); j++)
+        {
+            VkWriteDescriptorSet descriptorWrite{};
+            descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+            descriptorWrite.dstSet = m_DescriptorSets[frameIndex];
+            descriptorWrite.dstBinding = textureDescriptorBindings[j];
+            descriptorWrite.dstArrayElement = 0;
+            descriptorWrite.descriptorType = textureDescriptorTypes[j];
+            descriptorWrite.descriptorCount = 1;
+            descriptorWrite.pImageInfo = &textureInfos[j];
             descriptorWrites.push_back(descriptorWrite);
         }
         vkUpdateDescriptorSets(m_RendererData->device, static_cast<uint32_t>(descriptorWrites.size()),
@@ -326,7 +391,7 @@ namespace LunaraEngine
         return buffer;
     }
 
-    void VulkanShader::PrintShaderResource(const ShaderInfo& info)
+    void VulkanShader::PrintBufferResource(const ShaderInfo& info)
     {
         LOG_INFO("Shader path: %ls", info.path.wstring().c_str());
         LOG_INFO("Shader name: %ls", info.name.c_str());
@@ -335,141 +400,152 @@ namespace LunaraEngine
         for (const auto& resource: info.resources.inputResources)
         {
             LOG_INFO("%s", resource.name.data());
-            LOG_INFO("\tType: %s", Shader::GetShaderResourceType(resource.format, resource.type).c_str());
+            LOG_INFO("\tType: %s", Shader::GetBufferResourceType(resource.format, resource.type).c_str());
             LOG_INFO("\tBinding: %d", (uint32_t) resource.binding);
             LOG_INFO("\tLocation: %d", resource.location);
-            LOG_INFO("\tFormat: %s", Shader::GetShaderResourceFormat(resource.format, resource.type).c_str());
+            LOG_INFO("\tFormat: %s", Shader::GetBufferResourceFormat(resource.format, resource.type).c_str());
+        }
+        LOG_INFO("TEXTURE RESOURCES");
+        for (const auto& resource: info.resources.textureResources)
+        {
+            LOG_INFO("%s", resource.name.data());
+            LOG_INFO("\tPath: %s", resource.info.path.c_str());
+            LOG_INFO("\tName: %ls", resource.info.name.c_str());
+            LOG_INFO("\tType: %s", GetBufferResourceType(resource.type).c_str());
+            LOG_INFO("\tDimensions: [%u,%u]", resource.info.width, resource.info.height);
+            LOG_INFO("\tBit Depth: %u", resource.info.channelDepth);
+            LOG_INFO("\tBinding: %d", (uint32_t) resource.layout.binding);
+            LOG_INFO("\tLayout: %s", GetBufferResourceLayoutType(resource.layout.layoutType).c_str());
         }
         LOG_INFO("BUFFER RESOURCES");
-
         for (const auto& resource: info.resources.bufferResources)
         {
             LOG_INFO("%s", resource.name.data());
-            LOG_INFO("\tType: %s", GetShaderResourceType(resource.type).c_str());
+            LOG_INFO("\tType: %s", GetBufferResourceType(resource.type).c_str());
             LOG_INFO("\tLength: %zu", resource.length);
             LOG_INFO("\tStride: %zu", resource.stride);
             LOG_INFO("\tBinding: %d", (uint32_t) resource.layout.binding);
-            LOG_INFO("\tLayout: %s", GetShaderResourceLayoutType(resource.layout.layoutType).c_str());
+            LOG_INFO("\tLayout: %s", GetBufferResourceLayoutType(resource.layout.layoutType).c_str());
         }
     }
 
-    std::string VulkanShader::GetShaderResourceType(ShaderResourceType type)
+    std::string VulkanShader::GetBufferResourceType(BufferResourceType type)
     {
         switch (type)
         {
-            case ShaderResourceType::Texture:
+            case BufferResourceType::Texture:
                 return "Texture";
-            case ShaderResourceType::PushConstant:
+            case BufferResourceType::PushConstant:
                 return "PushConstant";
-            case ShaderResourceType::UniformBuffer:
+            case BufferResourceType::UniformBuffer:
                 return "UniformBuffer";
-            case ShaderResourceType::StorageBuffer:
+            case BufferResourceType::StorageBuffer:
                 return "StorageBuffer";
             default:
                 return "Unknown";
         }
     }
 
-    std::string VulkanShader::GetShaderResourceLayoutType(ShaderResourceMemoryLayout type)
+    std::string VulkanShader::GetBufferResourceLayoutType(BufferResourceMemoryLayout type)
     {
         switch (type)
         {
-            case ShaderResourceMemoryLayout::STD140:
+            case BufferResourceMemoryLayout::STD140:
                 return "STD140";
-            case ShaderResourceMemoryLayout::STD430:
+            case BufferResourceMemoryLayout::STD430:
                 return "STD430";
             default:
                 return "Unknown";
         }
     }
 
-    size_t VulkanShader::GetResourceAttributeSize(ShaderResourceAttributeType type)
+    size_t VulkanShader::GetResourceAttributeSize(BufferResourceAttributeType type)
     {
         switch (type)
         {
-            case ShaderResourceAttributeType::Float:
+            case BufferResourceAttributeType::Float:
                 return sizeof(float);
-            case ShaderResourceAttributeType::Vec2:
+            case BufferResourceAttributeType::Vec2:
                 return sizeof(float) * 2;
-            case ShaderResourceAttributeType::Vec3:
+            case BufferResourceAttributeType::Vec3:
                 return sizeof(float) * 3;
-            case ShaderResourceAttributeType::Vec4:
+            case BufferResourceAttributeType::Vec4:
                 return sizeof(float) * 4;
-            case ShaderResourceAttributeType::Mat2:
+            case BufferResourceAttributeType::Mat2:
                 return sizeof(float) * 4;
-            case ShaderResourceAttributeType::Mat3:
+            case BufferResourceAttributeType::Mat3:
                 return sizeof(float) * 9;
-            case ShaderResourceAttributeType::Mat4:
+            case BufferResourceAttributeType::Mat4:
                 return sizeof(float) * 16;
-            case ShaderResourceAttributeType::UInt:
+            case BufferResourceAttributeType::UInt:
                 return sizeof(uint32_t);
-            case ShaderResourceAttributeType::Int:
+            case BufferResourceAttributeType::Int:
                 return sizeof(int);
-            case ShaderResourceAttributeType::IVec2:
+            case BufferResourceAttributeType::IVec2:
                 return sizeof(int) * 2;
-            case ShaderResourceAttributeType::IVec3:
+            case BufferResourceAttributeType::IVec3:
                 return sizeof(int) * 3;
-            case ShaderResourceAttributeType::IVec4:
+            case BufferResourceAttributeType::IVec4:
                 return sizeof(int) * 4;
             default:
                 return 0;
         }
     }
 
-    VkFormat VulkanShader::GetShaderResourceFormat(ShaderResourceFormatT format, ShaderResourceDataTypeT type)
+    VkFormat VulkanShader::GetBufferResourceFormat(BufferResourceFormatT format, BufferResourceDataTypeT type)
     {
         switch (format)
         {
-            case ShaderResourceFormatT::R8:
-                if (type == ShaderResourceDataTypeT::SFloat) return VK_FORMAT_R8_SRGB;
+            case BufferResourceFormatT::R8:
+                if (type == BufferResourceDataTypeT::SFloat) return VK_FORMAT_R8_SRGB;
                 else
                     return VK_FORMAT_R8_UNORM;
-            case ShaderResourceFormatT::R16:
-                if (type == ShaderResourceDataTypeT::SFloat) return VK_FORMAT_R16_SFLOAT;
+            case BufferResourceFormatT::R16:
+                if (type == BufferResourceDataTypeT::SFloat) return VK_FORMAT_R16_SFLOAT;
                 else
                     return VK_FORMAT_R16_UNORM;
-            case ShaderResourceFormatT::R32:
-                if (type == ShaderResourceDataTypeT::SFloat) return VK_FORMAT_R32_SFLOAT;
+            case BufferResourceFormatT::R32:
+                if (type == BufferResourceDataTypeT::SFloat) return VK_FORMAT_R32_SFLOAT;
                 else
                     return VK_FORMAT_R32_UINT;
-            case ShaderResourceFormatT::R8G8:
-                if (type == ShaderResourceDataTypeT::SFloat) return VK_FORMAT_R8G8_SRGB;
+            case BufferResourceFormatT::R8G8:
+                if (type == BufferResourceDataTypeT::SFloat) return VK_FORMAT_R8G8_SRGB;
                 else
                     return VK_FORMAT_R8G8_UNORM;
-            case ShaderResourceFormatT::R16G16:
-                if (type == ShaderResourceDataTypeT::SFloat) return VK_FORMAT_R16G16_SFLOAT;
+            case BufferResourceFormatT::R16G16:
+                if (type == BufferResourceDataTypeT::SFloat) return VK_FORMAT_R16G16_SFLOAT;
                 else
                     return VK_FORMAT_R16G16_UNORM;
-            case ShaderResourceFormatT::R32G32:
-                if (type == ShaderResourceDataTypeT::SFloat) return VK_FORMAT_R32G32_SFLOAT;
+            case BufferResourceFormatT::R32G32:
+                if (type == BufferResourceDataTypeT::SFloat) return VK_FORMAT_R32G32_SFLOAT;
                 else
                     return VK_FORMAT_R32G32_UINT;
-            case ShaderResourceFormatT::R8G8B8:
-                if (type == ShaderResourceDataTypeT::SFloat) return VK_FORMAT_R8G8B8_SRGB;
+            case BufferResourceFormatT::R8G8B8:
+                if (type == BufferResourceDataTypeT::SFloat) return VK_FORMAT_R8G8B8_SRGB;
                 else
                     return VK_FORMAT_R8G8B8_UNORM;
-            case ShaderResourceFormatT::R16G16B16:
-                if (type == ShaderResourceDataTypeT::SFloat) return VK_FORMAT_R16G16B16_SFLOAT;
+            case BufferResourceFormatT::R16G16B16:
+                if (type == BufferResourceDataTypeT::SFloat) return VK_FORMAT_R16G16B16_SFLOAT;
                 else
                     return VK_FORMAT_R16G16B16_UNORM;
-            case ShaderResourceFormatT::R32G32B32:
-                if (type == ShaderResourceDataTypeT::SFloat) return VK_FORMAT_R32G32B32_SFLOAT;
+            case BufferResourceFormatT::R32G32B32:
+                if (type == BufferResourceDataTypeT::SFloat) return VK_FORMAT_R32G32B32_SFLOAT;
                 else
                     return VK_FORMAT_R32G32B32_UINT;
-            case ShaderResourceFormatT::R8G8B8A8:
-                if (type == ShaderResourceDataTypeT::SFloat) return VK_FORMAT_R8G8B8A8_SRGB;
+            case BufferResourceFormatT::R8G8B8A8:
+                if (type == BufferResourceDataTypeT::SFloat) return VK_FORMAT_R8G8B8A8_SRGB;
                 else
                     return VK_FORMAT_R8G8B8A8_UNORM;
-            case ShaderResourceFormatT::R16G16B16A16:
-                if (type == ShaderResourceDataTypeT::SFloat) return VK_FORMAT_R16G16B16A16_SFLOAT;
+            case BufferResourceFormatT::R16G16B16A16:
+                if (type == BufferResourceDataTypeT::SFloat) return VK_FORMAT_R16G16B16A16_SFLOAT;
                 else
                     return VK_FORMAT_R16G16B16A16_UNORM;
-            case ShaderResourceFormatT::R32G32B32A32:
-                if (type == ShaderResourceDataTypeT::SFloat) return VK_FORMAT_R32G32B32A32_SFLOAT;
+            case BufferResourceFormatT::R32G32B32A32:
+                if (type == BufferResourceDataTypeT::SFloat) return VK_FORMAT_R32G32B32A32_SFLOAT;
                 else
                     return VK_FORMAT_R32G32B32A32_UINT;
 
-            case ShaderResourceFormatT::None:
+            case BufferResourceFormatT::None:
                 return VK_FORMAT_UNDEFINED;
 
             default:

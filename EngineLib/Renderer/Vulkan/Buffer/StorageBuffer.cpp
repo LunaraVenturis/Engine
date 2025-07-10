@@ -13,9 +13,9 @@ namespace LunaraEngine
 
     void VulkanStorageBuffer::Create(RendererDataType* rendererData, uint8_t* data, size_t length, size_t stride)
     {
-        m_ResourceType = ShaderResourceType::StorageBuffer;
+        m_ResourceType = BufferResourceType::StorageBuffer;
         m_Device = rendererData->device;
-        m_Size = length * stride;
+        m_Size = length;
         m_Stride = stride;
 
         CreateBuffer(VK_BUFFER_USAGE_STORAGE_BUFFER_BIT);

@@ -26,7 +26,7 @@ namespace LunaraEngine
         void AddColorBlending();
         void AddDynamicState(VkDynamicState state);
         std::tuple<VkPipeline, VkPipelineLayout, VkDescriptorSetLayout> CreatePipeline();
-        static VkDescriptorType GetDescriptorType(ShaderResourceType type);
+        static VkDescriptorType GetDescriptorType(BufferResourceType type);
 
     private:
         void CreateDescriptorSetLayout();

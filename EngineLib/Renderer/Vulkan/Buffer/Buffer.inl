@@ -9,13 +9,13 @@
 namespace LunaraEngine
 {
 
-    template <ShaderResourceType type>
+    template <BufferResourceType type>
     void Buffer<type>::BindBufferToDevMemory(VkMemoryPropertyFlags properties, VkPhysicalDevice physicalDevice)
     {
         VkMemoryRequirements memRequirements;
         switch (m_ResourceType)
         {
-            case ShaderResourceType::Texture:
+            case BufferResourceType::Texture:
                 vkGetImageMemoryRequirements(m_Device, m_Image, &memRequirements);
                 break;
             default:
@@ -34,22 +34,22 @@ namespace LunaraEngine
 
         switch (m_ResourceType)
         {
-            case ShaderResourceType::Texture:
+            case BufferResourceType::Texture:
                 result = vkBindImageMemory(m_Device, m_Image, m_BufferMemory, 0);
                 break;
             default:
                 result = vkBindBufferMemory(m_Device, m_Buffer, m_BufferMemory, 0);
                 assert(result == VK_SUCCESS);
 
-                result = vkMapMemory(m_Device, m_BufferMemory, 0, m_Size, 0, (void**) &m_MappedDataPtr);
+                result = vkMapMemory(m_Device, m_BufferMemory, 0, m_Size * m_Stride, 0, (void**) &m_MappedDataPtr);
                 assert(result == VK_SUCCESS);
                 break;
         }
     }
 
-    template <ShaderResourceType type>
+    template <BufferResourceType type>
     void Buffer<type>::TransitionLayout(CommandBuffer* cmdBuffer, VkFormat format, VkImageLayout oldLayout,
-                                        VkImageLayout newLayout) const requires(type == ShaderResourceType::Texture)
+                                        VkImageLayout newLayout) const requires(type == BufferResourceType::Texture)
     {
         VkImageMemoryBarrier barrier{};
         barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
@@ -90,7 +90,7 @@ namespace LunaraEngine
         (void) format;
     }
 
-    template <ShaderResourceType type>
+    template <BufferResourceType type>
     void Buffer<type>::Destroy()
     {
         if (m_BufferMemory != VK_NULL_HANDLE)
@@ -110,35 +110,35 @@ namespace LunaraEngine
         }
     }
 
-    template <ShaderResourceType type>
-    ShaderResourceType Buffer<type>::GetResourceType() const
+    template <BufferResourceType type>
+    BufferResourceType Buffer<type>::GetResourceType() const
     {
         return m_ResourceType;
     }
 
-    template <ShaderResourceType type>
+    template <BufferResourceType type>
     Buffer<type>::~Buffer()
     {
         Destroy();
     }
 
-    template <ShaderResourceType type>
+    template <BufferResourceType type>
     void Buffer<type>::Upload(size_t offset, uint8_t* data, size_t length, size_t stride)
     {
-        assert(offset + length * stride <= m_Size);
+        assert(offset + length * stride <= m_Size * m_Stride);
         assert(m_MappedDataPtr != nullptr);
         uint8_t* newPtr = m_MappedDataPtr + offset;
         size_t size = length * stride;
         std::memcpy(newPtr, data, size);
     }
 
-    template <ShaderResourceType type>
+    template <BufferResourceType type>
     void Buffer<type>::Upload(uint8_t* data, size_t length, size_t stride)
     {
         Upload(0, data, length, stride);
     }
 
-    template <ShaderResourceType type>
+    template <BufferResourceType type>
     std::shared_ptr<CommandBuffer> Buffer<type>::BeginRecording(CommandPool* commandPool)
     {
         auto cmdBuffer = commandPool->CreateImmediateCommandBuffer();
@@ -146,7 +146,7 @@ namespace LunaraEngine
         return cmdBuffer;
     }
 
-    template <ShaderResourceType type>
+    template <BufferResourceType type>
     void Buffer<type>::Submit(CommandBuffer* cmdBuffer, VkQueue executeQueue, VulkanFence* fence)
     {
         cmdBuffer->EndRecording();
@@ -160,15 +160,15 @@ namespace LunaraEngine
         fence->Wait();
     }
 
-    template <ShaderResourceType type>
-    template <ShaderResourceType U>
+    template <BufferResourceType type>
+    template <BufferResourceType U>
     void Buffer<type>::CopyTo(CommandPool* commandPool, VkQueue executeQueue, Buffer<U>* buffer)
     {
         VulkanFence fence(m_Device);
         auto cmdBuffer = commandPool->CreateImmediateCommandBuffer();
         cmdBuffer->BeginRecording();
 
-        if constexpr (type == ShaderResourceType::Texture && U == ShaderResourceType::Buffer)
+        if constexpr (type == BufferResourceType::Texture && U == BufferResourceType::Buffer)
         {
             VkBufferImageCopy region{};
             region.bufferOffset = 0;
@@ -197,11 +197,11 @@ namespace LunaraEngine
         fence.Destroy();
     }
 
-    template <ShaderResourceType type>
-    template <ShaderResourceType U>
+    template <BufferResourceType type>
+    template <BufferResourceType U>
     void Buffer<type>::CopyTo(CommandBuffer* cmdBuffer, Buffer<U>* buffer)
     {
-        if constexpr (type == ShaderResourceType::Buffer && U == ShaderResourceType::Texture)
+        if constexpr (type == BufferResourceType::Buffer && U == BufferResourceType::Texture)
         {
             VkBufferImageCopy region{};
             region.bufferOffset = 0;

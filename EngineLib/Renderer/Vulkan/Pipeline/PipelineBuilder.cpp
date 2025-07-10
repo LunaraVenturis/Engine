@@ -17,16 +17,16 @@ namespace LunaraEngine
         std::vector<VkDescriptorSetLayoutBinding> descriptorSetLayoutBindings;
         for (const auto& resource: m_Info->resources.bufferResources)
         {
-            if (resource.type == ShaderResourceType::PushConstant) { continue; }
+            if (resource.type == BufferResourceType::PushConstant) { continue; }
 
             const auto& type = resource.type;
             const auto& name = resource.name;
             ShaderBinding binding = resource.layout.binding;
-            ShaderResourceMemoryLayout layout = resource.layout.layoutType;
+            BufferResourceMemoryLayout layout = resource.layout.layoutType;
 
-            if (resource.layout.layoutType == ShaderResourceMemoryLayout::None)
+            if (resource.layout.layoutType == BufferResourceMemoryLayout::None)
             {
-                layout = ShaderResourceMemoryLayout::STD140;
+                layout = BufferResourceMemoryLayout::STD140;
             }
 
             VkDescriptorSetLayoutBinding descriptorSetLayoutBinding{};
@@ -40,7 +40,21 @@ namespace LunaraEngine
             (void) name;
             (void) layout;
         }
+        for (const auto& resource: m_Info->resources.textureResources)
+        {
+            const auto& type = resource.type;
+            const auto& name = resource.name;
+            ShaderBinding binding = resource.layout.binding;
 
+            VkDescriptorSetLayoutBinding descriptorSetLayoutBinding{};
+            descriptorSetLayoutBinding.binding = (uint32_t) binding;
+            descriptorSetLayoutBinding.descriptorType = GetDescriptorType(type);
+            descriptorSetLayoutBinding.stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+            descriptorSetLayoutBinding.descriptorCount = 1;
+            descriptorSetLayoutBinding.pImmutableSamplers = nullptr;
+            descriptorSetLayoutBindings.push_back(descriptorSetLayoutBinding);
+            (void) name;
+        }
         VkDescriptorSetLayoutCreateInfo layoutInfo{};
         layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
         layoutInfo.bindingCount = static_cast<uint32_t>(descriptorSetLayoutBindings.size());
@@ -60,7 +74,7 @@ namespace LunaraEngine
     {
         for (auto& resource: m_Info->resources.bufferResources)
         {
-            if (resource.type == ShaderResourceType::PushConstant)
+            if (resource.type == BufferResourceType::PushConstant)
             {
                 VkPushConstantRange range{};
                 range.offset = 0;
@@ -161,7 +175,7 @@ namespace LunaraEngine
             VkVertexInputAttributeDescription description{};
             description.binding = (uint32_t) resource.binding;
             description.location = resource.location;
-            description.format = VulkanShader::GetShaderResourceFormat(resource.format, resource.type);
+            description.format = VulkanShader::GetBufferResourceFormat(resource.format, resource.type);
             description.offset = resource.offset;
 
             m_AttributeDescriptions.push_back(description);
@@ -379,44 +393,29 @@ namespace LunaraEngine
         return {};
     }
 
-    VkDescriptorType PipelineBuilder::GetDescriptorType(ShaderResourceType type)
+    VkDescriptorType PipelineBuilder::GetDescriptorType(BufferResourceType type)
     {
         switch (type)
         {
-            case ShaderResourceType::Texture:
-            case ShaderResourceType::Texture2D:
-            case ShaderResourceType::Texture2DArray:
-            case ShaderResourceType::Texture3D:
+            case BufferResourceType::Texture:
+            case BufferResourceType::Texture2D:
+            case BufferResourceType::Texture2DArray:
+            case BufferResourceType::Texture3D:
                 return VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 
-            case ShaderResourceType::UniformBuffer:
+            case BufferResourceType::UniformBuffer:
                 return VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 
-            case ShaderResourceType::StorageBuffer:
-            case ShaderResourceType::Buffer:
+            case BufferResourceType::StorageBuffer:
+            case BufferResourceType::Buffer:
                 return VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
 
-            case ShaderResourceType::PushConstant:
-            case ShaderResourceType::None:
+            case BufferResourceType::PushConstant:
+            case BufferResourceType::None:
             default:
-                throw std::runtime_error("Invalid or unsupported ShaderResourceType");
+                throw std::runtime_error("Invalid or unsupported BufferResourceType");
         }
     }
 
-    ComputePipeline::ComputePipeline(RendererDataType* rendererData, const ShaderInfo* info,
-                                     const std::map<size_t, std::vector<uint32_t>>& shaderSources)
-        : Pipeline(rendererData->device)
-    {
-
-        PipelineBuilder builder(rendererData, info);
-        builder.SetPipelineType(PipelineType::Compute);
-        builder.AddStage(ShaderStage::Compute, shaderSources.at(VK_SHADER_STAGE_COMPUTE_BIT));
-
-        auto [pipeline, layout, descriptorLayout] = builder.CreatePipeline();
-
-        p_Pipeline = pipeline;
-        p_Layout = layout;
-        p_DescriptorLayouts.push_back(descriptorLayout);
-    }
 
 }// namespace LunaraEngine

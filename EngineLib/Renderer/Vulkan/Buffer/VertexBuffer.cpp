@@ -15,7 +15,7 @@ namespace LunaraEngine
                                     size_t stride)
     {
         m_Device = rendererData->device;
-        m_Size = length * stride;
+        m_Size = length;
         m_Stride = stride;
 
         m_StagingBuffer.Create(m_Device, rendererData->physicalDevice, nullptr, length, stride);
@@ -30,7 +30,7 @@ namespace LunaraEngine
                                     size_t stride)
     {
         if (data == nullptr) { return; }
-        if (length * stride > m_Size || length == 0) { return; }
+        if (length > m_Size || length == 0) { return; }
         if (!m_StagingBuffer.IsValid()) { return; }
 
         m_StagingBuffer.Upload(data, length, stride);

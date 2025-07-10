@@ -9,7 +9,7 @@ namespace LunaraEngine
     class CommandBuffer;
     class VulkanFence;
 
-    template <ShaderResourceType type = ShaderResourceType::None>
+    template <BufferResourceType type = BufferResourceType::None>
     class Buffer
     {
     public:
@@ -19,7 +19,7 @@ namespace LunaraEngine
     public:
         [[nodiscard]] auto GetHandle() const
         {
-            if constexpr (type == ShaderResourceType::Texture) { return m_Image; }
+            if constexpr (type == BufferResourceType::Texture) { return m_Image; }
             else { return m_Buffer; }
         }
 
@@ -38,26 +38,26 @@ namespace LunaraEngine
         std::shared_ptr<CommandBuffer> BeginRecording(CommandPool* commandPool);
         void Submit(CommandBuffer* cmdBuffer, VkQueue executeQueue, VulkanFence* fence);
 
-        template <ShaderResourceType U>
+        template <BufferResourceType U>
         void CopyTo(CommandPool* commandPool, VkQueue executeQueue, Buffer<U>* buffer);
-        template <ShaderResourceType U>
+        template <BufferResourceType U>
         void CopyTo(CommandBuffer* cmdBuffer, Buffer<U>* buffer);
 
         void TransitionLayout(CommandBuffer* cmdBuffer, VkFormat format, VkImageLayout oldLayout,
-                              VkImageLayout newLayout) const requires(type == ShaderResourceType::Texture);
+                              VkImageLayout newLayout) const requires(type == BufferResourceType::Texture);
 
         void Destroy();
 
-        ShaderResourceType GetResourceType() const;
+        BufferResourceType GetResourceType() const;
 
     protected:
         void CreateBuffer(VkBufferUsageFlags usage)
         {
-            if constexpr (type != ShaderResourceType::Texture)
+            if constexpr (type != BufferResourceType::Texture)
             {
                 VkBufferCreateInfo bufferInfo{};
                 bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-                bufferInfo.size = m_Size;
+                bufferInfo.size = m_Size * m_Stride;
                 bufferInfo.usage = usage;
                 bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
@@ -70,7 +70,7 @@ namespace LunaraEngine
         void CreateImage(VkImageUsageFlags usage, uint32_t width, uint32_t height, VkFormat format,
                          VkImageTiling tiling)
         {
-            if constexpr (type == ShaderResourceType::Texture)
+            if constexpr (type == BufferResourceType::Texture)
             {
                 VkImageCreateInfo imageInfo{};
                 imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
@@ -84,6 +84,8 @@ namespace LunaraEngine
                 imageInfo.tiling = tiling;
                 imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
                 imageInfo.usage = usage;
+                imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
+                imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
                 auto result = vkCreateImage(m_Device, &imageInfo, nullptr, &m_Image);
                 assert(result == VK_SUCCESS);
@@ -115,7 +117,7 @@ namespace LunaraEngine
         size_t m_Stride{};
         VkDeviceMemory m_BufferMemory{};
         uint8_t* m_MappedDataPtr{};
-        ShaderResourceType m_ResourceType{};
+        BufferResourceType m_ResourceType{};
     };
 
 

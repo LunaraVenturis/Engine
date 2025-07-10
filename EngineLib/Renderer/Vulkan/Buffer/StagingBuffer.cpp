@@ -12,7 +12,7 @@ namespace LunaraEngine
     void StagingBuffer::Create(VkDevice device, VkPhysicalDevice physicalDevice, uint8_t* data, size_t length,
                                size_t stride)
     {
-        m_Size = length * stride;
+        m_Size = length;
         m_Device = device;
         m_Stride = stride;
         CreateBuffer(VK_BUFFER_USAGE_TRANSFER_SRC_BIT);

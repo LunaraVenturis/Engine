@@ -25,7 +25,7 @@ namespace LunaraEngine
         size_t numInstances{};
     };
 
-    enum class ShaderResourceType
+    enum class BufferResourceType
     {
         None = 0,
         Texture,
@@ -39,7 +39,7 @@ namespace LunaraEngine
     };
 
 
-    enum class ShaderResourceFormatT
+    enum class BufferResourceFormatT
     {
         None = 0,
         R8,
@@ -56,7 +56,7 @@ namespace LunaraEngine
         R32G32B32A32
     };
 
-    enum class ShaderResourceDataTypeT
+    enum class BufferResourceDataTypeT
     {
         None = 0,
         SFloat,
@@ -66,7 +66,7 @@ namespace LunaraEngine
         UNorm
     };
 
-    enum class ShaderResourceAttributeType : size_t
+    enum class BufferResourceAttributeType : size_t
     {
         None = 0,
         Float,
@@ -110,62 +110,29 @@ namespace LunaraEngine
         ALL = 0xFFFFFFFF
     };
 
-    enum class ShaderResourceMemoryLayout
+    enum class BufferResourceMemoryLayout
     {
         None = 0,
         STD140,
         STD430
     };
 
-    struct ShaderResourceLayout {
+    struct BufferResourceLayout {
         ShaderBinding binding = ShaderBinding::_0;
-        ShaderResourceMemoryLayout layoutType = ShaderResourceMemoryLayout::None;
+        BufferResourceMemoryLayout layoutType = BufferResourceMemoryLayout::None;
     };
 
-    struct ShaderResourceAttribute {
+    struct BufferResourceAttribute {
         std::string_view name;
-        ShaderResourceAttributeType type;
+        BufferResourceAttributeType type;
     };
 
-    enum ShaderResourceProperty
+    enum BufferResourceProperty
     {
         None = 0,
         ReadOnly = 1,
         WriteOnly = 2,
         ReadWrite = 3
-    };
-
-    struct ShaderResource {
-        ShaderResourceType type{ShaderResourceType::None};
-        std::string_view name{"UNKNOWN_RESOURCE"};
-        size_t length{};
-        size_t stride{};
-        ShaderResourceLayout layout{
-                ShaderResourceLayout{.binding = ShaderBinding::_0, .layoutType = ShaderResourceMemoryLayout::STD430}};
-        std::vector<ShaderResourceAttribute> attributes;
-        ShaderResourceProperty property{ShaderResourceProperty::ReadWrite};
-    };
-
-    struct ShaderInputResource {
-        std::string_view name;
-        ShaderBinding binding;
-        ShaderLocationT location;
-        ShaderResourceFormatT format;
-        ShaderResourceDataTypeT type;
-        uint32_t offset;
-    };
-
-    struct ShaderResources {
-        std::vector<ShaderResource> bufferResources;
-        std::vector<ShaderInputResource> inputResources;
-    };
-
-    struct ShaderInfo {
-        std::filesystem::path path;
-        std::wstring name;
-        bool isComputeShader = false;
-        ShaderResources resources;
-        uint32_t numInstances{};
     };
 
     enum class TextureDataFormat : size_t
@@ -204,12 +171,55 @@ namespace LunaraEngine
     struct TextureInfo {
         std::filesystem::path path;
         std::wstring name;
-        uint32_t width;
-        uint32_t height;
+        uint32_t width{};
+        uint32_t height{};
         TextureFormat format = TextureFormat::None;
         TextureDataType type = TextureDataType::None;
-        uint32_t channelDepth = 8;
+        uint32_t channelDepth{8};
     };
+
+    struct BufferResource {
+        BufferResourceType type{BufferResourceType::None};
+        std::string_view name{"UNKNOWN_RESOURCE"};
+        size_t length{};
+        size_t stride{};
+        BufferResourceLayout layout{
+                BufferResourceLayout{.binding = ShaderBinding::_0, .layoutType = BufferResourceMemoryLayout::STD430}};
+        std::vector<BufferResourceAttribute> attributes;
+        BufferResourceProperty property{BufferResourceProperty::ReadWrite};
+    };
+
+    struct TextureResource {
+        BufferResourceType type{BufferResourceType::None};
+        std::string_view name{"UNKNOWN_RESOURCE"};
+        TextureInfo info;
+        BufferResourceLayout layout{
+                BufferResourceLayout{.binding = ShaderBinding::_0, .layoutType = BufferResourceMemoryLayout::STD430}};
+    };
+
+    struct ShaderInputResource {
+        std::string_view name;
+        ShaderBinding binding;
+        ShaderLocationT location;
+        BufferResourceFormatT format;
+        BufferResourceDataTypeT type;
+        uint32_t offset;
+    };
+
+    struct BufferResources {
+        std::vector<BufferResource> bufferResources;
+        std::vector<TextureResource> textureResources;
+        std::vector<ShaderInputResource> inputResources;
+    };
+
+    struct ShaderInfo {
+        std::filesystem::path path;
+        std::wstring name;
+        bool isComputeShader = false;
+        BufferResources resources;
+        uint32_t numInstances{};
+    };
+
 
     struct RendererDataType;
 
