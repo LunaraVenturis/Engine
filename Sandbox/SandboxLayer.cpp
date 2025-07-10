@@ -8,15 +8,16 @@ void SandboxLayer::Init(std::filesystem::path workingDirectory)
 {
     using namespace LunaraEngine;
 
-    std::filesystem::path assetsDirectory = workingDirectory / std::filesystem::path("Assets");
+    const std::filesystem::path assetsDirectory = workingDirectory / std::filesystem::path("Assets");
 
     m_Window = Renderer::GetWindow();
     AudioManager::LoadAudio("AudioTest", "Assets/Audio/AudioTest.wav");
     auto result = LoadFont("Assets/Fonts/joystixmonospace.ttf", 24, &m_Font);
     if (result != FontResultType::FONT_RESULT_SUCCESS) { exit(-6); }
 
-    BatchRenderer::Create(assetsDirectory / "Shaders/output");
-    ParticleSystem::Create(assetsDirectory / "Shaders/output");
+
+    BatchRenderer::Create(assetsDirectory / "Shaders/output", assetsDirectory / "Textures");
+    ParticleSystem::Create(assetsDirectory / "Shaders/output", assetsDirectory / "Textures");
 }
 
 void SandboxLayer::Destroy()
@@ -86,7 +87,6 @@ void SandboxLayer::OnUpdate(float dt)
     {
         LunaraEngine::AudioManager::PlayAudio("AudioTest");
     }
-
 
     if (m_PressedKeys[KEY_W]) { m_Player.Move(0.0f, -1.0f, 0.0f, dt); }
     if (m_PressedKeys[KEY_S]) { m_Player.Move(0.0f, 1.0f, 0.0f, dt); }

@@ -41,14 +41,14 @@ Includes
 #include <Core/Log.h>
 #include <vulkan/vulkan.h>
 #include <Renderer/Vulkan/VulkanRendererCommands.hpp>
-#include <Renderer/Vulkan/GraphicsPipeline.hpp>
-#include <Renderer/Vulkan/IndexBuffer.hpp>
-#include <Renderer/Vulkan/VertexBuffer.hpp>
-#include <Renderer/Vulkan/StorageBuffer.hpp>
+#include <Renderer/Vulkan/Pipeline/Pipeline.hpp>
+#include <Renderer/Vulkan/Buffer/IndexBuffer.hpp>
+#include <Renderer/Vulkan/Buffer/VertexBuffer.hpp>
+#include <Renderer/Vulkan/Buffer/StorageBuffer.hpp>
 #include <Renderer/Vulkan/Shader.hpp>
-#include <Renderer/IndexBuffer.hpp>
-#include <Renderer/VertexBuffer.hpp>
-#include <Renderer/StorageBuffer.hpp>
+#include <Renderer/Buffer/IndexBuffer.hpp>
+#include <Renderer/Buffer/VertexBuffer.hpp>
+#include <Renderer/Buffer/StorageBuffer.hpp>
 #include <Renderer/Shader.hpp>
 
 namespace LunaraEngine

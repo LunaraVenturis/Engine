@@ -4,12 +4,12 @@
 #include <Renderer/RendererCommands.hpp>
 #include <Renderer/Window.hpp>
 #include <Renderer/Vulkan/VulkanDebugMessanger.hpp>
-#include "Pipeline.hpp"
+#include <Renderer/Vulkan/Pipeline/Pipeline.hpp>
 #include "SwapChain.hpp"
 #include "CommandPool.hpp"
 #include "Queue.hpp"
-#include "StagingBuffer.hpp"
-#include "IndexBuffer.hpp"
+#include <Renderer/Vulkan/Buffer/StagingBuffer.hpp>
+#include <Renderer/Vulkan/Buffer/IndexBuffer.hpp>
 #include <vulkan/vulkan.h>
 #include <SDL3/SDL_render.h>
 #include <string>

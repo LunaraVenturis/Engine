@@ -260,6 +260,24 @@ namespace LunaraEngine
         BaseBufferUploadList<T>& Get() { return m_List; }
 
     public:
+        template <typename ValueType>
+        requires(std::is_trivially_copyable_v<ValueType>)
+        BaseBufferUploadListBuilder& Add(ValueType* srcBuffer, size_t length)
+        {
+            if (m_Shader.expired())
+            {
+                LOG_ERROR("Shader is expired");
+                return *this;
+            }
+
+            auto shader = m_Shader.lock();
+
+            auto* buffer = shader->GetBuffer(m_LastBinding);
+            m_List.template Add<ValueType>(buffer, srcBuffer, length);
+            m_LastBinding = (ShaderBinding) ((size_t) m_LastBinding + 1);
+            return *this;
+        }
+
         template <std::ranges::range Container>
         requires(std::is_trivially_copyable_v<std::ranges::range_value_t<Container>>)
         BaseBufferUploadListBuilder& Add(const Container& srcBuffer)
@@ -317,7 +335,6 @@ namespace LunaraEngine
     };
 
     class RendererCommandDrawTexture: public RendererCommand
-
     {
     public:
         RendererCommandDrawTexture() = default;
