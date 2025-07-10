@@ -16,7 +16,7 @@ namespace LunaraEngine
         m_Quads.resize(m_Capacity);
     }
 
-    void BatchRenderer::Create(std::filesystem::path shaderPath, std::filesystem::path texturesPath)
+    void BatchRenderer::Create(const std::filesystem::path shaderPath, const std::filesystem::path texturesPath)
     {
         s_BatchRenderer = new BatchRenderer();
 

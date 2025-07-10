@@ -31,7 +31,7 @@ namespace LunaraEngine
 
     public:
         static ParticleSystem* GetInstance();
-        static void Create(std::filesystem::path shaderPath, std::filesystem::path texturesPath);
+        static void Create(const std::filesystem::path shaderPath, const std::filesystem::path texturesPath);
         static void Destroy();
 
     public:

@@ -44,7 +44,7 @@ vec2 getTextureCoord(uint vertexID)
 
 void main()
 {
-    float particleSize = 100;
+    float particleSize = 40;
     uint index = getCurrentQuadIndex();
 
     mat4 PVM = ubo.projection * ubo.view * ubo.model;

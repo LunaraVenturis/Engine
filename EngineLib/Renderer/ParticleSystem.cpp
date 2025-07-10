@@ -26,7 +26,7 @@ namespace LunaraEngine
         std::fill(m_Velocities.begin(), m_Velocities.end(), glm::vec2(0.0f));
     }
 
-    void ParticleSystem::Create(std::filesystem::path shaderPath, std::filesystem::path texturesPath)
+    void ParticleSystem::Create(const std::filesystem::path shaderPath, const std::filesystem::path texturesPath)
     {
 
         s_ParticleSystem = new ParticleSystem();
@@ -61,9 +61,9 @@ namespace LunaraEngine
 
     void ParticleSystem::Update(float dt)
     {
-        constexpr float emitPerSecond = 10.0f;
+        constexpr float emitPerSecond = 200.0f;
         constexpr float emitInterval = 1.0f / emitPerSecond;
-        constexpr float speed = 350.0f;
+        constexpr float speed = 450.0f;
         constexpr float windSpeed = 5.0f;
         constexpr float windResistance = 0.0004f;
         constexpr glm::vec2 windDir = {0.3f, -0.2f};

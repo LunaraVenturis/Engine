@@ -26,8 +26,5 @@ void main()
 
     float alpha = mask * pow(normalizedLife, 1.5);
 
-    vec3 textureColor = texture(particleTexture, inData2.xy).rgb;
-
-    vec3 finalColor = textureColor;
-    outColor = vec4(finalColor, alpha + 0.2);
+    outColor = vec4(vec3(texture(particleTexture, inData2.xy).rgb) * fireColor, alpha);
 }
