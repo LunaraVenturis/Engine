@@ -31,7 +31,7 @@ namespace LunaraEngine
 
     public:
         static BatchRenderer* GetInstance();
-        static void Create(std::filesystem::path shaderPath);
+        static void Create(std::filesystem::path shaderPath, std::filesystem::path texturesPath);
         static void Destroy();
 
     public:

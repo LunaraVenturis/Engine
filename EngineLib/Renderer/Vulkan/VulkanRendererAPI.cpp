@@ -32,6 +32,7 @@
  * @section DESCRIPTION
  * 
  * Renderer definitions
+ * 
  */
 
 /***********************************************************************************************************************
@@ -45,13 +46,12 @@ Includes
 #include <Renderer/Vulkan/VulkanRendererAPI.hpp>
 #include <Renderer/Window.hpp>
 #include <Renderer/Vulkan/VulkanInitialization.hpp>
-#include <Renderer/Vulkan/GraphicsPipeline.hpp>
-#include <Renderer/Vulkan/IndexBuffer.hpp>
-#include <Renderer/Vulkan/VertexBuffer.hpp>
+#include <Renderer/Vulkan/Buffer/IndexBuffer.hpp>
+#include <Renderer/Vulkan/Buffer/VertexBuffer.hpp>
 #include <Renderer/Vulkan/Shader.hpp>
 #include <Renderer/Vulkan/VulkanRendererCommands.hpp>
-#include <Renderer/IndexBuffer.hpp>
-#include <Renderer/VertexBuffer.hpp>
+#include <Renderer/Buffer/IndexBuffer.hpp>
+#include <Renderer/Buffer/VertexBuffer.hpp>
 #include <Renderer/Shader.hpp>
 #include "VulkanRendererAPI.hpp"
 

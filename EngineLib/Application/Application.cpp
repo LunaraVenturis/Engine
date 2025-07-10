@@ -8,6 +8,9 @@ namespace LunaraEngine
                                           uint32_t height)
     {
         m_WorkingDirectory = workingDirectory;
+
+        LOG_INFO("Creating application: %s", name.data());
+        LOG_INFO("Working directory: %s", m_WorkingDirectory.c_str());
         auto renderer_result = Renderer::Init(name, width, height);
         if (renderer_result != LunaraEngine::RendererResultType::Renderer_Result_Success)
         {

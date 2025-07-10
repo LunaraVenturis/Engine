@@ -41,7 +41,7 @@ Includes
 #include "Renderer.hpp"
 #include "BatchRenderer.hpp"
 #include "RendererAPI.hpp"
-#include "Texture.hpp"
+#include "Buffer/Texture.hpp"
 #include "Fonts.hpp"
 #include <Renderer/RendererCommands.hpp>
 #include <Core/Log.h>

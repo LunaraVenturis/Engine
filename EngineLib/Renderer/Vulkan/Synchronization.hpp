@@ -17,6 +17,7 @@ namespace LunaraEngine
         ~VulkanFence() = default;
 
     public:
+        void Init(VkDevice device, FenceState state = FenceState::NotSignaled);
         void Wait(size_t period_ns = UINT64_MAX) const;
         void Reset();
         void Destroy();
@@ -25,8 +26,9 @@ namespace LunaraEngine
         VkFence GetFence() const { return m_Fence; }
 
         operator VkFence() const { return m_Fence; }
-        
+
         FenceState GetFenceState() const { return m_State; }
+
     private:
         static VkFenceCreateFlagBits GetFenceState(FenceState state);
 

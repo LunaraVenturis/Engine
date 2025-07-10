@@ -1,7 +1,7 @@
 #include "ParticleSystem.hpp"
-#include <Renderer/IndexBuffer.hpp>
+#include <Renderer/Buffer/IndexBuffer.hpp>
 #include <Renderer/Shader.hpp>
-#include <Renderer/StorageBuffer.hpp>
+#include <Renderer/Buffer/StorageBuffer.hpp>
 #include <Renderer/RendererCommands.hpp>
 #include <glm/glm.hpp>
 #include <glm/gtc/random.hpp>
@@ -26,30 +26,34 @@ namespace LunaraEngine
         std::fill(m_Velocities.begin(), m_Velocities.end(), glm::vec2(0.0f));
     }
 
-    void ParticleSystem::Create(std::filesystem::path shaderPath)
+    void ParticleSystem::Create(std::filesystem::path shaderPath, std::filesystem::path texturesPath)
     {
+
         s_ParticleSystem = new ParticleSystem();
 
         s_ParticleSystem->m_Shader = Shader::Create(
                 ShaderInfoBuilder("ParticleShader", shaderPath)
-                        .AddResources({ShaderResourceBuilder("UniformBuffer", ShaderResourceType::UniformBuffer)
-                                               .AddAttribute("model", ShaderResourceAttributeType::Mat4)
-                                               .AddAttribute("view", ShaderResourceAttributeType::Mat4)
-                                               .AddAttribute("projection", ShaderResourceAttributeType::Mat4)
-                                               .AddAttribute("zoom", ShaderResourceAttributeType::Float)
+                        .AddResources({BufferResourceBuilder("UniformBuffer", BufferResourceType::UniformBuffer)
+                                               .AddAttribute("model", BufferResourceAttributeType::Mat4)
+                                               .AddAttribute("view", BufferResourceAttributeType::Mat4)
+                                               .AddAttribute("projection", BufferResourceAttributeType::Mat4)
+                                               .AddAttribute("zoom", BufferResourceAttributeType::Float)
                                                .Build(),
-                                       ShaderResourceBuilder(
-                                               "ParticlePositions", ShaderResourceType::StorageBuffer, MAX_PARTICLES)
-                                               .AddAttribute("Position", ShaderResourceAttributeType::Vec2)
+                                       BufferResourceBuilder(
+                                               "ParticlePositions", BufferResourceType::StorageBuffer, MAX_PARTICLES)
+                                               .AddAttribute("Position", BufferResourceAttributeType::Vec2)
                                                .Build(),
-                                       ShaderResourceBuilder(
-                                               "ParticleLifes", ShaderResourceType::StorageBuffer, MAX_PARTICLES)
-                                               .AddAttribute("Life", ShaderResourceAttributeType::Float)
+                                       BufferResourceBuilder(
+                                               "ParticleLifes", BufferResourceType::StorageBuffer, MAX_PARTICLES)
+                                               .AddAttribute("Life", BufferResourceAttributeType::Float)
                                                .Build(),
-                                       ShaderResourceBuilder(
-                                               "AliveParticles", ShaderResourceType::StorageBuffer, MAX_PARTICLES)
-                                               .AddAttribute("Index", ShaderResourceAttributeType::UInt)
+                                       BufferResourceBuilder(
+                                               "AliveParticles", BufferResourceType::StorageBuffer, MAX_PARTICLES)
+                                               .AddAttribute("Index", BufferResourceAttributeType::UInt)
                                                .Build()})
+                        .AddResource(TextureResourceBuilder("Texture", BufferResourceType::Texture2D,
+                                                            TextureInfo{.path = texturesPath, .name = L"block.png"})
+                                             .Build())
                         .Build());
     }
 
@@ -57,7 +61,7 @@ namespace LunaraEngine
 
     void ParticleSystem::Update(float dt)
     {
-        constexpr float emitPerSecond = 200.0f;
+        constexpr float emitPerSecond = 10.0f;
         constexpr float emitInterval = 1.0f / emitPerSecond;
         constexpr float speed = 350.0f;
         constexpr float windSpeed = 5.0f;

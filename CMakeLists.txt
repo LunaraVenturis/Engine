@@ -154,13 +154,11 @@ endif()
 function(target_add_flags target)
     if(CMAKE_CXX_COMPILE_ID MATCHES "MSVC")
     elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-        target_compile_options(${target} PRIVATE -Wall -Wconversion -Werror -Wextra -Wpedantic)
-
+        target_compile_options(${target} PRIVATE -Wall -Wconversion -Werror -Wextra -Wpedantic -Wno-nested-anon-types)
     elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
         target_compile_options(${target} PRIVATE -Wall -Wconversion -Werror -Wextra -Wpedantic)
     endif()
 endfunction(target_add_flags)
-
 
 if(WIN32)
     set(SHELL_INTERPRETER "powershell")
