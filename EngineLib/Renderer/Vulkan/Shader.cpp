@@ -220,7 +220,7 @@ namespace LunaraEngine
                 resource.type == ShaderResourceType::StorageBuffer)
             {
                 VkDescriptorPoolSize poolSize{};
-                poolSize.type = GraphicsPipeline::GetDescriptorType(resource.type);
+                poolSize.type = Pipeline::GetDescriptorType(resource.type);
                 poolSize.descriptorCount = m_RendererData->maxFramesInFlight;
                 poolSizes.push_back(poolSize);
             }
@@ -287,7 +287,7 @@ namespace LunaraEngine
                     .range = resource.length * resource.stride,
             });
             descriptorBindings.push_back((uint32_t) resource.layout.binding);
-            descriptorTypes.push_back(GraphicsPipeline::GetDescriptorType(resource.type));
+            descriptorTypes.push_back(Pipeline::GetDescriptorType(resource.type));
         }
 
         for (size_t j = 0; j < descriptorBindings.size(); j++)

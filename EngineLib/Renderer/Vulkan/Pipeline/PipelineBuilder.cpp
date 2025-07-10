@@ -12,6 +12,88 @@ namespace LunaraEngine
 
     void PipelineBuilder::AddDescriptorSetLayout(VkDescriptorSetLayout layout) { m_DescriptorLayout = layout; }
 
+    void PipelineBuilder::CreateDescriptorSetLayout()
+    {
+        std::vector<VkDescriptorSetLayoutBinding> descriptorSetLayoutBindings;
+        for (const auto& resource: m_Info->resources.bufferResources)
+        {
+            if (resource.type == ShaderResourceType::PushConstant) { continue; }
+
+            const auto& type = resource.type;
+            const auto& name = resource.name;
+            ShaderBinding binding = resource.layout.binding;
+            ShaderResourceMemoryLayout layout = resource.layout.layoutType;
+
+            if (resource.layout.layoutType == ShaderResourceMemoryLayout::None)
+            {
+                layout = ShaderResourceMemoryLayout::STD140;
+            }
+
+            VkDescriptorSetLayoutBinding descriptorSetLayoutBinding{};
+            descriptorSetLayoutBinding.binding = (uint32_t) binding;
+            descriptorSetLayoutBinding.descriptorType = GetDescriptorType(type);
+            descriptorSetLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+            descriptorSetLayoutBinding.descriptorCount = 1;
+            descriptorSetLayoutBinding.pImmutableSamplers = nullptr;
+            descriptorSetLayoutBindings.push_back(descriptorSetLayoutBinding);
+
+            (void) name;
+            (void) layout;
+        }
+
+        VkDescriptorSetLayoutCreateInfo layoutInfo{};
+        layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+        layoutInfo.bindingCount = static_cast<uint32_t>(descriptorSetLayoutBindings.size());
+        layoutInfo.pBindings = descriptorSetLayoutBindings.data();
+
+        //if there are no bindings exit
+        if (layoutInfo.bindingCount == 0) return;
+
+        if (vkCreateDescriptorSetLayout(m_RendererData->device, &layoutInfo, nullptr, &m_DescriptorLayout) !=
+            VK_SUCCESS)
+        {
+            throw std::runtime_error("failed to create descriptor set layout!");
+        }
+    }
+
+    void PipelineBuilder::CreatePushConstantRanges()
+    {
+        for (auto& resource: m_Info->resources.bufferResources)
+        {
+            if (resource.type == ShaderResourceType::PushConstant)
+            {
+                VkPushConstantRange range{};
+                range.offset = 0;
+                range.size = (uint32_t) resource.length * (uint32_t) resource.stride;
+                range.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+                m_ConstantRanges.push_back(range);
+            }
+        }
+    }
+
+    void PipelineBuilder::CreatePipelineLayout()
+    {
+        VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
+        pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+        pipelineLayoutInfo.setLayoutCount = 1;
+        pipelineLayoutInfo.pSetLayouts = &m_DescriptorLayout;
+
+        if (m_ConstantRanges.empty())
+        {
+            pipelineLayoutInfo.pushConstantRangeCount = 0;
+            pipelineLayoutInfo.pPushConstantRanges = nullptr;
+        }
+        else
+        {
+            pipelineLayoutInfo.pushConstantRangeCount = static_cast<uint32_t>(m_ConstantRanges.size());
+            pipelineLayoutInfo.pPushConstantRanges = m_ConstantRanges.data();
+        }
+        if (vkCreatePipelineLayout(m_RendererData->device, &pipelineLayoutInfo, nullptr, &m_Layout) != VK_SUCCESS)
+        {
+            throw std::runtime_error("failed to create pipeline layout!");
+        }
+    }
+
     VkShaderModule PipelineBuilder::CreateShaderModule(const std::vector<uint32_t>& spirvCode) const
     {
         VkShaderModuleCreateInfo createInfo{};
@@ -43,11 +125,12 @@ namespace LunaraEngine
         }
 
         m_ShaderModules.push_back(CreateShaderModule(spirvCode));
-        m_ShaderStages.push_back({});
-        m_ShaderStages.back().sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-        m_ShaderStages.back().stage = flagBits;
-        m_ShaderStages.back().module = m_ShaderModules.back();
-        m_ShaderStages.back().pName = "main";
+        VkPipelineShaderStageCreateInfo stageInfo{};
+        stageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
+        stageInfo.stage = flagBits;
+        stageInfo.module = m_ShaderModules[m_ShaderModules.size() - 1];
+        stageInfo.pName = "main";
+        m_ShaderStages.push_back(stageInfo);
     }
 
     void PipelineBuilder::AddVertexInputInfo()
@@ -138,15 +221,79 @@ namespace LunaraEngine
         m_Multisampling.alphaToOneEnable = VK_FALSE;     // Optional
     }
 
-    void PipelineBuilder::AddColorBlending(VkPipelineColorBlendStateCreateInfo colorBlending)
+    void PipelineBuilder::AddColorBlending()
     {
-        // m_ColorBlendAttachments.push_back(colorBlendAttachment);
-        m_ColorBlending = colorBlending;
-        for (uint32_t i = 0; i < colorBlending.attachmentCount; i++)
+
+        m_BlendAttachments.push_back({});
+
+        VkPipelineColorBlendAttachmentState& colorBlendAttachment = m_BlendAttachments.back();
+        colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT |
+                                              VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
+        colorBlendAttachment.blendEnable = VK_TRUE;
+        colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;          // Multiply by fragment alpha
+        colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;// Inverse of it
+        colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD;// FinalColor = src + dst * (1 - src.a)
+
+        colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;// For alpha channel itself
+        colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
+        colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD;
+
+        m_ColorBlending.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
+        m_ColorBlending.logicOpEnable = VK_FALSE;
+        m_ColorBlending.logicOp = VK_LOGIC_OP_COPY;// Optional
+        m_ColorBlending.attachmentCount = 1;
+        m_ColorBlending.pAttachments = &colorBlendAttachment;
+        m_ColorBlending.blendConstants[0] = 0.0f;// Optional
+        m_ColorBlending.blendConstants[1] = 0.0f;// Optional
+        m_ColorBlending.blendConstants[2] = 0.0f;// Optional
+        m_ColorBlending.blendConstants[3] = 0.0f;// Optional
+    }
+
+    void PipelineBuilder::AddDynamicState(VkDynamicState state)
+    {
+        m_DynamicStates.push_back(state);
+        m_DynamicState.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
+        m_DynamicState.dynamicStateCount = static_cast<uint32_t>(m_DynamicStates.size());
+        m_DynamicState.pDynamicStates = m_DynamicStates.data();
+    }
+
+    std::tuple<VkPipeline, VkPipelineLayout, VkDescriptorSetLayout> PipelineBuilder::CreatePipeline()
+    {
+        CreateDescriptorSetLayout();
+        CreatePushConstantRanges();
+        CreatePipelineLayout();
+
+        VkPipeline pipeline;
+        VkGraphicsPipelineCreateInfo pipelineInfo{};
+        pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+        pipelineInfo.stageCount = static_cast<uint32_t>(m_ShaderStages.size());
+        pipelineInfo.pStages = m_ShaderStages.data();
+
+        pipelineInfo.pVertexInputState = &m_VertexInputInfo;
+        pipelineInfo.pInputAssemblyState = &m_InputAssembly;
+        pipelineInfo.pViewportState = &m_ViewportState;
+        pipelineInfo.pRasterizationState = &m_Rasterizer;
+        pipelineInfo.pMultisampleState = &m_Multisampling;
+        pipelineInfo.pDepthStencilState = nullptr;
+        pipelineInfo.pColorBlendState = &m_ColorBlending;
+        pipelineInfo.pDynamicState = &m_DynamicState;
+        pipelineInfo.layout = m_Layout;
+        pipelineInfo.renderPass = m_RendererData->swapChain->GetRenderPass();
+        pipelineInfo.subpass = 0;
+        pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;// Optional
+        pipelineInfo.basePipelineIndex = -1;             // Optional
+
+        if (vkCreateGraphicsPipelines(m_RendererData->device, VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &pipeline) !=
+            VK_SUCCESS)
         {
-            m_BlendAttachments.push_back(colorBlending.pAttachments[i]);
+            throw std::runtime_error("failed to create graphics pipeline!");
         }
-        m_ColorBlending.pAttachments = m_BlendAttachments.data();
+
+        for (const auto shaderModule: m_ShaderModules)
+        {
+            vkDestroyShaderModule(m_RendererData->device, shaderModule, nullptr);
+        }
+        return {pipeline, m_Layout, m_DescriptorLayout};
     }
 
     VkPrimitiveTopology PipelineBuilder::GetPrimitiveTopology(RenderingBasePrimitive primitive) const
@@ -186,8 +333,11 @@ namespace LunaraEngine
             case RenderingBasePrimitive::PATCHES:
                 return VK_PRIMITIVE_TOPOLOGY_PATCH_LIST;
                 break;
+            case RenderingBasePrimitive::None:
+            default:
+                return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+                break;
         }
-        return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
     }
 
     VkPolygonMode PipelineBuilder::GetPolygonMode(PolygonMode mode) const
@@ -200,7 +350,35 @@ namespace LunaraEngine
                 return VK_POLYGON_MODE_LINE;
             case PolygonMode::POINT:
                 return VK_POLYGON_MODE_POINT;
+            case PolygonMode::None:
+            default:
+                return VK_POLYGON_MODE_FILL;
         }
         return {};
     }
+
+    VkDescriptorType PipelineBuilder::GetDescriptorType(ShaderResourceType type) const
+    {
+        switch (type)
+        {
+            case ShaderResourceType::Texture:
+            case ShaderResourceType::Texture2D:
+            case ShaderResourceType::Texture2DArray:
+            case ShaderResourceType::Texture3D:
+                return VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+
+            case ShaderResourceType::UniformBuffer:
+                return VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+
+            case ShaderResourceType::StorageBuffer:
+            case ShaderResourceType::Buffer:
+                return VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+
+            case ShaderResourceType::PushConstant:
+            case ShaderResourceType::None:
+            default:
+                throw std::runtime_error("Invalid or unsupported ShaderResourceType");
+        }
+    }
+
 }// namespace LunaraEngine

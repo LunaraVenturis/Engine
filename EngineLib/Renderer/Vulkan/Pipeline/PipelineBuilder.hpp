@@ -2,12 +2,10 @@
 #include <vulkan/vulkan.h>
 #include <vector>
 #include "Pipeline.hpp"
+#include <Renderer/CommonTypes.hpp>
 
 namespace LunaraEngine
 {
-    class RendererDataType;
-    class ShaderInfo;
-    enum class RenderingBasePrimitive;
 
     class PipelineBuilder
     {
@@ -25,14 +23,18 @@ namespace LunaraEngine
         void SetViewportState(std::vector<VkViewport> viewports = {}, std::vector<VkRect2D> scissors = {});
         void SetRasterization(PolygonMode mode);
         void SetSampling();
-        void AddColorBlending(VkPipelineColorBlendStateCreateInfo colorBlending);
-        void SetDynamicStates();
-        VkPipeline CreatePipeline();
+        void AddColorBlending();
+        void AddDynamicState(VkDynamicState state);
+        std::tuple<VkPipeline, VkPipelineLayout, VkDescriptorSetLayout> CreatePipeline();
 
     private:
+        void CreateDescriptorSetLayout();
+        void CreatePushConstantRanges();
+        void CreatePipelineLayout();
         VkShaderModule CreateShaderModule(const std::vector<uint32_t>& spirvCode) const;
         VkPrimitiveTopology GetPrimitiveTopology(RenderingBasePrimitive primitive) const;
         VkPolygonMode GetPolygonMode(PolygonMode mode) const;
+        VkDescriptorType GetDescriptorType(ShaderResourceType type) const;
 
     private:
         RendererDataType* m_RendererData{};
@@ -46,11 +48,15 @@ namespace LunaraEngine
         VkPipelineRasterizationStateCreateInfo m_Rasterizer{};
         VkPipelineMultisampleStateCreateInfo m_Multisampling{};
         VkPipelineColorBlendStateCreateInfo m_ColorBlending{};
+        VkPipelineDynamicStateCreateInfo m_DynamicState{};
+        VkPipelineLayout m_Layout{};
 
+        std::vector<VkPushConstantRange> m_ConstantRanges{};
         std::vector<VkShaderModule> m_ShaderModules;
         std::vector<VkShaderStageFlagBits> m_ShaderStageFlags;
         std::vector<VkPipelineShaderStageCreateInfo> m_ShaderStages;
         std::vector<VkVertexInputAttributeDescription> m_AttributeDescriptions;
         std::vector<VkPipelineColorBlendAttachmentState> m_BlendAttachments;
+        std::vector<VkDynamicState> m_DynamicStates;
     };
 }// namespace LunaraEngine

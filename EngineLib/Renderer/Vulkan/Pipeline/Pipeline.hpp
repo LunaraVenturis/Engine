@@ -1,6 +1,7 @@
 #pragma once
 #include <vulkan/vulkan.h>
 #include <vector>
+#include <Renderer/CommonTypes.hpp>
 
 namespace LunaraEngine
 {
@@ -14,6 +15,8 @@ namespace LunaraEngine
     public:
         VkPipeline GetPipeline() const;
         VkPipelineLayout GetLayout() const;
+
+        static VkDescriptorType GetDescriptorType(ShaderResourceType type);
 
     protected:
         VkPipeline p_Pipeline = VK_NULL_HANDLE;

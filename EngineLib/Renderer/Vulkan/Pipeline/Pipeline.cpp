@@ -48,4 +48,28 @@ namespace LunaraEngine
         return shaderModule;
     }
 
+    VkDescriptorType Pipeline::GetDescriptorType(ShaderResourceType type)
+    {
+        switch (type)
+        {
+            case ShaderResourceType::Texture:
+            case ShaderResourceType::Texture2D:
+            case ShaderResourceType::Texture2DArray:
+            case ShaderResourceType::Texture3D:
+                return VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+
+            case ShaderResourceType::UniformBuffer:
+                return VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+
+            case ShaderResourceType::StorageBuffer:
+            case ShaderResourceType::Buffer:
+                return VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+
+            case ShaderResourceType::PushConstant:
+            case ShaderResourceType::None:
+            default:
+                throw std::runtime_error("Invalid or unsupported ShaderResourceType");
+        }
+    }
+
 }// namespace LunaraEngine
