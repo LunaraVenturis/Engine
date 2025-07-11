@@ -1,6 +1,6 @@
 #include "Application.hpp"
 #include "Engine.hpp"
-#include <Core/Timestep.h>
+#include <Core/Timer.hpp>
 
 namespace LunaraEngine
 {
@@ -31,7 +31,6 @@ namespace LunaraEngine
         Timer timer;
         while (true)
         {
-            Timer_Start(&timer);
             if (PollEvents(&event))
             {
                 if (event.type == EVENT_QUIT) { break; }
@@ -47,8 +46,8 @@ namespace LunaraEngine
             //Present to screen
             Renderer::Present();
 
-            Timer_End(&timer);
-            dt = timer.t;
+            dt = timer.Elapsed();
+            timer.Reset();
         }
     }
 
