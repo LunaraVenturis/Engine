@@ -8,13 +8,13 @@ compile_shader() {
     local shader_base="${shader_name%.*}"  # Remove extension
 
     echo "🎯 Compiling shader stages for $shader_base..."
-    "$HOME/vulkan/$versionName/x86_64/bin/glslc" -O "$project_root/Assets/Shaders/$shader_base.vert" -o "$project_root/Assets/Shaders/output/$shader_base.vert.spv"
-    "$HOME/vulkan/$versionName/x86_64/bin/glslc" -O "$project_root/Assets/Shaders/$shader_base.frag" -o "$project_root/Assets/Shaders/output/$shader_base.frag.spv"
+    "$HOME/vulkan/$versionName/x86_64/bin/glslc" -O "$project_root/Assets/Shaders/$shader_base.vert" -o "$project_root/Assets/Shaders/bin/$shader_base.vert.spv"
+    "$HOME/vulkan/$versionName/x86_64/bin/glslc" -O "$project_root/Assets/Shaders/$shader_base.frag" -o "$project_root/Assets/Shaders/bin/$shader_base.frag.spv"
 }
 
 compile_shaders() {
     local project_root="$1"
-    mkdir -p "$project_root/Assets/Shaders/output"
+    mkdir -p "$project_root/Assets/Shaders/bin"
 
     echo "🛠️ Starting shader compilation..."
     for file in "$project_root/Assets/Shaders/"*.{frag,vert}; do
@@ -41,6 +41,12 @@ ls "$1/Assets/Shaders/"*.{frag,vert} 2>/dev/null || echo "No shader files found.
 compile_shaders "$1"
 
 echo "📋 Copying assets"
+if [ -d "$1/build/bin/Assets" ]; then
+rm -rf "$1/build/bin/Assets"
+fi
+if [ -d "$1/Sandbox/Assets" ]; then
+rm -rf "$1/Sandbox/Assets"
+fi
 cp -r "$1/Assets" "$1/build/bin/"
 cp -r "$1/Assets" "$1/Sandbox/"
 echo "🎉 Done copying assets"

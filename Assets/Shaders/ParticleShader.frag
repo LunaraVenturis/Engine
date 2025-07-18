@@ -29,5 +29,5 @@ void main()
     vec3 textureColor = texture(particleTexture, inData2.xy).rgb;
 
     vec3 finalColor = textureColor;
-    outColor = vec4(finalColor, alpha + 0.2);
+    outColor = vec4(finalColor, alpha);
 }
