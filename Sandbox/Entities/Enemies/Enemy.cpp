@@ -1,15 +1,21 @@
 #include "Enemy.hpp"
-#include "Engine.hpp"
+#include <LunaraEngine/Engine.hpp>
 
 Enemy::Enemy(glm::vec3 enemyPosition, EntitySize enemySize)
-    : m_Position(enemyPosition), m_Speed({1000.0f, 1000.0f, 1000.0f}), m_size(enemySize)
+    : m_Position(enemyPosition), m_Speed({100.0f, 100.0f, 100.0f}), m_size(enemySize)
 {}
 
-void Enemy::Draw()
+void Enemy::Draw(std::weak_ptr<LunaraEngine::BatchRenderer> renderer)
 {
-    auto rect = LunaraEngine::FRect{m_Position.x, m_Position.y, m_size.width, m_size.height};
-    auto color = LunaraEngine::Color4{1.0f, 1.0f, 1.0f, 1.0f};
-    LunaraEngine::BatchRenderer::AddQuad(rect, color);
+    if (renderer.expired()) { return; }
+    renderer.lock()->AddQuad(
+            glm::vec3{m_Position}, glm::vec2{m_size.width, m_size.height}, p_StartTextureIndex + p_AnimationIndex);
+}
+
+void Enemy::UpdateAnimation(f32 delta)
+{
+    p_AnimationIndex = (uint32_t) fmod(p_AnimationTimer, p_MaxAnimationIndex);
+    p_AnimationTimer += delta * (p_AnimationSpeed / p_AnimationFactor);
 }
 
 void Enemy::Move(f32 x, f32 y, f32 z, f32 delta)

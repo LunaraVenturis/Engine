@@ -5,6 +5,7 @@ layout(location = 1) in vec2 texCoords;
 layout(location = 2) in flat uint textureNumber;
 
 layout(location = 0) out vec4 outColor;
-layout(set = 0, binding = 4) uniform sampler2D particleTexture;
 
-void main() { outColor = vec4(texture(particleTexture, texCoords.xy).rgb, 1.0); }
+layout(set = 1, binding = 0) uniform sampler2DArray textureArray;
+
+void main() { outColor = texture(textureArray, vec3(texCoords.xy, textureNumber)); }

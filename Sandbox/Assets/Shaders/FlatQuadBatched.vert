@@ -4,7 +4,7 @@ layout(location = 0) out vec3 fragColor;
 layout(location = 1) out vec2 outTexCoords;
 layout(location = 2) out flat uint textureNumber;
 
-layout(binding = 0) uniform UniformBuffer
+layout(set = 0, binding = 0) uniform UniformBuffer
 {
     mat4 model;
     mat4 view;
@@ -14,11 +14,11 @@ layout(binding = 0) uniform UniformBuffer
 
 ubo;
 
-layout(binding = 1) readonly buffer positionBuffer { vec3 positions[]; };
+layout(set = 0, binding = 1) readonly buffer positionBuffer { vec3 positions[]; };
 
-layout(binding = 2) readonly buffer sizeBuffer { vec2 sizes[]; };
+layout(set = 0, binding = 2) readonly buffer sizeBuffer { vec2 sizes[]; };
 
-layout(binding = 3) readonly buffer textureIndexBuffer { uint textureIndices[]; };
+layout(set = 0, binding = 3) readonly buffer textureIndexBuffer { uint textureIndices[]; };
 
 uint getVertexID() { return gl_VertexIndex % 6u; }
 

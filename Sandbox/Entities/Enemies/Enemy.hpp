@@ -1,7 +1,7 @@
 #pragma once
-#include "Entities/Entity/Entity.hpp"
+#include <Entities/Entity/Entity.hpp>
 
-class Enemy: public Entity
+class Enemy: public AnimatedEntity
 {
 public:
     Enemy() = delete;
@@ -13,7 +13,8 @@ public:
     ~Enemy() = default;
 
 public:
-    void Draw() override;
+    void UpdateAnimation(f32 delta) override;
+    void Draw(std::weak_ptr<LunaraEngine::BatchRenderer> renderer) override;
     void Move(f32 x, f32 y, f32 z, f32 delta) override;
     bool HasReachedPointX(f32 currentX, f32 destX);
 

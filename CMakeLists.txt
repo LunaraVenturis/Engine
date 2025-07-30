@@ -122,8 +122,8 @@ else()
     target_compile_definitions(EngineLib PRIVATE _LINUX)
 endif()
 
-target_include_directories(EngineLib PRIVATE "./EngineLib")
-target_include_directories(EngineLib PRIVATE "./Vendor/include")
+target_include_directories(EngineLib PRIVATE ${CMAKE_SOURCE_DIR}/EngineLib)
+target_include_directories(EngineLib PRIVATE ${CMAKE_SOURCE_DIR}/Vendor/include)
 target_include_directories(EngineLib PUBLIC ${GLM_INCLDUE_DIR})
 target_include_directories(EngineLib PUBLIC ${VULKAN_INCLUDE_DIR})
 

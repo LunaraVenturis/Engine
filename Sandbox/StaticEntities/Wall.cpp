@@ -1,13 +1,12 @@
 #include "Wall.hpp"
-#include "Engine.hpp"
+#include <LunaraEngine/Engine.hpp>
 
 Wall::Wall(glm::vec3 Position, WallSize Size) : m_Position(Position), m_Size(Size) {}
 
-void Wall::Draw()
+void Wall::Draw(std::weak_ptr<LunaraEngine::BatchRenderer> renderer)
 {
-    auto rect = LunaraEngine::FRect{m_Position.x, m_Position.y, m_Size.width, m_Size.height};
-    auto color = LunaraEngine::Color4{1.0f, 1.0f, 1.0f, 1.0f};
-    LunaraEngine::BatchRenderer::AddQuad(rect, color);
+    if (renderer.expired()) { return; }
+    renderer.lock()->AddQuad(glm::vec3{m_Position}, glm::vec2{m_Size.width, m_Size.height}, m_StartTextureIndex);
 }
 
 bool Wall::isColliding(Entity* entity)
