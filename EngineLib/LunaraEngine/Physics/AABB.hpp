@@ -9,12 +9,12 @@ namespace LunaraEngine
     public:
         AABB() = default;
         AABB(const AABB& other) = delete;
-        AABB(AABB&& other) = delete;
+        AABB(AABB&& other) = default;
         AABB& operator=(const AABB& other) = delete;
-        AABB& operator=(AABB&& other) = delete;
+        AABB& operator=(AABB&& other) = default;
 
     public:
-        void Init(const glm::vec3& ObjOnePos, f32 ObjOneW, f32 ObjOneH, const glm::vec3& ObjTwoPos, f32 ObjTwoW,
+        void Update(const glm::vec3& ObjOnePos, f32 ObjOneW, f32 ObjOneH, const glm::vec3& ObjTwoPos, f32 ObjTwoW,
                   f32 ObjTwoH);
         bool Intersection();
 

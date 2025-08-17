@@ -2,8 +2,10 @@
 
 namespace LunaraEngine
 {
-    void AABB::Init(const glm::vec3& ObjOnePos, f32 ObjOneW, f32 ObjOneH, const glm::vec3& ObjTwoPos, f32 ObjTwoW,
-             f32 ObjTwoH)
+
+
+    void AABB::Update(const glm::vec3& ObjOnePos, f32 ObjOneW, f32 ObjOneH, const glm::vec3& ObjTwoPos, f32 ObjTwoW,
+                    f32 ObjTwoH)
     {
         m_ObjOneHeight = ObjOneH;
         m_ObjOnePosition = ObjOnePos;
@@ -12,6 +14,7 @@ namespace LunaraEngine
         m_ObjTwoPosition = ObjTwoPos;
         m_ObjTwoWidth = ObjTwoW;
     }
+
     bool AABB::Intersection()
     {
         const float Z_THRESHOLD = 0.1f;
@@ -21,4 +24,4 @@ namespace LunaraEngine
                 m_ObjOnePosition.y + m_ObjOneHeight > m_ObjTwoPosition.y) &&
                fabs(m_ObjOnePosition.z - m_ObjTwoPosition.z) < Z_THRESHOLD;
     }
-}
+}// namespace LunaraEngine

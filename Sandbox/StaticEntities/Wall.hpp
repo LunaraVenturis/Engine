@@ -11,13 +11,10 @@ struct WallSize {
 class Wall
 {
 public:
-    Wall() = default;
-    Wall(glm::vec3 Position, WallSize Size);
-    Wall(const Wall& other) = delete;
-    Wall(Wall&& other) = delete;
-    Wall& operator=(const Wall& other) = delete;
-    Wall& operator=(Wall&& other) = delete;
+    Wall(const glm::vec3& Position, WallSize Size);
     ~Wall() = default;
+
+public:
     bool isColliding(Entity* entity);
 
     [[nodiscard]] glm::vec3 GetPosition() const { return m_Position; }

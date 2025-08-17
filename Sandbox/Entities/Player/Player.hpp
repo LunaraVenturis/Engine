@@ -6,12 +6,8 @@
 class Player: public AnimatedEntity
 {
 public:
-    Player() = delete;
-    Player(glm::vec3 playerPosition, EntitySize playerSize);
-    Player(const Player& player) = delete;
-    Player(Player&& player) = delete;
-    Player& operator=(const Player&) = delete;
-    Player& operator=(Player&&) = delete;
+    
+    Player(const glm::vec3& playerPosition, const EntityData& playerSize);
     ~Player() = default;
 
 public:
@@ -23,10 +19,10 @@ public:
 
     [[nodiscard]] glm::vec3 GetPosition() const override { return m_Position; };
 
-    [[nodiscard]] EntitySize GetSize() const override { return m_Size; };
+    [[nodiscard]] EntityData GetEntity() const override { return m_Data; };
 
 private:
     glm::vec3 m_Position;
     glm::vec3 m_Speed;
-    EntitySize m_Size;
+    EntityData m_Data;
 };

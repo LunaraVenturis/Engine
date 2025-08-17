@@ -54,7 +54,7 @@ void SandboxLayer::Destroy()
 {
     using namespace LunaraEngine;
     ParticleSystem::Destroy();
-    // m_BatchRenderer->Destroy();
+     //m_BatchRenderer->Destroy();
 }
 
 void SandboxLayer::OnUpdate(float dt)
@@ -73,8 +73,8 @@ void SandboxLayer::OnUpdate(float dt)
     m_Player.Draw(m_BatchRenderer);
     m_Enemy.Draw(m_BatchRenderer);
     m_Wall.Draw(m_BatchRenderer);
-    m_PlayerCollider.Init(m_Player.GetPosition(), m_Player.GetSize().width, m_Player.GetSize().height,
-                          m_Enemy.GetPosition(), m_Enemy.GetSize().width, m_Enemy.GetSize().height);
+    m_PlayerCollider.Update(m_Player.GetPosition(), m_Player.GetEntity().width, m_Player.GetEntity().height,
+                          m_Enemy.GetPosition(), m_Enemy.GetEntity().width, m_Enemy.GetEntity().height);
 
     // if (m_PlayerCollider.Intersection()) { m_Player.SetPlayerColor({1.0f, 0.0f, 0.0f, 1.0f}); }
     // else { m_Player.SetPlayerColor({1.0f, 1.0f, 1.0f, 1.0f}); }

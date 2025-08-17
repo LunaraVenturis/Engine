@@ -1,15 +1,15 @@
 #include "Enemy.hpp"
 #include <LunaraEngine/Engine.hpp>
 
-Enemy::Enemy(glm::vec3 enemyPosition, EntitySize enemySize)
-    : m_Position(enemyPosition), m_Speed({100.0f, 100.0f, 100.0f}), m_size(enemySize)
+Enemy::Enemy(const glm::vec3& enemyPosition, const EntityData& enemyData)
+    : m_Position(enemyPosition), m_Speed({100.0f, 100.0f, 100.0f}), m_Data(enemyData)
 {}
 
 void Enemy::Draw(std::weak_ptr<LunaraEngine::BatchRenderer> renderer)
 {
     if (renderer.expired()) { return; }
     renderer.lock()->AddQuad(
-            glm::vec3{m_Position}, glm::vec2{m_size.width, m_size.height}, p_StartTextureIndex + p_AnimationIndex);
+            glm::vec3{m_Position}, glm::vec2{m_Data.width, m_Data.height}, p_StartTextureIndex + p_AnimationIndex);
 }
 
 void Enemy::UpdateAnimation(f32 delta)
