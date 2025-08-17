@@ -5,7 +5,7 @@ class Enemy: public AnimatedEntity
 {
 public:
     Enemy() = delete;
-    Enemy(const glm::vec3& enemyPosition, const EntityData& enemySize);
+    Enemy(const glm::vec3& enemyPosition, const EntitySize enemySize);
     ~Enemy() = default;
 
 public:
@@ -16,10 +16,10 @@ public:
 
     [[nodiscard]] glm::vec3 GetPosition() const override { return m_Position; };
 
-    [[nodiscard]] EntityData GetEntity() const override { return m_Data; };
+    [[nodiscard]] EntitySize GetEntity() const override { return m_Size; };
 
 private:
     glm::vec3 m_Position;
     glm::vec3 m_Speed;
-    EntityData m_Data;
+    EntitySize m_Size;
 };

@@ -8,22 +8,9 @@ namespace LunaraEngine
     {
     public:
         AABB() = default;
-        AABB(const AABB& other) = delete;
-        AABB(AABB&& other) = default;
-        AABB& operator=(const AABB& other) = delete;
-        AABB& operator=(AABB&& other) = default;
 
     public:
-        void Update(const glm::vec3& ObjOnePos, f32 ObjOneW, f32 ObjOneH, const glm::vec3& ObjTwoPos, f32 ObjTwoW,
-                  f32 ObjTwoH);
-        bool Intersection();
-
-    private:
-        glm::vec3 m_ObjOnePosition;
-        glm::vec3 m_ObjTwoPosition;
-        f32 m_ObjOneWidth;
-        f32 m_ObjOneHeight;
-        f32 m_ObjTwoWidth;
-        f32 m_ObjTwoHeight;
+        bool Intersection(const glm::vec3& Player, f32 PlayerWidth, f32 PlayerHeight, const glm::vec3& Enemy, f32 EnemyWidth,
+                          f32 EnemyHeight);
     };
 }// namespace LunaraEngine

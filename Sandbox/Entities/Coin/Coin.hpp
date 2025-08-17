@@ -7,7 +7,7 @@ class Coin: public AnimatedEntity
 {
 public:
     Coin() = delete;
-    Coin(const glm::vec3& coinPosition, const EntityData& coinData);
+    Coin(const glm::vec3& coinPosition, const EntitySize coinSize);
     ~Coin() = default;
 
 public:
@@ -19,10 +19,10 @@ public:
 
     [[nodiscard]] glm::vec3 GetPosition() const override { return m_Position; };
 
-    [[nodiscard]] EntityData GetEntity() const override { return m_Data; };
+    [[nodiscard]] EntitySize GetEntity() const override { return m_Size; };
 
 private:
     glm::vec3 m_Position;
     glm::vec3 m_Speed;
-    EntityData m_Data;
+    EntitySize m_Size;
 };

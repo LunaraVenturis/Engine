@@ -73,9 +73,7 @@ void SandboxLayer::OnUpdate(float dt)
     m_Player.Draw(m_BatchRenderer);
     m_Enemy.Draw(m_BatchRenderer);
     m_Wall.Draw(m_BatchRenderer);
-    m_PlayerCollider.Update(m_Player.GetPosition(), m_Player.GetEntity().width, m_Player.GetEntity().height,
-                          m_Enemy.GetPosition(), m_Enemy.GetEntity().width, m_Enemy.GetEntity().height);
-
+    //m_PlayerCollider.Intersection(m_Player.GetPosition(), m_Player.GetEntity().width, m_Player.GetEntity().height, m_Enemy.GetPosition(), m_Enemy.GetEntity().width, m_Enemy.GetEntity().height);
     // if (m_PlayerCollider.Intersection()) { m_Player.SetPlayerColor({1.0f, 0.0f, 0.0f, 1.0f}); }
     // else { m_Player.SetPlayerColor({1.0f, 1.0f, 1.0f, 1.0f}); }
     if (m_Wall.isColliding(&m_Player))

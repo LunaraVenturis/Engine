@@ -1,15 +1,15 @@
 #include "Player.hpp"
 #include <cmath>
 
-Player::Player(const glm::vec3& playerPosition, const EntityData& playerData)
-    : m_Position(playerPosition), m_Speed({1000.0f, 1000.0f, 1000.0f}), m_Data(playerData)
+Player::Player(const glm::vec3& playerPosition, const EntitySize playerSize)
+    : m_Position(playerPosition), m_Speed({1000.0f, 1000.0f, 1000.0f}), m_Size(playerSize)
 {}
 
 void Player::Draw(std::weak_ptr<LunaraEngine::BatchRenderer> renderer)
 {
     if (renderer.expired()) { return; }
     renderer.lock()->AddQuad(
-            glm::vec3{m_Position}, glm::vec2{m_Data.width, m_Data.height}, p_StartTextureIndex + p_AnimationIndex);
+            glm::vec3{m_Position}, glm::vec2{m_Size.width, m_Size.height}, p_StartTextureIndex + p_AnimationIndex);
 }
 
 void Player::UpdateAnimation(f32 delta)
@@ -32,9 +32,9 @@ bool Player::isColliding(Entity* enemy)
 {
     const float Z_THRESHOLD = 0.1f;
     return (m_Position.x < enemy->GetPosition().x + enemy->GetEntity().width &&
-            m_Position.x + m_Data.width > enemy->GetPosition().x &&
+            m_Position.x + m_Size.width > enemy->GetPosition().x &&
             m_Position.y < enemy->GetPosition().y + enemy->GetEntity().height &&
-            m_Position.y + m_Data.height > enemy->GetPosition().y) &&
+            m_Position.y + m_Size.height > enemy->GetPosition().y) &&
            fabs(m_Position.z - enemy->GetPosition().z) < Z_THRESHOLD;
 }
 

@@ -52,12 +52,12 @@ private:
     LunaraEngine::Font m_Font;
     uint32_t x{}, y{};
 
-    Player m_Player = {{500.0f, 450.0f, 0.0f}, {{0.0f, 0.0f, 0.0f}, 200.0f, 200.0f}};
-    Enemy m_Enemy = {{100.0f, 0.0f, 0.0f}, {{0.0f, 0.0f, 0.0f}, 100.0f, 100.0f}};
+    Player m_Player = {{500.0f, 450.0f, 0.0f}, {200.0f, 200.0f}};
+    Enemy m_Enemy = {{100.0f, 0.0f, 0.0f}, {100.0f, 100.0f}};
     Wall m_Wall = {{250.0f, 250.0f, 0.0f}, {100.0f, 50.0f}};
-    Coin m_Coin = {{400.0f, 400.0f, 0.0f}, {{0.0f, 0.0f, 0.0f}, 50.0f, 50.0f}};
+    Coin m_Coin = {{400.0f, 400.0f, 0.0f}, {50.0f, 50.0f}};
 
-    LunaraEngine::AABB m_PlayerCollider;
+    //LunaraEngine::AABB m_PlayerCollider;
     LunaraEngine::Camera m_Camera = {{1280.0f, 720.0f, 0}};
     float zoom{1.0f};
     std::map<uint32_t, uint8_t> m_PressedKeys{};
