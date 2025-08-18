@@ -15,7 +15,7 @@ public:
     ~Wall() = default;
 
 public:
-    bool isColliding(Entity* entity);
+
 
     [[nodiscard]] glm::vec3 GetPosition() const { return m_Position; }
 

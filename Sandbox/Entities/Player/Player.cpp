@@ -1,8 +1,8 @@
 #include "Player.hpp"
 #include <cmath>
 
-Player::Player(const glm::vec3& playerPosition, const EntitySize playerSize)
-    : m_Position(playerPosition), m_Speed({1000.0f, 1000.0f, 1000.0f}), m_Size(playerSize)
+Player::Player(const glm::vec3& playerPosition, const EntitySize playerSize, FacingDirection direction)
+    : m_Position(playerPosition), m_Speed({1000.0f, 1000.0f, 1000.0f}), m_Size(playerSize), m_Dir(static_cast<u32>(direction))
 {}
 
 void Player::Draw(std::weak_ptr<LunaraEngine::BatchRenderer> renderer)
@@ -39,3 +39,4 @@ bool Player::isColliding(Entity* enemy)
 }
 
 void Player::SetPosition(const glm::vec3& position) { m_Position = position; }
+void Player::SetDirection(const FacingDirection direction) { m_Dir = static_cast<u32>(direction);}
