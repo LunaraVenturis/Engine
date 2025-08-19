@@ -15,8 +15,6 @@ public:
     ~Wall() = default;
 
 public:
-
-
     [[nodiscard]] glm::vec3 GetPosition() const { return m_Position; }
 
     [[nodiscard]] WallSize GetWallSize() const { return m_Size; }

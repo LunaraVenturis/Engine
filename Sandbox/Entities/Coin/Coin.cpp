@@ -1,8 +1,9 @@
 #include "Coin.hpp"
 #include <cmath>
 
-Coin::Coin(const glm::vec3& coinPosition, const EntitySize coinSize)
-    : m_Position(coinPosition), m_Speed({1000.0f, 1000.0f, 1000.0f}), m_Size(coinSize)
+Coin::Coin(const glm::vec3& coinPosition, const EntitySize coinSize, const FacingDirection direction)
+    : m_Position(coinPosition), m_Speed({1000.0f, 1000.0f, 1000.0f}), m_Size(coinSize),
+      m_Dir(static_cast<u32>(direction))
 {}
 
 void Coin::Draw(std::weak_ptr<LunaraEngine::BatchRenderer> renderer)

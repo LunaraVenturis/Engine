@@ -3,13 +3,6 @@
 #include <LunaraEngine/Engine.hpp>
 #include <LunaraEngine/Math/Color.h>
 
-enum class FacingDirection
-{
-    Up = 0,
-    Left = 1,
-    Down = 2,
-    Right = 3
-};
 
 
 class Player: public AnimatedEntity
@@ -27,7 +20,7 @@ public:
     void SetPosition(const glm::vec3& position);
     void SetDirection(const FacingDirection);
     [[nodiscard]] glm::vec3 GetPosition() const override { return m_Position; };
-    [[nodiscard]] u32 GetDirection() const { return m_Dir;}
+    [[nodiscard]] u32 GetDirection() const override { return m_Dir;}
     [[nodiscard]] EntitySize GetEntity() const override { return m_Size; };
 
 private:

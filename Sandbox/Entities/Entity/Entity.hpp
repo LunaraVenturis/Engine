@@ -6,6 +6,14 @@ struct EntitySize {
     f32 width;
     f32 height;
 };
+enum class FacingDirection
+{
+    Up = 0,
+    Left = 1,
+    Down = 2,
+    Right = 3
+};
+
 
 class Entity
 {
@@ -21,7 +29,7 @@ public:
     virtual void Move(f32 x, f32 y, f32 z, f32 delta) = 0;
     [[nodiscard]] virtual glm::vec3 GetPosition() const = 0;
     [[nodiscard]] virtual EntitySize GetEntity() const = 0;
-
+    [[nodiscard]] virtual u32 GetDirection() const = 0;
 protected:
     u32 p_StartTextureIndex{};
 };

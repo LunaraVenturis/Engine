@@ -1,8 +1,9 @@
 #include "Enemy.hpp"
 #include <LunaraEngine/Engine.hpp>
 
-Enemy::Enemy(const glm::vec3& enemyPosition, const EntitySize enemySize)
-    : m_Position(enemyPosition), m_Speed({100.0f, 100.0f, 100.0f}), m_Size(enemySize)
+Enemy::Enemy(const glm::vec3& enemyPosition, const EntitySize enemySize, const FacingDirection direction)
+    : m_Position(enemyPosition), m_Speed({100.0f, 100.0f, 100.0f}), m_Size(enemySize),
+      m_Dir(static_cast<u32>(direction))
 {}
 
 void Enemy::Draw(std::weak_ptr<LunaraEngine::BatchRenderer> renderer)
@@ -35,3 +36,5 @@ bool Enemy::HasReachedPointX(f32 currentX, f32 destX)
     }
     return fabs(currentX - destX) < fltTolerance;
 }
+
+void Enemy::SetDirection(const FacingDirection direction) { m_Dir = static_cast<u32>(direction); }

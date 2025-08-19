@@ -1,10 +1,10 @@
-#include "AABB.hpp"
+#include "RectCollisions.hpp"
 
 namespace LunaraEngine
 {
 
 
-    bool AABB::Intersection(const glm::vec3& Player, f32 PlayerWidth, f32 PlayerHeight, const glm::vec3& Enemy, f32 EnemyWidth,
+    bool RectCollisions::AABB(const glm::vec3& Player, f32 PlayerWidth, f32 PlayerHeight, const glm::vec3& Enemy, f32 EnemyWidth,
                     f32 EnemyHeight)
     {
         const float Z_THRESHOLD = 0.1f;

@@ -3,6 +3,7 @@
 #include <glm/ext/matrix_transform.hpp>
 #include <glm/ext/matrix_clip_space.hpp>
 #include <print>
+
 void SandboxLayer::Init(const LunaraEngine::ApplicationConfig& config)
 {
     using namespace LunaraEngine;
@@ -54,7 +55,7 @@ void SandboxLayer::Destroy()
 {
     using namespace LunaraEngine;
     ParticleSystem::Destroy();
-     //m_BatchRenderer->Destroy();
+    //m_BatchRenderer->Destroy();
 }
 
 void SandboxLayer::OnUpdate(float dt)
@@ -73,13 +74,29 @@ void SandboxLayer::OnUpdate(float dt)
     m_Player.Draw(m_BatchRenderer);
     m_Enemy.Draw(m_BatchRenderer);
     m_Wall.Draw(m_BatchRenderer);
-    if(m_Collider.Intersection(m_Player.GetPosition(), m_Player.GetEntity().width, m_Player.GetEntity().height, m_Wall.GetPosition(), m_Wall.GetWallSize().width, m_Wall.GetWallSize().height))
+    if (m_Collider.AABB(m_Player.GetPosition(), m_Player.GetEntity().width, m_Player.GetEntity().height,
+                        m_Wall.GetPosition(), m_Wall.GetWallSize().width, m_Wall.GetWallSize().height))
     {
-        std::println("Kur");
+        if (m_Player.GetDirection() == static_cast<u32>(FacingDirection::Down))
+        {
+            m_Player.SetPosition(m_Player.GetPosition() - glm::vec3{0.0f, 1.0f, 0.0f});
+        }
+        if(m_Player.GetDirection() == static_cast<u32>(FacingDirection::Up))
+        {
+            m_Player.SetPosition(m_Player.GetPosition() - glm::vec3{0.0f, -1.0f, 0.0f});
+        }
+           if (m_Player.GetDirection() == static_cast<u32>(FacingDirection::Left))
+        {
+            m_Player.SetPosition(m_Player.GetPosition() - glm::vec3{-1.0f, 0.0f, 0.0f});
+        }
+        if(m_Player.GetDirection() == static_cast<u32>(FacingDirection::Right))
+        {
+            m_Player.SetPosition(m_Player.GetPosition() - glm::vec3{1.0f, 0.0f, 0.0f});
+        }
     }
     // if (m_PlayerCollider.Intersection()) { m_Player.SetPlayerColor({1.0f, 0.0f, 0.0f, 1.0f}); }
     // else { m_Player.SetPlayerColor({1.0f, 1.0f, 1.0f, 1.0f}); }
-   
+
     if (m_Enemy.HasReachedPointX(m_Enemy.GetPosition().x, 200.0f)) { dir = -1.0f; }
     if (m_Enemy.HasReachedPointX(m_Enemy.GetPosition().x, 0.0f)) { dir = 1.0f; }
     m_Enemy.Move(dir * 1.0f, 0.0f, 0.0f, dt);
@@ -119,23 +136,29 @@ void SandboxLayer::OnUpdate(float dt)
         LunaraEngine::AudioManager::PlayAudio("AudioTest");
     }
 
-    if (m_PressedKeys[KEY_W]) { 
+    if (m_PressedKeys[KEY_W])
+    {
         m_Player.Move(0.0f, -1.0f, 0.0f, dt);
-        m_Player.SetDirection(FacingDirection::Up); 
+        m_Player.SetDirection(FacingDirection::Up);
     }
-    if (m_PressedKeys[KEY_S]) { m_Player.Move(0.0f, 1.0f, 0.0f, dt); 
-        m_Player.SetDirection(FacingDirection::Down); 
+    if (m_PressedKeys[KEY_S])
+    {
+        m_Player.Move(0.0f, 1.0f, 0.0f, dt);
+        m_Player.SetDirection(FacingDirection::Down);
     }
-    if (m_PressedKeys[KEY_A]) { 
+    if (m_PressedKeys[KEY_A])
+    {
         m_Player.Move(-1.0f, 0.0f, 0.0f, dt);
         m_Player.SetDirection(FacingDirection::Left);
-     }
-    if (m_PressedKeys[KEY_D]) { m_Player.Move(1.0f, 0.0f, 0.0f, dt);
-        m_Player.SetDirection(FacingDirection::Right); 
-     }
-    if(m_PressedKeys[KEY_O])
+    }
+    if (m_PressedKeys[KEY_D])
     {
-        LOG_INFO("PlayerDirection: %u", m_Player.GetDirection());
+        m_Player.Move(1.0f, 0.0f, 0.0f, dt);
+        m_Player.SetDirection(FacingDirection::Right);
+    }
+    if (m_PressedKeys[KEY_O])
+    {
+        LOG_INFO("PlayerDirection: %f %f", m_Player.GetPosition().x, m_Player.GetPosition().y);
     }
     if (m_PressedKeys[KEY_L])
     {

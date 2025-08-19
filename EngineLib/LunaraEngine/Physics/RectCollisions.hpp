@@ -4,13 +4,13 @@
 
 namespace LunaraEngine
 {
-    class AABB
+    class RectCollisions
     {
     public:
-        AABB() = default;
+        RectCollisions() = default;
 
     public:
-        bool Intersection(const glm::vec3& Player, f32 PlayerWidth, f32 PlayerHeight, const glm::vec3& Enemy, f32 EnemyWidth,
+        bool  AABB(const glm::vec3& Player, f32 PlayerWidth, f32 PlayerHeight, const glm::vec3& Enemy, f32 EnemyWidth,
                           f32 EnemyHeight);
     };
 }// namespace LunaraEngine
