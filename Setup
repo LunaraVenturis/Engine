@@ -1,0 +1,57 @@
+#!/usr/bin/env python3
+
+import os
+import sys
+import argparse
+import subprocess
+
+def install_requirements():
+    print('Installing requirements...')
+    os.system('python3 -m pip install --upgrade pip')
+    os.system('python3 -m pip install -r ./scripts/requirements.txt')
+    print('Requirements installed.')
+    print('Running VulkanSDK installer')
+    subprocess.run(['python3', './scripts/SetupVulkan.py', 'validate','./Vendor'])
+
+def update_submodules():
+    print('Updating submodules...')
+    subprocess.run(['python3', './scripts/SetupSubmodules.py'])
+    print('Submodules updated.')
+
+def build_shaders():
+    print('Building shaders...')
+    os.system('python3 ./scripts/BuildShaders.py ./')
+    print('Shaders built.')
+
+def main():
+    # Create the argument parser
+    parser = argparse.ArgumentParser(description="A script for setting up your project.")
+    
+    # Define commands (subcommands in argparse)
+    subparsers = parser.add_subparsers(dest='command')
+
+    # Subcommand for installing requirements
+    subparsers.add_parser('install', help='Install requirements and dependencies.')
+
+    # Subcommand for updating submodules
+    subparsers.add_parser('submodule', help='Update git submodules.')
+
+    # Subcommand for building shaders
+    subparsers.add_parser('build_shaders', help='Build shaders from ./scripts/BuildShaders.py')
+
+    # Parse arguments
+    args = parser.parse_args()
+
+    # Handle the command based on input
+    if args.command == 'install':
+        install_requirements()
+    elif args.command == 'submodule':
+        update_submodules()
+    elif args.command == 'build_shaders':
+        build_shaders()
+    else:
+        parser.print_help()
+        sys.exit(1)
+
+if __name__ == '__main__':
+    main()
