@@ -107,7 +107,10 @@ namespace LunaraEngine
         VkExtent2D extent = ChooseSwapExtent(swapChainSupport.capabilities, size);
         m_extent = extent;
 
-        uint32_t imageCount = swapChainSupport.capabilities.minImageCount + 1;
+        uint32_t imageCount = swapChainSupport.capabilities.minImageCount;
+        
+        if (imageCount < 2) { imageCount = 2; } // ensure if the amount is 1 to be set to 2
+
         if (swapChainSupport.capabilities.maxImageCount > 0 && imageCount > swapChainSupport.capabilities.maxImageCount)
         {
             imageCount = swapChainSupport.capabilities.maxImageCount;
@@ -121,7 +124,6 @@ namespace LunaraEngine
         createInfo.imageExtent = extent;
         createInfo.imageArrayLayers = 1;
         createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-
         QueueFamilyIndices indices = FindQueueFamilies(m_physicalDevice, m_surface);
         uint32_t queueFamilyIndices[] = {indices.graphicsFamily.value(), indices.presentFamily.value()};
 

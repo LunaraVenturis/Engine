@@ -7,6 +7,7 @@ option(ENABLE_DEBUG_LOG "Enable debug log" ON)
 option(ENABLE_MEMORY_DEBUG_LOG "Enable memory debug log" ON)
 option(ENG_VENDORED "Use vendored libraries" ON)
 option(SDLTTF_VENDORED "Use vendored SDL_ttf" ${ENG_VENDORED})
+set(MAKE_EXPORT_COMPILE_COMMANDS "Enable export compile commands" CACHE BOOL ON FORCE)
 
 set(CMAKE_CXX_STANDARD 23)
 message("Compiler Version: ${CMAKE_CXX_COMPILER_VERSION}")
@@ -52,8 +53,11 @@ else()
 endif()
 
 message("${PROJECT_NAME}: Adding source files")
-file(GLOB_RECURSE SANDBOX_SOURCE_FILES ./Sandbox/*.cpp ./Sandbox/*.c)
-file(GLOB_RECURSE SANDBOX_HEADER_FILES ./Sandbox/*.hpp ./Sandbox/*.h)
+file(GLOB_RECURSE SANDBOX_SOURCE_FILES ${CMAKE_SOURCE_DIR}/Sandbox/*.cpp ${CMAKE_SOURCE_DIR}/Sandbox/*.c)
+file(GLOB_RECURSE SANDBOX_HEADER_FILES ${CMAKE_SOURCE_DIR}/Sandbox/*.hpp ${CMAKE_SOURCE_DIR}/Sandbox/*.h)
+
+message("${CMAKE_SOURCE_DIR}")
+message("${SANDBOX_SOURCE_FILES}")
 
 file(GLOB_RECURSE ENGINE_SOURCE_FILES ./EngineLib/*.cpp ./EngineLib/*.c)
 file(GLOB_RECURSE ENGINE_HEADER_FILES ./EngineLib/*.hpp ./EngineLib/*.h)
@@ -117,8 +121,13 @@ else()
     set(VULKAN_INCLUDE_DIR ${Vulkan_INCLUDE_DIRS})
     set(VULKAN_LIBRARY ${Vulkan_LIBRARIES})
 
-    find_package(X11 REQUIRED)
-    link_libraries(${X11_LIBRARIES})
+    if (LUNARA_ENGINE_X11)
+        find_package(X11 REQUIRED)
+        link_libraries(${X11_LIBRARIES})
+    elif (LUNARA_ENGINE_WAYLAND)
+        find_package(Wayland REQUIRED)
+        link_libraries(${Wayland_LIBRARIES})
+    endif()
     target_compile_definitions(EngineLib PRIVATE _LINUX)
 endif()
 
@@ -168,9 +177,9 @@ else()
     set(SHELL_EXTENSION ".sh")
 endif()
 
-add_custom_target(copy_assets COMMAND ${SHELL_INTERPRETER}
-    ${CMAKE_SOURCE_DIR}/BuildShaders${SHELL_EXTENSION} ${CMAKE_SOURCE_DIR}
-    COMMENT "Copying Assets"
+add_custom_target(copy_assets COMMAND
+    python3 ${CMAKE_SOURCE_DIR}/scripts/BuildShaders.py ${CMAKE_SOURCE_DIR}
+    COMMENT "Copying and Building Assets"
 )
 
 add_dependencies(EngineLib copy_assets)

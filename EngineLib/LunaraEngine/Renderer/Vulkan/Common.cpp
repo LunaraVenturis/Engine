@@ -62,7 +62,9 @@ namespace LunaraEngine
             SwapChainSupportDetails swapChainSupport = SwapChainSupportDetails::QuerySwapChainSupport(device, surface);
             swapChainAdequate = !swapChainSupport.formats.empty() && !swapChainSupport.presentModes.empty();
         }
-        bool status = indices.isComplete() && extensionsSupported && swapChainAdequate;
+        //checks if it is a descrete gou not integrated or emulated one
+        bool isDescrete = deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU;
+        bool status = indices.isComplete() && extensionsSupported && swapChainAdequate && isDescrete;
         if (status) { LOG_INFO("Device is suitable"); }
         return status;
     }

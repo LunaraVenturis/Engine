@@ -11,8 +11,8 @@ void SandboxLayer::Init(const LunaraEngine::ApplicationConfig& config)
     m_Window = Renderer::GetWindow();
     AudioManager::LoadAudio("AudioTest", "Assets/Audio/AudioTest.wav");
     auto result = LoadFont("Assets/Fonts/joystixmonospace.ttf", 24, &m_Font);
-    if (result != FontResultType::FONT_RESULT_SUCCESS) { exit(-6); }
-
+    (void)result;
+    
     std::vector<std::wstring_view> coin_sprites = {
             L"coin_sprites/coin_r0_c0.png", L"coin_sprites/coin_r0_c1.png",  L"coin_sprites/coin_r0_c2.png",
             L"coin_sprites/coin_r0_c3.png", L"coin_sprites/coin_r0_c4.png",  L"coin_sprites/coin_r0_c5.png",
@@ -117,7 +117,6 @@ void SandboxLayer::OnUpdate(float dt)
     //     auto shaderPtr = particleShader.lock().get();
     //     Renderer::BindShader(shaderPtr, (void*) nullptr);
     //     m_Camera.Upload(shaderPtr);
-
     //     Renderer::PushCommand(ParticleSystem::CreateDrawCommand());
     // }
 
